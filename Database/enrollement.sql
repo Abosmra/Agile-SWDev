@@ -7,5 +7,5 @@ CREATE TABLE Enrollments (
 );
 
 /*
-Note: From Mai this is for sprint 3 
+Note: From Mai this is for sprint  1
 */
