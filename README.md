@@ -2,7 +2,7 @@
 
 ## Phase 1 — Deadline: Friday 17th April 2026
 
-> One sprint required (no implementation). Team leader submits on behalf of the team.
+> One sprint required (no implementation).
 
 ### Submission Checklist
 
