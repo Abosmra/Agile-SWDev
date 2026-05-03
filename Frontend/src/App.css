@@ -1,0 +1,1154 @@
+/* ======================== CSS Variables ======================== */
+:root {
+  --primary-color: #667eea;
+  --primary-dark: #5568d3;
+  --secondary-color: #764ba2;
+  --success-color: #4CAF50;
+  --success-hover: #45a049;
+  --danger-color: #f44336;
+  --warning-color: #ff9800;
+  --light-bg: #f8f9fa;
+  --dark-text: #2c3e50;
+  --gray-text: #7f8c8d;
+  --border-color: #e0e0e0;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* ======================== Global Styles ======================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--light-bg);
+  color: var(--dark-text);
+  line-height: 1.6;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.App {
+  min-height: 100vh;
+}
+
+.main-content {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ======================== Navbar Styles ======================== */
+.navbar {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  padding: 1.2rem 2rem;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-brand h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: white;
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+.logout-btn {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: white;
+  color: var(--primary-color);
+  transform: none;
+}
+
+/* ======================== Headings ======================== */
+h1 {
+  color: var(--dark-text);
+  margin: 2.5rem 0 1.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+h2 {
+  color: var(--dark-text);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1.5rem 0 1rem;
+}
+
+/* ======================== Course Styles ======================== */
+.course-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.course-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.course-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+}
+
+.course-card h3 {
+  color: var(--dark-text);
+  margin-bottom: 0.75rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.course-description {
+  color: var(--gray-text);
+  margin: 1rem 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.course-instructor {
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0.5rem 0;
+}
+
+.course-credits {
+  color: var(--gray-text);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+/* Course Card Buttons */
+.course-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.details-btn {
+  flex: 1;
+  padding: 0.75rem;
+  background: #6c5ce7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.details-btn:hover {
+  background: #5b4bc4;
+  transform: translateY(-2px);
+}
+
+.enroll-btn {
+  flex: 1;
+  padding: 0.75rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.enroll-btn:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.enroll-btn.enrolled-btn {
+  background: var(--success-color);
+  cursor: default;
+}
+
+/* ======================== Announcements ======================== */
+.announcements-container {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.announcement-item {
+  background: white;
+  padding: 1.8rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+  border-left: 4px solid var(--primary-color);
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.announcement-item:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateX(4px);
+}
+
+.announcement-item h3 {
+  color: var(--dark-text);
+  margin-bottom: 0.75rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.announcement-item p {
+  color: var(--gray-text);
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+/* ======================== Staff Styles ======================== */
+.staff-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.staff-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.staff-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+}
+
+.staff-card h3 {
+  color: var(--dark-text);
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.staff-card p {
+  color: var(--gray-text);
+  font-size: 0.9rem;
+  margin: 0.3rem 0;
+}
+
+.staff-card p:first-of-type {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* ======================== Form Styles ======================== */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
+  color: var(--dark-text);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+input, textarea {
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: white;
+  font-family: inherit;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+input::placeholder {
+  color: #999;
+}
+
+/* ======================== Button Styles ======================== */
+button {
+  padding: 1rem;
+  background-color: var(--success-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+button:hover:not(:disabled) {
+  background-color: var(--success-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-submit {
+  background-color: var(--primary-color);
+  margin-top: 1rem;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background-color: var(--primary-dark);
+}
+
+/* ======================== Welcome Page ======================== */
+.welcome-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+.welcome-container {
+  text-align: center;
+  background: white;
+  padding: 3rem;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  max-width: 500px;
+  width: 90%;
+}
+
+.welcome-container h1 {
+  font-size: 2.5rem;
+  color: var(--dark-text);
+  margin-bottom: 0.5rem;
+}
+
+.welcome-subtitle {
+  color: var(--gray-text);
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.welcome-buttons {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.welcome-buttons button {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.welcome-info {
+  color: var(--gray-text);
+  font-size: 0.95rem;
+  margin-top: 2rem;
+}
+
+/* ======================== Auth Pages ======================== */
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  padding: 1rem;
+}
+
+.auth-container {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  max-width: 400px;
+  width: 100%;
+}
+
+.auth-container h1 {
+  text-align: center;
+  color: var(--dark-text);
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border: 1px solid #f5c6cb;
+  font-weight: 500;
+}
+
+.auth-link {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: var(--gray-text);
+}
+
+.auth-link a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.auth-link a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+/* ======================== Role Selection Styles ======================== */
+.role-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  border-radius: 12px;
+  border: 2px solid var(--border-color);
+}
+
+.role-selection label {
+  font-weight: 600;
+  color: var(--dark-text);
+  font-size: 1rem;
+  display: block;
+}
+
+.role-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.role-btn {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border: 2px solid var(--border-color);
+  background: white;
+  color: var(--dark-text);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+}
+
+.role-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+.role-btn.active {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.role-btn.active:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), var(--shadow-lg);
+}
+
+/* ======================== Search Container ======================== */
+.search-container {
+  margin: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.search-input {
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 600px;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-results {
+  color: var(--gray-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.no-results {
+  text-align: center;
+  color: var(--gray-text);
+  padding: 2rem;
+  grid-column: 1 / -1;
+  font-size: 1rem;
+}
+
+.enrolled-summary {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
+  color: #155724;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-top: 2rem;
+  text-align: center;
+  border: 2px solid rgba(76, 175, 80, 0.3);
+  font-weight: 500;
+}
+
+/* ======================== Messaging Layout ======================== */
+.messaging-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  height: 75vh;
+  background: white;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.messaging-sidebar {
+  background-color: var(--light-bg);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+}
+
+.conversation-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.conversation-item:hover {
+  background-color: #f8f9ff;
+}
+
+.conversation-item.active {
+  background-color: white;
+  border-left: 4px solid var(--primary-color);
+}
+
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 12px;
+}
+
+.chat-area {
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+
+.chat-header {
+  padding: 1.2rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.chat-history {
+  flex-grow: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background-color: #fcfcfc;
+}
+
+.message-row {
+  display: flex;
+  width: 100%;
+}
+
+.message-row.user-sent {
+  justify-content: flex-end;
+}
+
+.bubble {
+  max-width: 65%;
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.user-sent .bubble {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  border-bottom-right-radius: 2px;
+}
+
+.received .bubble {
+  background: white;
+  color: var(--dark-text);
+  border: 1px solid var(--border-color);
+  border-bottom-left-radius: 2px;
+}
+
+.bubble-time {
+  font-size: 0.75rem;
+  display: block;
+  margin-top: 4px;
+  opacity: 0.8;
+}
+
+.chat-input-container {
+  padding: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 1rem;
+}
+
+/* Messaging Layout Empty State */
+.chat-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background-color: #fcfcfc;
+  text-align: center;
+  padding: 2rem;
+}
+
+.empty-content h2 {
+  color: var(--primary-color);
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.empty-content p {
+  color: #666;
+  font-size: 1rem;
+  max-width: 320px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.welcome-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  display: inline-block;
+  opacity: 0.8;
+}
+
+.theme-divider {
+  height: 4px;
+  width: 60px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  margin: 1.5rem auto 0;
+  border-radius: 10px;
+}
+
+/* ======================== Page Styles ======================== */
+.login-page,
+.profile-page,
+.courses-page,
+.announcements-page,
+.staff-page,
+.messaging-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.profile-page {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.profile-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.profile-card h2 {
+  color: var(--dark-text);
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+}
+
+.profile-info {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.info-group {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+}
+
+.info-group label {
+  font-weight: 600;
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.info-group p {
+  color: var(--dark-text);
+  font-size: 1.05rem;
+}
+
+.profile-card button {
+  display: block;
+  width: 100%;
+  margin: 1rem 0 0 0;
+  padding: 0.75rem;
+}
+
+.loading {
+  text-align: center;
+  color: var(--gray-text);
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+
+/* ======================== Responsive Design ======================== */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .nav-links {
+    gap: 1.5rem;
+    justify-content: center;
+  }
+
+  .course-container {
+    grid-template-columns: 1fr;
+  }
+
+  .staff-container {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-buttons {
+    flex-direction: column;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.25rem;
+  }
+
+  .welcome-container {
+    padding: 1.5rem;
+  }
+
+  .auth-container {
+    padding: 1.5rem;
+  }
+
+  .course-card,
+  .announcement-item,
+  .staff-card {
+    padding: 1.5rem;
+  }
+}
+
+/* ======================== edit button ======================== */
+/* Updated Button Group */
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.btn-submit, .btn-cancel {
+  width: auto; 
+  min-width: 120px;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  opacity: 0.9;
+}
+
+.btn-cancel {
+  background: #f8f9fa;
+  color: #666;
+  border: 1px solid #e0e0e0;
+}
+
+.btn-cancel:hover {
+  background: #f1f3f5;
+  color: #333;
+  border-color: #ced4da;
+}
+
+@media (max-width: 480px) {
+  .form-buttons {
+    flex-direction: column-reverse;
+  }
+  .btn-submit, .btn-cancel {
+    width: 100%;
+  }
+}
+
+/* ======================== Change Password Modal ======================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  max-width: 450px !important;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-content .form-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: space-between;
+}
+
+.modal-content .btn-submit, 
+.modal-content .btn-cancel {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ======================== Course Details Modal ======================== */
+.course-details-modal {
+  max-width: 800px !important;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  color: #1f2937; /* لون نص واضح */
+}
+
+/* تحسين العناوين */
+.details-section h3 {
+  color: #111827;
+  margin-bottom: 12px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  border-left: 4px solid var(--primary-color);
+  padding-left: 10px;
+}
+
+/* تحسين النصوص */
+.full-description {
+  line-height: 1.8;
+  color: #4b5563;
+  font-size: 1rem;
+}
+
+/* Grid أوضح */
+.details-grid,
+.assessment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+/* Card items */
+.detail-item,
+.assessment-item {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+/* Labels */
+.detail-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Values */
+.detail-value {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* Instructor section */
+.instructor-info {
+  background: #f9fafb;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Lists تحسين القراءة */
+.course-topics li,
+.objectives-list li,
+.materials-list li {
+  padding: 6px 0;
+  padding-left: 18px;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+/* Modal buttons */
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* زر الإغلاق (المهم جدًا) */
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.modal-close:hover {
+  background: #dc2626;
+}
+
+.myschedule_btn {
+  background: linear-gradient(135deg, #4CAF50, #2e7d32);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+
+  margin-left: auto;
+  display: block;
+
+
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  transition: all 0.3s ease;
+}
+
+/* hover */
+.myschedule_btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+  background: linear-gradient(135deg, #43a047, #1b5e20);
+}
+
+/* click effect */
+.myschedule_btn:active {
+  transform: scale(0.97);
+}
