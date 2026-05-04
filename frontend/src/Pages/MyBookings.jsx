@@ -121,8 +121,8 @@ export default function MyBookings() {
       {isLoading ? (
         <p style={{ color: '#7f8c8d' }}>⏳ Loading bookings...</p>
       ) : (
-        <>
-      {/* Summary Stats */}
+        <div>
+          {/* Summary Stats */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
@@ -672,6 +672,8 @@ export default function MyBookings() {
               </button>
             </div>
           </div>
+        </div>
+      )}
         </div>
       )}
     </div>

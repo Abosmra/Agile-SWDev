@@ -8,7 +8,6 @@ export default function Login({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { setRole: setUserRole } = useContext(RoleContext);
   const { updateProfile } = useContext(ProfileContext);
