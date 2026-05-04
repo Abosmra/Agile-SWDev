@@ -34,8 +34,6 @@ export default function Login({ onLogin }) {
       return;
     }
 
-    setIsLoading(true);
-
     try {
       const user = await apiPost('/api/login', {
         username: email,
@@ -49,8 +47,6 @@ export default function Login({ onLogin }) {
       navigate(normalizedRole === 'staff' ? '/staff-dashboard' : '/courses');
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
