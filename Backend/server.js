@@ -1,13 +1,27 @@
 const crypto = require('crypto');
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { promisify } = require('util');
+const XLSX = require('xlsx');
 const { initDatabase } = require('./initDb');
 
 const app = express();
 const scrypt = promisify(crypto.scrypt);
 const SESSION_DURATION_MS = 1000 * 60 * 60 * 24 * 7;
 const port = process.env.PORT || 5000;
+const ASU_NEWS_URL = 'https://eng.asu.edu.eg/68469';
+const NEWS_CACHE_TTL_MS = 1000 * 60 * 10;
+const SCHEDULE_BOOK_TTL_MS = 1000 * 60 * 30;
+const SCHEDULE_WORKBOOK_PATH = path.join(__dirname, 'data', 'schedule-spring-2026.xlsx');
+let announcementsCache = {
+  items: null,
+  fetchedAt: 0
+};
+let scheduleBookCache = {
+  groups: null,
+  fetchedAt: 0
+};
 
 app.use(cors());
 app.use(express.json());
@@ -117,6 +131,227 @@ function normalizeRole(role) {
   if (lowered === 'staff') return 'Staff';
   if (lowered === 'admin') return 'Admin';
   return 'Student';
+}
+
+function stripHtml(value) {
+  return value
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function normalizeAnnouncementDate(rawValue) {
+  const value = rawValue.trim();
+  if (/^\d+\s+(hour|hours|minute|minutes|day|days)$/i.test(value)) {
+    return value;
+  }
+  return value.replace(/-/g, '-');
+}
+
+function normalizeSheetGroupName(name) {
+  return String(name || '').trim();
+}
+
+function isScheduleGroup(name) {
+  return /^(Freshman|Sophomore|Junior|Senior)/i.test(normalizeSheetGroupName(name));
+}
+
+function getWorkbookMatrix(sheet) {
+  const matrix = XLSX.utils.sheet_to_json(sheet, {
+    header: 1,
+    defval: '',
+    raw: false
+  });
+
+  const merges = sheet['!merges'] || [];
+  for (const merge of merges) {
+    const sourceValue = matrix[merge.s.r]?.[merge.s.c] ?? '';
+    for (let rowIndex = merge.s.r; rowIndex <= merge.e.r; rowIndex += 1) {
+      if (!matrix[rowIndex]) {
+        matrix[rowIndex] = [];
+      }
+      for (let colIndex = merge.s.c; colIndex <= merge.e.c; colIndex += 1) {
+        if (!matrix[rowIndex][colIndex]) {
+          matrix[rowIndex][colIndex] = sourceValue;
+        }
+      }
+    }
+  }
+
+  return matrix.map((row) => row.map((cell) => String(cell || '').trim()));
+}
+
+function getLastUsefulColumn(matrix) {
+  let maxColumn = 1;
+  matrix.forEach((row) => {
+    row.forEach((cell, index) => {
+      if (cell) {
+        maxColumn = Math.max(maxColumn, index);
+      }
+    });
+  });
+  return maxColumn;
+}
+
+function parseWorkbookSchedule(sheetName, sheet) {
+  const matrix = getWorkbookMatrix(sheet);
+  const title = matrix[0]?.[0] || normalizeSheetGroupName(sheetName);
+  const lastUsefulColumn = getLastUsefulColumn(matrix);
+  const dayRow = matrix[1] || [];
+  const sessionRow = matrix[2] || [];
+
+  const columns = [];
+  for (let columnIndex = 2; columnIndex <= lastUsefulColumn; columnIndex += 1) {
+    const day = dayRow[columnIndex] || dayRow[columnIndex - 1] || '';
+    const session = sessionRow[columnIndex] || '';
+    if (!day && !session) {
+      continue;
+    }
+    columns.push({
+      key: `col_${columnIndex}`,
+      day,
+      session,
+      label: `${day} ${session}`.trim()
+    });
+  }
+
+  const sessions = [];
+  for (let rowIndex = 3; rowIndex < matrix.length; rowIndex += 1) {
+    const row = matrix[rowIndex] || [];
+    const slot = row[0] || '';
+    const time = row[1] || '';
+    const entries = columns.map((column) => {
+      const columnIndex = Number(column.key.replace('col_', ''));
+      return {
+        ...column,
+        value: row[columnIndex] || ''
+      };
+    });
+    const hasEntries = entries.some((entry) => entry.value);
+    if (!slot && !time && !hasEntries) {
+      continue;
+    }
+    sessions.push({
+      slot,
+      time,
+      isBreak: String(slot).toLowerCase() === 'break',
+      entries
+    });
+  }
+
+  return {
+    group: normalizeSheetGroupName(sheetName),
+    title,
+    columns,
+    sessions
+  };
+}
+
+function loadScheduleWorkbook() {
+  const now = Date.now();
+  if (scheduleBookCache.groups && now - scheduleBookCache.fetchedAt < SCHEDULE_BOOK_TTL_MS) {
+    return scheduleBookCache;
+  }
+
+  const workbook = XLSX.readFile(SCHEDULE_WORKBOOK_PATH);
+  const groupSheetMap = {};
+  workbook.SheetNames.forEach((sheetName) => {
+    const normalizedName = normalizeSheetGroupName(sheetName);
+    if (isScheduleGroup(normalizedName)) {
+      groupSheetMap[normalizedName] = sheetName;
+    }
+  });
+
+  const groups = Object.keys(groupSheetMap);
+  if (!groups.length) {
+    throw new Error('No schedule groups found in local workbook');
+  }
+
+  scheduleBookCache = {
+    groups,
+    groupSheetMap,
+    workbook,
+    fetchedAt: now
+  };
+
+  return scheduleBookCache;
+}
+
+function getScheduleBook() {
+  const scheduleBook = loadScheduleWorkbook();
+  return scheduleBook.groups;
+}
+
+function fetchScheduleGroup(groupName) {
+  const scheduleBook = loadScheduleWorkbook();
+  const sourceSheetName = scheduleBook.groupSheetMap[groupName];
+  if (!sourceSheetName) {
+    throw new Error(`Schedule group not found: ${groupName}`);
+  }
+  return parseWorkbookSchedule(sourceSheetName, scheduleBook.workbook.Sheets[sourceSheetName]);
+}
+
+function parseAnnouncementCards(html) {
+  const cards = [];
+  const cardRegex = /<div class="ttm-box-col-wrapper[\s\S]*?<div class="featured-content featured-content-post">([\s\S]*?)<\/div>\s*<\/div><!-- featured-imagebox-post end-->/g;
+  let match;
+
+  while ((match = cardRegex.exec(html)) !== null) {
+    const block = match[1];
+    const titleMatch = block.match(/<h5>\s*<a href="([^"]+)">([\s\S]*?)<\/a>\s*<\/h5>/i);
+    const dateMatch = block.match(/<time[^>]*datetime="([^"]*)">([\s\S]*?)<\/time>/i);
+    const descMatch = block.match(/<div class="post-desc featured-desc">\s*<p>([\s\S]*?)<\/p>/i);
+
+    if (!titleMatch) {
+      continue;
+    }
+
+    const linkPath = titleMatch[1].trim();
+    cards.push({
+      id: `asu-${cards.length + 1}`,
+      title: stripHtml(titleMatch[2]),
+      content: descMatch ? stripHtml(descMatch[1]) : '',
+      date: dateMatch ? normalizeAnnouncementDate(stripHtml(dateMatch[2]) || dateMatch[1]) : '',
+      sourceUrl: new URL(linkPath, ASU_NEWS_URL).toString()
+    });
+  }
+
+  return cards;
+}
+
+async function getLiveAnnouncements() {
+  const now = Date.now();
+  if (announcementsCache.items && now - announcementsCache.fetchedAt < NEWS_CACHE_TTL_MS) {
+    return announcementsCache.items;
+  }
+
+  const response = await fetch(ASU_NEWS_URL, {
+    headers: {
+      'User-Agent': 'Agile-SWDev Announcements Fetcher'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch announcements: ${response.status}`);
+  }
+
+  const html = await response.text();
+  const items = parseAnnouncementCards(html).slice(0, 9);
+
+  if (!items.length) {
+    throw new Error('No announcements could be parsed from the source page');
+  }
+
+  announcementsCache = {
+    items,
+    fetchedAt: now
+  };
+
+  return items;
 }
 
 function isPrivilegedRole(role) {
@@ -570,8 +805,38 @@ app.post('/api/enrollments', authenticate, async (req, res) => {
 
 app.get('/api/announcements', authenticate, async (req, res) => {
   try {
-    const announcements = await runQuery(req.app.locals.db, 'SELECT * FROM Announcements ORDER BY Date DESC');
+    const announcements = await getLiveAnnouncements();
     res.json(announcements);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/schedules/groups', authenticate, async (req, res) => {
+  try {
+    const groups = await getScheduleBook();
+    res.json(groups);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/schedules', authenticate, async (req, res) => {
+  try {
+    const groups = await getScheduleBook();
+    const requestedGroup = String(req.query.group || '').trim();
+    const selectedGroup = requestedGroup || groups[0];
+
+    if (!groups.includes(selectedGroup)) {
+      return res.status(404).json({ error: 'Schedule group not found' });
+    }
+
+    const schedule = await fetchScheduleGroup(selectedGroup);
+    res.json({
+      groups,
+      selectedGroup,
+      schedule
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

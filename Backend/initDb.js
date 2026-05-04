@@ -88,6 +88,8 @@ async function ensureSchema(db) {
 
   await ensureColumn(db, 'Users', 'Department', "TEXT DEFAULT 'General'");
   await ensureColumn(db, 'Users', 'JoinDate', "TEXT DEFAULT ''");
+  await ensureColumn(db, 'Courses', 'Instructor', "TEXT DEFAULT 'Staff'");
+  await ensureColumn(db, 'Courses', 'Credits', 'INTEGER DEFAULT 3');
   await ensureColumn(db, 'Enrollments', 'UserID', 'INTEGER');
 
   await runSql(
