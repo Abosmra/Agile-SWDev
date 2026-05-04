@@ -77,8 +77,6 @@ export default function MyBookings() {
     setModifyModal({ show: false, booking: null });
     alert('Booking updated successfully!');
   };
-  const [cancelModal, setCancelModal] = useState({ show: false, bookingId: null });
-  const [modifyModal, setModifyModal] = useState({ show: false, booking: null });
 
   const getStatusColor = (status) => {
     switch (status) {
