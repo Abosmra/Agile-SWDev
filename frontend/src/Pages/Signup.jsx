@@ -98,27 +98,29 @@ export default function Signup({ onLogin }) {
           <form onSubmit={handleSubmit} className="auth-form signup-form">
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="firstName">First Name</label>
+                <label htmlFor="given-name">First Name</label>
                 <input
                   type="text"
-                  id="firstName"
+                  id="given-name"
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
                   required
                   placeholder="First name"
+                  autoComplete="given-name"
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="lastName">Last Name</label>
+                <label htmlFor="family-name">Last Name</label>
                 <input
                   type="text"
-                  id="lastName"
+                  id="family-name"
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
                   required
                   placeholder="Last name"
+                  autoComplete="family-name"
                 />
               </div>
             </div>
@@ -133,32 +135,35 @@ export default function Signup({ onLogin }) {
                 onChange={handleChange}
                 required
                 placeholder="Enter your email"
+                autoComplete="email"
               />
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="password">Password</label>
+                <label htmlFor="new-password">Password</label>
                 <input
                   type="password"
-                  id="password"
+                  id="new-password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   required
                   placeholder="Password"
+                  autoComplete="new-password"
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="confirmPassword">Confirm</label>
+                <label htmlFor="confirm-password">Confirm</label>
                 <input
                   type="password"
-                  id="confirmPassword"
+                  id="confirm-password"
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
                   placeholder="Confirm"
+                  autoComplete="new-password"
                 />
               </div>
             </div>

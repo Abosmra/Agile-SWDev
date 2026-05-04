@@ -150,7 +150,7 @@ app.post('/api/signup', async (req, res) => {
     }
     await runExec(
       req.app.locals.db,
-      'INSERT INTO Users (Username, Password, FirstName, LastName, Role) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO Users (Username, Password, GivenName, FamilyName, Role) VALUES (?, ?, ?, ?, ?)',
       [email, password, firstName, lastName, role]
     );
     res.json({ message: 'Account created successfully' });
