@@ -1,12 +1,17 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { ProfileContext } from '../context/ProfileContext';
-import { staff } from '../Data/staff';
+import { apiGet } from '../api';
 
 export default function Messaging() {
   const { profileData } = useContext(ProfileContext);
+  const [staff, setStaff] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+
+  useEffect(() => {
+    apiGet('/api/staff').then(data => setStaff(data)).catch(err => console.error(err));
+  }, []);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
