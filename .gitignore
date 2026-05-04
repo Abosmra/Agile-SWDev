@@ -3,16 +3,10 @@ node_modules/
 frontend/node_modules
 Backend/node_modules
 frontend/build/
-
-# Claude Code / Copilot
 .claude/
 .copilot/
 CLAUDE.md
-
-# graphify
 graphify-out/
 .graphify_python
 .graphify_*.json
-
-# GitHub
 .github/
