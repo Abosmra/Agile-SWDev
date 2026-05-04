@@ -67,31 +67,35 @@ export default function Signup({ onLogin }) {
 
   return (
     <div className="auth-page">
-      <div className="auth-container">
-        
-        {/* Role Selection */}
-        <div className="role-selection">
-          <label>Select Role:</label>
-          <div className="role-buttons">
-            <button
-              type="button"
-              className={`role-btn ${role === 'student' ? 'active' : ''}`}
-              onClick={() => setRole('student')}
-            >
-              👨‍🎓 Student
-            </button>
-            <button
-              type="button"
-              className={`role-btn ${role === 'staff' ? 'active' : ''}`}
-              onClick={() => setRole('staff')}
-            >
-              👨‍💼 Staff
-            </button>
-          </div>
-        </div>
+      <div className="auth-container auth-container-signup">
 
-        <h1>Create Account</h1>
-        <form onSubmit={handleSubmit} className="auth-form">
+        <div className="signup-wrapper">
+          {/* Left: Role Selection */}
+          <div className="signup-left">
+            <h1>Create Account</h1>
+            <div className="role-selection-vertical">
+              <label>Select your role:</label>
+              <button
+                type="button"
+                className={`role-btn-vertical ${role === 'student' ? 'active' : ''}`}
+                onClick={() => setRole('student')}
+              >
+                <span className="role-icon">👨‍🎓</span>
+                <span>Student</span>
+              </button>
+              <button
+                type="button"
+                className={`role-btn-vertical ${role === 'staff' ? 'active' : ''}`}
+                onClick={() => setRole('staff')}
+              >
+                <span className="role-icon">👨‍💼</span>
+                <span>Staff</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Right: Form */}
+          <form onSubmit={handleSubmit} className="auth-form signup-form">
           <div className="form-group">
             <label htmlFor="firstName">First Name</label>
             <input
@@ -157,16 +161,17 @@ export default function Signup({ onLogin }) {
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="btn-submit"
             disabled={!isFormValid}
           >
             Create Account
           </button>
+          {error && <div className="error-message">{error}</div>}
         </form>
+        </div>
 
-        {error && <div className="error-message">{error}</div>}
         <p className="auth-link">
           Already have an account? <Link to="/login">Log In</Link>
         </p>
