@@ -130,7 +130,59 @@ export default function MyBookings() {
 
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1>My Bookings</h1>
+      <div style={{ marginBottom: '30px' }}>
+        <h1 style={{ color: '#2c3e50', marginBottom: '10px' }}>My Bookings</h1>
+        <p style={{ color: '#7f8c8d' }}>Manage and track all your hall reservations</p>
+      </div>
+
+      {/* Summary Stats */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: '15px',
+        marginBottom: '30px'
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          padding: '20px',
+          borderRadius: '10px',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '5px' }}>{bookings.length}</div>
+          <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>Total Bookings</div>
+        </div>
+        <div style={{
+          background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
+          color: 'white',
+          padding: '20px',
+          borderRadius: '10px',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '5px' }}>{bookings.filter(b => b.status === 'Confirmed').length}</div>
+          <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>Confirmed</div>
+        </div>
+        <div style={{
+          background: 'linear-gradient(135deg, #ff9800 0%, #e68900 100%)',
+          color: 'white',
+          padding: '20px',
+          borderRadius: '10px',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '5px' }}>{bookings.filter(b => b.status === 'Pending').length}</div>
+          <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>Pending</div>
+        </div>
+        <div style={{
+          background: 'linear-gradient(135deg, #f44336 0%, #da190b 100%)',
+          color: 'white',
+          padding: '20px',
+          borderRadius: '10px',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '5px' }}>{bookings.filter(b => b.status === 'Cancelled').length}</div>
+          <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>Cancelled</div>
+        </div>
+      </div>
 
       {/* Filter Tabs */}
       <div style={{
@@ -384,6 +436,257 @@ export default function MyBookings() {
           + New Booking
         </button>
       </div>
+
+      {/* Cancel Booking Modal */}
+      {cancelModal.show && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'white',
+            padding: '30px',
+            borderRadius: '12px',
+            maxWidth: '400px',
+            textAlign: 'center',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.3)'
+          }}>
+            <div style={{ fontSize: '3rem', marginBottom: '20px' }}>⚠️</div>
+            <h2 style={{ color: '#2c3e50', marginBottom: '15px' }}>Cancel Booking?</h2>
+            <p style={{ color: '#7f8c8d', marginBottom: '30px' }}>
+              Are you sure you want to cancel this booking? This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button
+                onClick={() => setCancelModal({ show: false, bookingId: null })}
+                style={{
+                  padding: '12px 25px',
+                  background: '#f0f0f0',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.background = '#e0e0e0'}
+                onMouseLeave={(e) => e.target.style.background = '#f0f0f0'}
+              >
+                Keep Booking
+              </button>
+              <button
+                onClick={() => cancelBooking(cancelModal.bookingId)}
+                style={{
+                  padding: '12px 25px',
+                  background: '#f44336',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.background = '#da190b'}
+                onMouseLeave={(e) => e.target.style.background = '#f44336'}
+              >
+                Yes, Cancel Booking
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modify Booking Modal */}
+      {modifyModal.show && modifyModal.booking && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          overflowY: 'auto',
+          padding: '20px'
+        }}>
+          <div style={{
+            background: 'white',
+            padding: '30px',
+            borderRadius: '12px',
+            maxWidth: '500px',
+            width: '100%',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
+            marginTop: '20px',
+            marginBottom: '20px'
+          }}>
+            <h2 style={{ color: '#2c3e50', marginBottom: '25px' }}>Modify Booking</h2>
+            
+            {/* Date */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#2c3e50' }}>
+                📅 Date
+              </label>
+              <input
+                type="date"
+                value={modifyModal.booking.date}
+                onChange={(e) => {
+                  const updated = { ...modifyModal.booking, date: e.target.value };
+                  setModifyModal({ ...modifyModal, booking: updated });
+                }}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '6px',
+                  fontSize: '1rem',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* Start Time */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#2c3e50' }}>
+                ⏰ Start Time
+              </label>
+              <input
+                type="time"
+                value={modifyModal.booking.startTime}
+                onChange={(e) => {
+                  const updated = { ...modifyModal.booking, startTime: e.target.value };
+                  setModifyModal({ ...modifyModal, booking: updated });
+                }}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '6px',
+                  fontSize: '1rem',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* End Time */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#2c3e50' }}>
+                ⏰ End Time
+              </label>
+              <input
+                type="time"
+                value={modifyModal.booking.endTime}
+                onChange={(e) => {
+                  const updated = { ...modifyModal.booking, endTime: e.target.value };
+                  setModifyModal({ ...modifyModal, booking: updated });
+                }}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '6px',
+                  fontSize: '1rem',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* Purpose */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#2c3e50' }}>
+                📌 Purpose
+              </label>
+              <input
+                type="text"
+                value={modifyModal.booking.purpose}
+                onChange={(e) => {
+                  const updated = { ...modifyModal.booking, purpose: e.target.value };
+                  setModifyModal({ ...modifyModal, booking: updated });
+                }}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '6px',
+                  fontSize: '1rem',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* Attendees */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#2c3e50' }}>
+                👥 Attendees
+              </label>
+              <input
+                type="number"
+                value={modifyModal.booking.attendees}
+                onChange={(e) => {
+                  const updated = { ...modifyModal.booking, attendees: parseInt(e.target.value) || 0 };
+                  setModifyModal({ ...modifyModal, booking: updated });
+                }}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '6px',
+                  fontSize: '1rem',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* Buttons */}
+            <div style={{ display: 'flex', gap: '10px', marginTop: '30px' }}>
+              <button
+                onClick={() => setModifyModal({ show: false, booking: null })}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: '#f0f0f0',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.background = '#e0e0e0'}
+                onMouseLeave={(e) => e.target.style.background = '#f0f0f0'}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleModifySubmit(modifyModal.booking)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  transition: 'opacity 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+                onMouseLeave={(e) => e.target.style.opacity = '1'}
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -7,6 +7,13 @@ export default function BookHall() {
   const preSelectedHallId = location.state?.hallId;
   const preSelectedHallName = location.state?.hallName;
 
+  // Sample existing bookings for double-booking prevention
+  const existingBookings = [
+    { hallId: 1, date: '2026-05-15', startTime: '10:00', endTime: '12:00', status: 'Confirmed' },
+    { hallId: 2, date: '2026-05-20', startTime: '14:00', endTime: '17:00', status: 'Confirmed' },
+    { hallId: 1, date: '2026-05-18', startTime: '09:00', endTime: '11:00', status: 'Confirmed' }
+  ];
+
   const hallsData = [
     { id: 1, name: 'Conference Room A', capacity: 50, available: true },
     { id: 2, name: 'Auditorium B', capacity: 200, available: true },
@@ -29,6 +36,7 @@ export default function BookHall() {
 
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [bookingConflict, setBookingConflict] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,6 +51,28 @@ export default function BookHall() {
         [name]: ''
       }));
     }
+    // Clear conflict warning when changing date/time
+    if (['date', 'startTime', 'endTime', 'hall'].includes(name)) {
+      setBookingConflict(null);
+    }
+  };
+
+  // Check for booking conflicts (double-booking prevention)
+  const checkBookingConflict = (hallId, date, startTime, endTime) => {
+    const conflict = existingBookings.find(booking => {
+      if (booking.hallId !== parseInt(hallId)) return false;
+      if (booking.date !== date) return false;
+      
+      const existingStart = parseInt(booking.startTime.replace(':', ''));
+      const existingEnd = parseInt(booking.endTime.replace(':', ''));
+      const newStart = parseInt(startTime.replace(':', ''));
+      const newEnd = parseInt(endTime.replace(':', ''));
+      
+      // Check for time overlap
+      return (newStart < existingEnd && newEnd > existingStart);
+    });
+    
+    return conflict;
   };
 
   const validateForm = () => {
@@ -65,6 +95,23 @@ export default function BookHall() {
     const today = new Date().toISOString().split('T')[0];
     if (formData.date && formData.date < today) {
       newErrors.date = 'Please select a future date';
+    }
+
+    // Validate attendees capacity
+    if (selectedHall && formData.attendees) {
+      const attendeesNum = parseInt(formData.attendees);
+      if (attendeesNum > selectedHall.capacity) {
+        newErrors.attendees = `Maximum capacity is ${selectedHall.capacity} people`;
+      }
+    }
+
+    // Check for double-booking conflicts
+    if (formData.hall && formData.date && formData.startTime && formData.endTime) {
+      const conflict = checkBookingConflict(formData.hall, formData.date, formData.startTime, formData.endTime);
+      if (conflict) {
+        setBookingConflict(conflict);
+        newErrors.dateTime = 'This time slot is already booked. Please select a different time.';
+      }
     }
 
     return newErrors;
@@ -177,7 +224,7 @@ export default function BookHall() {
           </div>
 
           {/* Time Selection Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '25px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '15px' }}>
             {/* Start Time */}
             <div>
               <label style={{
@@ -231,6 +278,44 @@ export default function BookHall() {
             </div>
           </div>
 
+          {/* Duration Display */}
+          {formData.startTime && formData.endTime && formData.startTime < formData.endTime && (
+            <div style={{
+              background: '#f0f7ff',
+              padding: '12px',
+              borderRadius: '8px',
+              marginBottom: '25px',
+              border: '1px solid #667eea',
+              color: '#667eea',
+              fontWeight: 'bold',
+              textAlign: 'center'
+            }}>
+              ⏱️ Duration: {Math.round((new Date(`2000-01-01T${formData.endTime}`) - new Date(`2000-01-01T${formData.startTime}`)) / 60000)} minutes
+            </div>
+          )}
+
+          {/* Booking Conflict Warning */}
+          {bookingConflict && (
+            <div style={{
+              background: '#fff3cd',
+              padding: '15px',
+              borderRadius: '8px',
+              marginBottom: '25px',
+              border: '2px solid #ffc107',
+              color: '#856404'
+            }}>
+              <p style={{ margin: '0 0 10px 0', fontWeight: 'bold', fontSize: '1.05rem' }}>
+                ⚠️ Time Slot Conflict Detected
+              </p>
+              <p style={{ margin: 0, fontSize: '0.95rem' }}>
+                This time slot is already booked from {bookingConflict.startTime} to {bookingConflict.endTime} on {bookingConflict.date}.
+              </p>
+              <p style={{ margin: '10px 0 0 0', fontSize: '0.9rem', opacity: 0.8 }}>
+                Please select a different time or date to proceed with your booking.
+              </p>
+            </div>
+          )}
+
           {/* Purpose */}
           <div style={{ marginBottom: '25px' }}>
             <label style={{
@@ -270,21 +355,72 @@ export default function BookHall() {
               }}>
                 Expected Attendees <span style={{ color: '#f44336' }}>*</span>
               </label>
-              <input
-                type="number"
-                name="attendees"
-                placeholder="Number of people"
-                value={formData.attendees}
-                onChange={handleChange}
-                min="1"
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  border: errors.attendees ? '2px solid #f44336' : '1px solid #e0e0e0',
-                  borderRadius: '8px',
-                  fontSize: '1rem'
-                }}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const current = parseInt(formData.attendees) || 0;
+                    if (current > 1) {
+                      setFormData({ ...formData, attendees: current - 1 });
+                    }
+                  }}
+                  style={{
+                    padding: '8px 12px',
+                    background: '#f0f0f0',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    fontSize: '1.1rem'
+                  }}
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  name="attendees"
+                  placeholder="Number of people"
+                  value={formData.attendees}
+                  onChange={handleChange}
+                  min="1"
+                  max={selectedHall ? selectedHall.capacity : 500}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    border: errors.attendees ? '2px solid #f44336' : '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    textAlign: 'center'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const current = parseInt(formData.attendees) || 0;
+                    const max = selectedHall ? selectedHall.capacity : 500;
+                    if (current < max) {
+                      setFormData({ ...formData, attendees: current + 1 });
+                    }
+                  }}
+                  style={{
+                    padding: '8px 12px',
+                    background: '#667eea',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    fontSize: '1.1rem'
+                  }}
+                >
+                  +
+                </button>
+              </div>
+              {selectedHall && (
+                <p style={{ fontSize: '0.85rem', color: '#7f8c8d', margin: '5px 0 0 0' }}>
+                  Max capacity: {selectedHall.capacity} people
+                </p>
+              )}
               {errors.attendees && <p style={{ color: '#f44336', fontSize: '0.9rem', margin: '5px 0 0 0' }}>{errors.attendees}</p>}
             </div>
 

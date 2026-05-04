@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function Halls() {
   const [filters, setFilters] = useState({
+    search: '',
     capacity: '',
     type: ''
   });
@@ -74,19 +75,25 @@ export default function Halls() {
   const filteredHalls = hallsData.filter(hall => {
     const capacityMatch = !filters.capacity || hall.capacity >= parseInt(filters.capacity);
     const typeMatch = !filters.type || hall.type === filters.type;
-    return capacityMatch && typeMatch;
+    const searchMatch = !filters.search || 
+      hall.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+      hall.type.toLowerCase().includes(filters.search.toLowerCase());
+    return capacityMatch && typeMatch && searchMatch;
   });
 
   const hallTypes = [...new Set(hallsData.map(h => h.type))];
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Available Halls</h1>
+    <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '30px' }}>
+        <h1 style={{ color: '#2c3e50', marginBottom: '10px' }}>Available Halls</h1>
+        <p style={{ color: '#7f8c8d' }}>Find and book the perfect space for your event</p>
+      </div>
 
       {/* Filters */}
       <div style={{
         background: 'white',
-        padding: '20px',
+        padding: '25px',
         borderRadius: '12px',
         marginBottom: '30px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
@@ -95,32 +102,52 @@ export default function Halls() {
         flexWrap: 'wrap',
         alignItems: 'flex-end'
       }}>
+        {/* Search */}
+        <div style={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#2c3e50' }}>🔍 Search</label>
+          <input
+            type="text"
+            placeholder="Search by name or type..."
+            value={filters.search}
+            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            style={{
+              width: '100%',
+              padding: '10px',
+              border: '1px solid #e0e0e0',
+              borderRadius: '6px',
+              fontSize: '0.95rem'
+            }}
+          />
+        </div>
+
         <div>
-          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Capacity</label>
+          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#2c3e50' }}>👥 Capacity</label>
           <input
             type="number"
             placeholder="Min capacity"
             value={filters.capacity}
             onChange={(e) => setFilters({ ...filters, capacity: e.target.value })}
             style={{
-              padding: '8px',
+              padding: '10px',
               border: '1px solid #e0e0e0',
               borderRadius: '6px',
-              width: '150px'
+              width: '140px',
+              fontSize: '0.95rem'
             }}
           />
         </div>
 
         <div>
-          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Type</label>
+          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#2c3e50' }}>📂 Type</label>
           <select
             value={filters.type}
             onChange={(e) => setFilters({ ...filters, type: e.target.value })}
             style={{
-              padding: '8px',
+              padding: '10px',
               border: '1px solid #e0e0e0',
               borderRadius: '6px',
-              width: '150px'
+              width: '140px',
+              fontSize: '0.95rem'
             }}
           >
             <option value="">All Types</option>
@@ -131,23 +158,29 @@ export default function Halls() {
         </div>
 
         <button
-          onClick={() => setFilters({ capacity: '', type: '' })}
+          onClick={() => setFilters({ search: '', capacity: '', type: '' })}
           style={{
-            padding: '8px 15px',
+            padding: '10px 20px',
             background: '#f0f0f0',
-            border: 'none',
+            border: '1px solid #e0e0e0',
             borderRadius: '6px',
             cursor: 'pointer',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            transition: 'background 0.2s'
           }}
+          onMouseEnter={(e) => e.target.style.background = '#e0e0e0'}
+          onMouseLeave={(e) => e.target.style.background = '#f0f0f0'}
         >
-          Clear Filters
+          Reset
         </button>
       </div>
 
       {/* Results Count */}
-      <p style={{ color: '#7f8c8d', marginBottom: '20px' }}>
-        Showing {filteredHalls.length} of {hallsData.length} halls
+      <p style={{ color: '#7f8c8d', marginBottom: '20px', fontSize: '0.95rem' }}>
+        {filteredHalls.length === 0 
+          ? `No halls found matching your criteria`
+          : `Showing ${filteredHalls.length} of ${hallsData.length} halls`
+        }
       </p>
 
       {/* Halls Grid */}
