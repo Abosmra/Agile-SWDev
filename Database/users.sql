@@ -5,9 +5,9 @@ CREATE TABLE Users (
     Role VARCHAR(20) -- Student, Staff, Admin
 );
 
-INSERT INTO Users VALUES (1, 'mai', '1234', 'Student');
-INSERT INTO Users VALUES (2, 'admin', 'admin123', 'Admin');
-INSERT INTO Users VALUES (3, 'staff1', 'pass', 'Staff');
+INSERT INTO Users VALUES (1, 'mai@example.com', '123456', 'Student');
+INSERT INTO Users VALUES (2, 'admin@example.com', 'admin123', 'Admin');
+INSERT INTO Users VALUES (3, 'staff1@example.com', 'pass123', 'Staff');
 
 /*
 Note: From Mai this is for implementing Sprint 1

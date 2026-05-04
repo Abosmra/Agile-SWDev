@@ -1,27 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { apiGet, apiPost } from '../api';
 
 export default function BookHall() {
   const navigate = useNavigate();
   const location = useLocation();
   const preSelectedHallId = location.state?.hallId;
-  const preSelectedHallName = location.state?.hallName;
 
-  // Sample existing bookings for double-booking prevention
-  const existingBookings = [
-    { hallId: 1, date: '2026-05-15', startTime: '10:00', endTime: '12:00', status: 'Confirmed' },
-    { hallId: 2, date: '2026-05-20', startTime: '14:00', endTime: '17:00', status: 'Confirmed' },
-    { hallId: 1, date: '2026-05-18', startTime: '09:00', endTime: '11:00', status: 'Confirmed' }
-  ];
+  const [hallsData, setHallsData] = useState([]);
+  const [existingBookings, setExistingBookings] = useState([]);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
-  const hallsData = [
-    { id: 1, name: 'Conference Room A', capacity: 50, available: true },
-    { id: 2, name: 'Auditorium B', capacity: 200, available: true },
-    { id: 3, name: 'Lab Room C', capacity: 30, available: false },
-    { id: 4, name: 'Meeting Room D', capacity: 15, available: true },
-    { id: 5, name: 'Seminar Room E', capacity: 80, available: true },
-    { id: 6, name: 'Studio F', capacity: 25, available: true }
-  ];
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [halls, bookings] = await Promise.all([
+          apiGet('/api/halls'),
+          apiGet('/api/bookings')
+        ]);
+        setHallsData(halls.map((h) => ({
+          id: h.HallID,
+          name: h.HallName,
+          capacity: h.Capacity,
+          available: true
+        })));
+        setExistingBookings(bookings);
+      } catch (err) {
+        setError(err.message || 'Unable to load data.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const [formData, setFormData] = useState({
     hall: preSelectedHallId || '',
@@ -37,6 +50,9 @@ export default function BookHall() {
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [bookingConflict, setBookingConflict] = useState(null);
+
+  const selectedHall = hallsData.find(h => h.id === parseInt(formData.hall));
+  const availableHalls = hallsData.filter(h => h.available);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -60,11 +76,11 @@ export default function BookHall() {
   // Check for booking conflicts (double-booking prevention)
   const checkBookingConflict = (hallId, date, startTime, endTime) => {
     const conflict = existingBookings.find(booking => {
-      if (booking.hallId !== parseInt(hallId)) return false;
-      if (booking.date !== date) return false;
+      if (booking.HallID !== parseInt(hallId)) return false;
+      if (booking.Date !== date) return false;
       
-      const existingStart = parseInt(booking.startTime.replace(':', ''));
-      const existingEnd = parseInt(booking.endTime.replace(':', ''));
+      const existingStart = parseInt(booking.StartTime.replace(':', ''));
+      const existingEnd = parseInt(booking.EndTime.replace(':', ''));
       const newStart = parseInt(startTime.replace(':', ''));
       const newEnd = parseInt(endTime.replace(':', ''));
       
@@ -117,25 +133,54 @@ export default function BookHall() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
     
     if (Object.keys(newErrors).length === 0) {
-      setSubmitted(true);
-      console.log('Booking submitted:', formData);
-      // Show success message
-      alert('Hall booked successfully! Confirmation email sent to your registered email.');
-      setTimeout(() => {
-        navigate('/my-bookings');
-      }, 2000);
+      try {
+        // TODO: Get UserID from logged-in user context. Using 1 as placeholder.
+        const bookingData = {
+          HallID: parseInt(formData.hall),
+          UserID: 1,
+          Date: formData.date,
+          StartTime: formData.startTime,
+          EndTime: formData.endTime,
+          Purpose: formData.purpose,
+          Attendees: parseInt(formData.attendees) || 0,
+          Contact: formData.contact,
+          Status: 'Pending'
+        };
+
+        await apiPost('/api/bookings', bookingData);
+        setSubmitted(true);
+        setErrors({});
+        setBookingConflict(null);
+      } catch (err) {
+        setErrors({ submit: err.message });
+      }
     } else {
       setErrors(newErrors);
     }
   };
 
-  const selectedHall = hallsData.find(h => h.id === parseInt(formData.hall));
-  const availableHalls = hallsData.filter(h => h.available);
+  if (isLoading) {
+    return (
+      <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
+        <h1>Book a Hall</h1>
+        <p style={{ color: '#7f8c8d' }}>⏳ Loading halls...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
+        <h1>Book a Hall</h1>
+        <p style={{ color: '#c0392b' }}>{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
@@ -148,6 +193,67 @@ export default function BookHall() {
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
         border: '1px solid #e0e0e0'
       }}>
+        {errors.submit && (
+          <div style={{
+            background: '#f8d7da',
+            border: '1px solid #f5c6cb',
+            padding: '18px',
+            borderRadius: '10px',
+            marginBottom: '24px',
+            color: '#721c24'
+          }}>
+            <strong>❌ Error:</strong> {errors.submit}
+          </div>
+        )}
+
+        {submitted && selectedHall && (
+          <div style={{
+            background: '#e8f5e9',
+            border: '1px solid #4CAF50',
+            padding: '18px',
+            borderRadius: '10px',
+            marginBottom: '24px',
+            color: '#2e7d32'
+          }}>
+            <strong>✔ Booking confirmed!</strong>
+            <p style={{ margin: '10px 0 0' }}>
+              {selectedHall.name} has been booked for {formData.date} from {formData.startTime} to {formData.endTime}.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '16px' }}>
+              <button
+                type="button"
+                onClick={() => navigate('/my-bookings')}
+                style={{
+                  padding: '12px 18px',
+                  borderRadius: '8px',
+                  background: '#4CAF50',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                View My Bookings
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSubmitted(false);
+                  setFormData(prev => ({ ...prev, hall: '', date: '', startTime: '', endTime: '', purpose: '', attendees: '', contact: '', notes: '' }));
+                }}
+                style={{
+                  padding: '12px 18px',
+                  borderRadius: '8px',
+                  background: '#667eea',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                Make Another Booking
+              </button>
+            </div>
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
           {/* Hall Selection */}
           <div style={{ marginBottom: '25px' }}>

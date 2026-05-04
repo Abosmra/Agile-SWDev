@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { staff } from '../Data/staff';
+import { apiGet } from '../api';
 import NotificationToast from '../Components/NotificationToast';
 
 export default function Staff() {
@@ -9,15 +9,34 @@ export default function Staff() {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(null);
   const [notification, setNotification] = useState(null);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setStaffList(staff);
+    const loadStaff = async () => {
+      try {
+        const data = await apiGet('/api/staff');
+        setStaffList(data.map((member) => ({
+          id: member.StaffID,
+          name: member.Name,
+          role: member.Department || 'Staff',
+          email: member.ContactInfo,
+          department: member.Department
+        })));
+      } catch (err) {
+        setError(err.message || 'Unable to load staff.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadStaff();
   }, []);
 
   const filteredStaff = staffList.filter(member =>
-    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.email.toLowerCase().includes(searchTerm.toLowerCase())
+    (member.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (member.role || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (member.email || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleEditClick = (member) => {
@@ -46,6 +65,24 @@ export default function Staff() {
       message: '✓ Profile updated successfully!'
     });
   };
+
+  if (isLoading) {
+    return (
+      <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+        <h1 style={{ color: '#2c3e50', marginBottom: '10px' }}>Staff Directory</h1>
+        <p style={{ color: '#7f8c8d' }}>⏳ Loading staff...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+        <h1 style={{ color: '#2c3e50', marginBottom: '10px' }}>Staff Directory</h1>
+        <p style={{ color: '#c0392b' }}>{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -253,6 +290,12 @@ export default function Staff() {
       )}
 
       {/* Edit Profile Modal */}
+      {selectedStaff && isEditing && (
+        <div style={{ margin: '0 0 20px', padding: '18px', borderRadius: '12px', background: '#eef2ff', border: '1px solid #d6dbff' }}>
+          <h2 style={{ margin: '0 0 8px', color: '#2c3e50' }}>Editing {selectedStaff.name}</h2>
+          <p style={{ margin: 0, color: '#5f6a8c' }}>Update the profile below and click Save Changes.</p>
+        </div>
+      )}
       {isEditing && editData && (
         <div style={{
           position: 'fixed',

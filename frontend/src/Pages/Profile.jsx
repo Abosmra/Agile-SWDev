@@ -16,13 +16,17 @@ export default function Profile() {
 
   return (
     <div className="profile-page">
-      <h1>My Profile</h1>
-      <button 
-  className="myschedule_btn" 
-  onClick={() => navigate('/schedule')}
->
-  My Schedule
-</button>
+      <div className="profile-header">
+        <div>
+          <h1>My Profile</h1>
+          <p className="profile-subtitle">Manage your account, courses, and schedule from one place.</p>
+        </div>
+        <div className="profile-top-actions">
+          <button className="btn-primary" onClick={() => navigate('/schedule')}>My Schedule</button>
+          <button className="btn-secondary" onClick={() => navigate('/my-courses')}>My Courses</button>
+        </div>
+      </div>
+
       <div className="profile-container">
         <div className="profile-card">
           <h2>Personal Information</h2>
@@ -50,12 +54,6 @@ export default function Profile() {
             <div className="info-group">
               <label>Enrolled Courses:</label>
               <p>{profileData.enrolledCourses}</p>
-             <button 
-  className="mycourses-btn" 
-  onClick={() => navigate('/my-courses')}
->
-  My courses
-</button>
             </div>
             <div className="info-group">
               <label>Member Since:</label>

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { RoleContext } from '../context/RoleContext';
 
 export default function Signup({ onLogin }) {
@@ -11,6 +11,7 @@ export default function Signup({ onLogin }) {
     confirmPassword: ''
   });
   const [role, setRole] = useState('student');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { setRole: setUserRole } = useContext(RoleContext);
 
@@ -33,15 +34,16 @@ export default function Signup({ onLogin }) {
     e.preventDefault();
     
     if (!isFormValid) {
-      alert('Please fill all fields!');
+      setError('Please fill all fields to create an account.');
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      setError('Passwords do not match.');
       return;
     }
 
+    setError('');
     console.log('Signup data:', formData, 'Role:', role);
     setUserRole(role);
     onLogin();
@@ -149,8 +151,9 @@ export default function Signup({ onLogin }) {
           </button>
         </form>
 
+        {error && <div className="error-message">{error}</div>}
         <p className="auth-link">
-          Already have an account? <a href="/login">Log In</a>
+          Already have an account? <Link to="/login">Log In</Link>
         </p>
       </div>
     </div>

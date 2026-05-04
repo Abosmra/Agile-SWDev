@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CourseCard from '../Components/CourseCard';
-import { courses } from '../Data/courses';
+import { apiGet } from '../api';
 import NotificationToast from '../Components/NotificationToast';
 
 export default function Courses() {
@@ -8,16 +8,40 @@ export default function Courses() {
   const [searchTerm, setSearchTerm] = useState('');
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [notification, setNotification] = useState(null);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setCourseList(courses);
+    const loadCourses = async () => {
+      try {
+        const courses = await apiGet('/api/courses');
+        setCourseList(courses.map((course) => ({
+          id: course.CourseID,
+          title: course.CourseName,
+          description: course.Description,
+          courseCode: course.CourseCode,
+          instructor: course.Instructor || 'Staff',
+          credits: course.Credits || '3',
+          fullDescription: course.Description
+        })));
+      } catch (err) {
+        setError(err.message || 'Unable to load courses.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCourses();
   }, []);
 
-  const filteredCourses = courseList.filter(course =>
-    course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    course.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    course.instructor.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCourses = courseList.filter((course) => {
+    const searchText = searchTerm.toLowerCase();
+    return (
+      (course.title || '').toLowerCase().includes(searchText) ||
+      (course.description || '').toLowerCase().includes(searchText) ||
+      (course.instructor || '').toLowerCase().includes(searchText)
+    );
+  });
 
   const handleEnroll = (courseId) => {
     if (!enrolledCourses.includes(courseId)) {
@@ -39,6 +63,11 @@ export default function Courses() {
       <div style={{ marginBottom: '30px' }}>
         <h1 style={{ color: '#2c3e50', marginBottom: '10px' }}>Browse Courses</h1>
         <p style={{ color: '#7f8c8d' }}>Explore and enroll in available courses to advance your skills</p>
+        {error && (
+          <div style={{ color: '#c0392b', marginTop: '10px' }}>
+            {error}
+          </div>
+        )}
       </div>
 
       {/* Enrolled Courses Summary */}
@@ -97,7 +126,21 @@ export default function Courses() {
       </div>
 
       {/* Courses Grid */}
-      {filteredCourses.length > 0 ? (
+      {isLoading ? (
+        <div style={{
+          background: 'white',
+          padding: '60px 20px',
+          borderRadius: '12px',
+          textAlign: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          border: '1px solid #e0e0e0'
+        }}>
+          <div style={{ fontSize: '2rem', marginBottom: '15px' }}>⏳</div>
+          <p style={{ color: '#7f8c8d', fontSize: '1.1rem', marginBottom: '10px' }}>
+            Loading courses...
+          </p>
+        </div>
+      ) : filteredCourses.length > 0 ? (
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',

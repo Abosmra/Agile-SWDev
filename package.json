@@ -1,0 +1,11 @@
+{
+  "name": "agile-swdev",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "concurrently \"cd Backend && npm start\" \"cd frontend && npm start\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

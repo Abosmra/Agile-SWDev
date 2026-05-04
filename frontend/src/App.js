@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { ProfileProvider } from './context/ProfileContext';
 import { RoleProvider, RoleContext } from './context/RoleContext';
@@ -29,18 +29,26 @@ function AppContent() {
   const { userRole } = useContext(RoleContext);
   const location = useLocation();
 
-  
+  useEffect(() => {
+    if (isLoggedIn) {
+      localStorage.setItem('isLoggedIn', 'true');
+    } else {
+      localStorage.removeItem('isLoggedIn');
+    }
+  }, [isLoggedIn]);
+
   const showNavbar = isLoggedIn && !['/login', '/signup', '/'].includes(location.pathname);
 
   const handleLogin = () => {
     setIsLoggedIn(true);
-    localStorage.setItem('isLoggedIn', 'true');
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem('isLoggedIn');
   };
+
+  const defaultRoute = userRole === 'staff' ? '/staff-dashboard' : '/courses';
 
   return (
     <div className="App">
@@ -51,17 +59,17 @@ function AppContent() {
 
           <Route 
             path="/" 
-            element={isLoggedIn ? <Navigate to="/courses" /> : <Welcome />} 
+            element={isLoggedIn ? <Navigate to={defaultRoute} /> : <Welcome />} 
           />
 
           <Route 
             path="/login" 
-            element={isLoggedIn ? <Navigate to="/courses" /> : <Login onLogin={handleLogin} />} 
+            element={isLoggedIn ? <Navigate to={defaultRoute} /> : <Login onLogin={handleLogin} />} 
           />
 
           <Route 
             path="/signup" 
-            element={isLoggedIn ? <Navigate to="/courses" /> : <Signup onLogin={handleLogin} />} 
+            element={isLoggedIn ? <Navigate to={defaultRoute} /> : <Signup onLogin={handleLogin} />} 
           />
 
           <Route 
@@ -131,6 +139,7 @@ function AppContent() {
             element={isLoggedIn ? <MyBookings /> : <Navigate to="/login" />} 
           />
 
+          <Route path="*" element={<Navigate to={isLoggedIn ? defaultRoute : '/login'} />} />
         </Routes>
       </main>
     </div>

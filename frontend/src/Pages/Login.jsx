@@ -1,18 +1,21 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { RoleContext } from '../context/RoleContext';
+import { ProfileContext } from '../context/ProfileContext';
+import { apiPost } from '../api';
 
 export default function Login({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('student');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { setRole: setUserRole } = useContext(RoleContext);
+  const { updateProfile } = useContext(ProfileContext);
 
   const isFormValid = email.trim() !== '' && password.trim() !== '';
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -21,23 +24,35 @@ export default function Login({ onLogin }) {
       return;
     }
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError('Please enter a valid email address!');
       return;
     }
 
-    // Password validation
     if (password.length < 6) {
       setError('Password must be at least 6 characters!');
       return;
     }
 
-    console.log('Login attempt:', { email, password, role });
-    setUserRole(role);
-    onLogin();
-    navigate(role === 'staff' ? '/staff-dashboard' : '/courses');
+    setIsLoading(true);
+
+    try {
+      const user = await apiPost('/api/login', {
+        username: email,
+        password
+      });
+
+      const normalizedRole = user.Role ? user.Role.toLowerCase() : 'student';
+      setUserRole(normalizedRole);
+      updateProfile({ email: user.Username, role: user.Role });
+      onLogin();
+      navigate(normalizedRole === 'staff' ? '/staff-dashboard' : '/courses');
+    } catch (err) {
+      setError(err.message || 'Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -45,27 +60,6 @@ export default function Login({ onLogin }) {
       <div className="auth-container">
         <h1>Log In</h1>
         
-        {/* Role Selection */}
-        <div className="role-selection">
-          <label>Select Role:</label>
-          <div className="role-buttons">
-            <button
-              type="button"
-              className={`role-btn ${role === 'student' ? 'active' : ''}`}
-              onClick={() => setRole('student')}
-            >
-              👨‍🎓 Student
-            </button>
-            <button
-              type="button"
-              className={`role-btn ${role === 'staff' ? 'active' : ''}`}
-              onClick={() => setRole('staff')}
-            >
-              👨‍💼 Staff
-            </button>
-          </div>
-        </div>
-
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
@@ -102,7 +96,7 @@ export default function Login({ onLogin }) {
         </form>
 
         <p className="auth-link">
-          Don't have an account? <a href="/signup">Create Account</a>
+          Don't have an account? <Link to="/signup">Create Account</Link>
         </p>
       </div>
     </div>

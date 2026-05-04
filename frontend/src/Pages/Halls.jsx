@@ -1,76 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiGet } from '../api';
 
 export default function Halls() {
+  const [hallsData, setHallsData] = useState([]);
   const [filters, setFilters] = useState({
     search: '',
     capacity: '',
     type: ''
   });
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  const hallsData = [
-    {
-      id: 1,
-      name: 'Conference Room A',
-      capacity: 50,
-      type: 'Conference',
-      floor: '3rd',
-      amenities: ['Projector', 'Whiteboard', 'AC'],
-      available: true,
-      image: '🏢'
-    },
-    {
-      id: 2,
-      name: 'Auditorium B',
-      capacity: 200,
-      type: 'Auditorium',
-      floor: '1st',
-      amenities: ['Stage', 'Projector', 'Mic System'],
-      available: true,
-      image: '🎭'
-    },
-    {
-      id: 3,
-      name: 'Lab Room C',
-      capacity: 30,
-      type: 'Lab',
-      floor: '2nd',
-      amenities: ['Equipment', 'Computer', 'AC'],
-      available: false,
-      image: '🔬'
-    },
-    {
-      id: 4,
-      name: 'Meeting Room D',
-      capacity: 15,
-      type: 'Meeting',
-      floor: '4th',
-      amenities: ['Table', 'Chairs', 'AC'],
-      available: true,
-      image: '📊'
-    },
-    {
-      id: 5,
-      name: 'Seminar Room E',
-      capacity: 80,
-      type: 'Seminar',
-      floor: '2nd',
-      amenities: ['Projector', 'Whiteboard', 'Recording'],
-      available: true,
-      image: '🎓'
-    },
-    {
-      id: 6,
-      name: 'Studio F',
-      capacity: 25,
-      type: 'Studio',
-      floor: '5th',
-      amenities: ['Lighting', 'Camera', 'Green Screen'],
-      available: true,
-      image: '📹'
-    }
-  ];
+  useEffect(() => {
+    const loadHalls = async () => {
+      try {
+        const data = await apiGet('/api/halls');
+        setHallsData(data.map((hall) => ({
+          id: hall.HallID,
+          name: hall.HallName,
+          capacity: hall.Capacity,
+          type: 'Hall',
+          floor: '1st',
+          amenities: ['AC', 'Projector'],
+          available: true,
+          image: '🏢'
+        })));
+      } catch (err) {
+        setError(err.message || 'Unable to load halls.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadHalls();
+  }, []);
 
   const filteredHalls = hallsData.filter(hall => {
     const capacityMatch = !filters.capacity || hall.capacity >= parseInt(filters.capacity);
@@ -88,9 +53,15 @@ export default function Halls() {
       <div style={{ marginBottom: '30px' }}>
         <h1 style={{ color: '#2c3e50', marginBottom: '10px' }}>Available Halls</h1>
         <p style={{ color: '#7f8c8d' }}>Find and book the perfect space for your event</p>
+        {error && (
+          <p style={{ color: '#c0392b', marginTop: '10px' }}>{error}</p>
+        )}
       </div>
 
-      {/* Filters */}
+      {isLoading ? (
+        <p style={{ color: '#7f8c8d' }}>⏳ Loading halls...</p>
+      ) : (
+        <>
       <div style={{
         background: 'white',
         padding: '25px',
@@ -292,6 +263,8 @@ export default function Halls() {
         }}>
           <p style={{ fontSize: '1.2rem' }}>No halls match your filters</p>
         </div>
+      )}
+        </>
       )}
     </div>
   );

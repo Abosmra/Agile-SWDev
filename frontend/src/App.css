@@ -98,6 +98,15 @@ code {
   width: 100%;
 }
 
+.nav-links a.active-link {
+  color: #fff;
+  font-weight: 700;
+}
+
+.nav-links a.active-link::after {
+  width: 100%;
+}
+
 .logout-btn {
   background-color: transparent;
   color: white;
@@ -519,6 +528,66 @@ button:disabled {
 .auth-link a:hover {
   color: var(--primary-dark);
   text-decoration: underline;
+}
+
+.profile-page {
+  padding: 2rem 0;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.profile-subtitle {
+  color: var(--gray-text);
+  max-width: 640px;
+}
+
+.profile-top-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.profile-container {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.profile-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-info {
+  display: grid;
+  gap: 1rem;
+}
+
+.profile-info .info-group {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.mycourses-btn,
+.myschedule_btn {
+  margin-top: 0.75rem;
 }
 
 /* ======================== Role Selection Styles ======================== */

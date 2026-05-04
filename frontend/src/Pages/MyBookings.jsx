@@ -1,62 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiGet } from '../api';
 
 export default function MyBookings() {
   const navigate = useNavigate();
-  const [bookings, setBookings] = useState([
-    {
-      id: 1,
-      hallName: 'Conference Room A',
-      date: '2026-05-15',
-      startTime: '10:00',
-      endTime: '12:00',
-      purpose: 'Project Meeting',
-      attendees: 20,
-      status: 'Confirmed',
-      bookingRef: 'BK-001-2026',
-      hallCapacity: 50
-    },
-    {
-      id: 2,
-      hallName: 'Auditorium B',
-      date: '2026-05-20',
-      startTime: '14:00',
-      endTime: '17:00',
-      purpose: 'Seminar on AI',
-      attendees: 150,
-      status: 'Confirmed',
-      bookingRef: 'BK-002-2026',
-      hallCapacity: 200
-    },
-    {
-      id: 3,
-      hallName: 'Meeting Room D',
-      date: '2026-05-25',
-      startTime: '09:00',
-      endTime: '10:30',
-      purpose: 'Team Standup',
-      attendees: 8,
-      status: 'Pending',
-      bookingRef: 'BK-003-2026',
-      hallCapacity: 15
-    },
-    {
-      id: 4,
-      hallName: 'Seminar Room E',
-      date: '2026-05-10',
-      startTime: '15:00',
-      endTime: '16:30',
-      purpose: 'Workshop',
-      attendees: 60,
-      status: 'Completed',
-      bookingRef: 'BK-004-2026',
-      hallCapacity: 80
-    }
-  ]);
-
+  const [bookings, setBookings] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   const [cancelModal, setCancelModal] = useState({ show: false, bookingId: null });
   const [modifyModal, setModifyModal] = useState({ show: false, booking: null });
+
+  useEffect(() => {
+    const loadBookings = async () => {
+      try {
+        const data = await apiGet('/api/bookings');
+        // Map backend booking structure to frontend structure
+        setBookings(data.map((b) => ({
+          id: b.BookingID,
+          hallName: b.HallName || 'Hall',
+          date: b.Date,
+          startTime: b.StartTime,
+          endTime: b.EndTime,
+          purpose: b.Purpose,
+          attendees: b.Attendees || 0,
+          status: b.Status,
+          bookingRef: `BK-${String(b.BookingID).padStart(3, '0')}-2026`,
+          hallCapacity: b.Capacity || 0
+        })));
+      } catch (err) {
+        setError(err.message || 'Unable to load bookings.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadBookings();
+  }, []);
 
   const cancelBooking = (bookingId) => {
     setBookings(bookings.map(b => 
@@ -133,8 +113,15 @@ export default function MyBookings() {
       <div style={{ marginBottom: '30px' }}>
         <h1 style={{ color: '#2c3e50', marginBottom: '10px' }}>My Bookings</h1>
         <p style={{ color: '#7f8c8d' }}>Manage and track all your hall reservations</p>
+        {error && (
+          <p style={{ color: '#c0392b', marginTop: '10px' }}>{error}</p>
+        )}
       </div>
 
+      {isLoading ? (
+        <p style={{ color: '#7f8c8d' }}>⏳ Loading bookings...</p>
+      ) : (
+        <>
       {/* Summary Stats */}
       <div style={{
         display: 'grid',
