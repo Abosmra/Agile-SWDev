@@ -362,7 +362,7 @@ input::placeholder {
 /* ======================== Button Styles ======================== */
 button {
   padding: 1rem;
-  background-color: var(--success-color);
+  background-color: var(--primary-color);
   color: white;
   border: none;
   border-radius: 8px;
@@ -373,7 +373,7 @@ button {
 }
 
 button:hover:not(:disabled) {
-  background-color: var(--success-hover);
+  background-color: var(--primary-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
@@ -1276,7 +1276,7 @@ button:disabled {
 }
 
 .myschedule_btn {
-  background: linear-gradient(135deg, #4CAF50, #2e7d32);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   color: white;
   border: none;
   padding: 10px 18px;
