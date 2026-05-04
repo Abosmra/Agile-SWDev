@@ -478,6 +478,12 @@ button:disabled {
   min-height: 100vh;
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
   padding: 1rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
 }
 
 .auth-container {
@@ -487,6 +493,8 @@ button:disabled {
   box-shadow: var(--shadow-lg);
   max-width: 500px;
   width: 90%;
+  position: relative;
+  z-index: 2;
 }
 
 .auth-container h1 {
