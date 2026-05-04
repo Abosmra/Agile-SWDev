@@ -174,9 +174,9 @@ export default function Signup({ onLogin }) {
         </form>
         </div>
 
-        <p className="auth-link">
-          Already have an account? <Link to="/login">Log In</Link>
-        </p>
+        <div className="signup-footer">
+          <p>Already have an account? <Link to="/login">Log In</Link></p>
+        </div>
       </div>
     </div>
   );
