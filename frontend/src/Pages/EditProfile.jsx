@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProfileContext } from '../context/ProfileContext';
+import { apiPut } from '../api';
 
 export default function EditProfile() {
   const { profileData, updateProfile } = useContext(ProfileContext);
@@ -23,7 +24,7 @@ export default function EditProfile() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -40,9 +41,23 @@ export default function EditProfile() {
       return;
     }
 
-    updateProfile(formData);
-    alert('Profile updated successfully!');
-    navigate('/profile');
+    try {
+      const updatedUser = await apiPut('/api/me', formData);
+      updateProfile({
+        userId: updatedUser.UserID,
+        firstName: updatedUser.GivenName,
+        lastName: updatedUser.FamilyName,
+        email: updatedUser.Username,
+        role: updatedUser.Role,
+        department: updatedUser.Department,
+        joinDate: updatedUser.JoinDate,
+        enrolledCourses: updatedUser.EnrolledCourses
+      });
+      alert('Profile updated successfully!');
+      navigate('/profile');
+    } catch (err) {
+      setError(err.message || 'Unable to update profile.');
+    }
   };
 
   const handleCancel = () => {

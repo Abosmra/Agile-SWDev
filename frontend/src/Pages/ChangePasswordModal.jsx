@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiPost } from '../api';
 
 export default function ChangePasswordModal({ onClose }) {
   const [passwords, setPasswords] = useState({
@@ -12,15 +13,30 @@ export default function ChangePasswordModal({ onClose }) {
     setPasswords({ ...passwords, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (passwords.newPassword !== passwords.confirmPassword) {
-      setError("New passwords do not match!");
+    setError('');
+
+    if (passwords.newPassword.length < 6) {
+      setError('New password must be at least 6 characters.');
       return;
     }
-    // Handle password update logic here
-    alert("Password updated successfully!");
-    onClose();
+
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      setError('New passwords do not match!');
+      return;
+    }
+
+    try {
+      await apiPost('/api/me/password', {
+        oldPassword: passwords.oldPassword,
+        newPassword: passwords.newPassword
+      });
+      alert('Password updated successfully!');
+      onClose();
+    } catch (err) {
+      setError(err.message || 'Unable to update password.');
+    }
   };
 
   return (

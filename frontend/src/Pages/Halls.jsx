@@ -21,11 +21,11 @@ export default function Halls() {
           id: hall.HallID,
           name: hall.HallName,
           capacity: hall.Capacity,
-          type: 'Hall',
-          floor: '1st',
-          amenities: ['AC', 'Projector'],
-          available: true,
-          image: '🏢'
+          type: hall.Type,
+          floor: hall.Floor,
+          amenities: hall.Amenities,
+          available: hall.Available,
+          image: hall.Image
         })));
       } catch (err) {
         setError(err.message || 'Unable to load halls.');

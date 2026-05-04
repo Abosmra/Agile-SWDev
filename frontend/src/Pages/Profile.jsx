@@ -14,6 +14,10 @@ export default function Profile() {
     return <p className="loading">Loading profile...</p>;
   }
 
+  const memberSince = profileData.joinDate
+    ? new Date(profileData.joinDate).toLocaleDateString()
+    : 'Not available';
+
   return (
     <div className="profile-page">
       <div className="profile-header">
@@ -57,7 +61,7 @@ export default function Profile() {
             </div>
             <div className="info-group">
               <label>Member Since:</label>
-              <p>{profileData.joinDate}</p>
+              <p>{memberSince}</p>
             </div>
           </div>
         </div>

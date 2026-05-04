@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import { ProfileProvider } from './context/ProfileContext';
+import { ProfileProvider, ProfileContext } from './context/ProfileContext';
 import { RoleProvider, RoleContext } from './context/RoleContext';
 import Navbar from './Components/Navbar';
 import Welcome from './Pages/Welcome';
@@ -12,7 +12,7 @@ import Courses from './Pages/Courses';
 import Announcements from './Pages/Announcements';
 import Staff from './Pages/Staff';
 import Messaging from './Pages/Messaging';
-import MyCourses from './Pages/MyCourses'; // ✅ تم التصليح هنا
+import MyCourses from './Pages/MyCourses';
 import StudentSchedule from './Pages/StudentSchedule';
 import StaffDashboard from './Pages/StaffDashboard';
 import Halls from './Pages/Halls';
@@ -20,35 +20,88 @@ import HallDetails from './Pages/HallDetails';
 import BookHall from './Pages/BookHall';
 import MyBookings from './Pages/MyBookings';
 import './App.css';
+import { apiGet, apiPost, clearAuthToken, getAuthToken, setAuthToken } from './api';
+
+function mapUserToProfile(user) {
+  return {
+    userId: user.UserID,
+    firstName: user.GivenName || '',
+    lastName: user.FamilyName || '',
+    email: user.Username,
+    role: user.Role,
+    enrolledCourses: user.EnrolledCourses || 0,
+    joinDate: user.JoinDate || '',
+    department: user.Department || 'General'
+  };
+}
 
 function AppContent() {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem('isLoggedIn') === 'true';
-  });
-
-  const { userRole } = useContext(RoleContext);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const { userRole, setRole, clearRole } = useContext(RoleContext);
+  const { setProfile, clearProfile } = useContext(ProfileContext);
   const location = useLocation();
 
   useEffect(() => {
-    if (isLoggedIn) {
-      localStorage.setItem('isLoggedIn', 'true');
-    } else {
-      localStorage.removeItem('isLoggedIn');
-    }
-  }, [isLoggedIn]);
+    const bootstrapAuth = async () => {
+      const token = getAuthToken();
+      if (!token) {
+        setIsAuthReady(true);
+        return;
+      }
+
+      try {
+        const user = await apiGet('/api/me');
+        setRole(user.Role.toLowerCase());
+        setProfile(mapUserToProfile(user));
+        setIsLoggedIn(true);
+      } catch {
+        clearAuthToken();
+        clearRole();
+        clearProfile();
+        setIsLoggedIn(false);
+      } finally {
+        setIsAuthReady(true);
+      }
+    };
+
+    bootstrapAuth();
+  }, [setRole, clearRole, setProfile, clearProfile]);
 
   const showNavbar = isLoggedIn && !['/login', '/signup', '/'].includes(location.pathname);
 
-  const handleLogin = () => {
+  const privilegedRole = userRole === 'staff' || userRole === 'admin';
+  const defaultRoute = privilegedRole ? '/staff-dashboard' : '/courses';
+
+  const handleAuthenticated = ({ token, user }) => {
+    setAuthToken(token);
+    setRole(user.Role.toLowerCase());
+    setProfile(mapUserToProfile(user));
     setIsLoggedIn(true);
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    localStorage.removeItem('isLoggedIn');
+  const handleLogout = async () => {
+    try {
+      await apiPost('/api/logout', {});
+    } catch {
+      // Ignore logout failures and clear the client state anyway.
+    } finally {
+      clearAuthToken();
+      clearRole();
+      clearProfile();
+      setIsLoggedIn(false);
+    }
   };
 
-  const defaultRoute = userRole === 'staff' ? '/staff-dashboard' : '/courses';
+  if (!isAuthReady) {
+    return (
+      <div className="App">
+        <main className="main-content">
+          <div style={{ padding: '40px', textAlign: 'center' }}>Loading your workspace...</div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="App">
@@ -56,87 +109,84 @@ function AppContent() {
 
       <main className="main-content">
         <Routes>
-
-          <Route 
-            path="/" 
-            element={isLoggedIn ? <Navigate to={defaultRoute} /> : <Welcome />} 
+          <Route
+            path="/"
+            element={isLoggedIn ? <Navigate to={defaultRoute} /> : <Welcome />}
           />
 
-          <Route 
-            path="/login" 
-            element={isLoggedIn ? <Navigate to={defaultRoute} /> : <Login onLogin={handleLogin} />} 
+          <Route
+            path="/login"
+            element={isLoggedIn ? <Navigate to={defaultRoute} /> : <Login onLogin={handleAuthenticated} />}
           />
 
-          <Route 
-            path="/signup" 
-            element={isLoggedIn ? <Navigate to={defaultRoute} /> : <Signup onLogin={handleLogin} />} 
+          <Route
+            path="/signup"
+            element={isLoggedIn ? <Navigate to={defaultRoute} /> : <Signup onLogin={handleAuthenticated} />}
           />
 
-          <Route 
-            path="/profile" 
-            element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} 
+          <Route
+            path="/profile"
+            element={isLoggedIn ? <Profile /> : <Navigate to="/login" />}
           />
 
-          <Route 
-            path="/edit-profile" 
-            element={isLoggedIn ? <EditProfile /> : <Navigate to="/login" />} 
+          <Route
+            path="/edit-profile"
+            element={isLoggedIn ? <EditProfile /> : <Navigate to="/login" />}
           />
 
-          <Route 
-            path="/courses" 
-            element={isLoggedIn ? <Courses /> : <Navigate to="/login" />} 
+          <Route
+            path="/courses"
+            element={isLoggedIn ? <Courses /> : <Navigate to="/login" />}
           />
 
-          {/* ✅ الصفحة الجديدة */}
-          <Route 
-            path="/my-courses" 
-            element={isLoggedIn ? <MyCourses /> : <Navigate to="/login" />} 
+          <Route
+            path="/my-courses"
+            element={isLoggedIn ? <MyCourses /> : <Navigate to="/login" />}
           />
 
-          <Route 
-            path="/schedule" 
-            element={isLoggedIn ? <StudentSchedule /> : <Navigate to="/login" />} 
+          <Route
+            path="/schedule"
+            element={isLoggedIn ? <StudentSchedule /> : <Navigate to="/login" />}
           />
 
-          <Route 
-            path="/announcements" 
-            element={isLoggedIn ? <Announcements /> : <Navigate to="/login" />} 
+          <Route
+            path="/announcements"
+            element={isLoggedIn ? <Announcements /> : <Navigate to="/login" />}
           />
 
-          <Route 
-            path="/staff" 
-            element={isLoggedIn ? <Staff /> : <Navigate to="/login" />} 
+          <Route
+            path="/staff"
+            element={isLoggedIn ? <Staff /> : <Navigate to="/login" />}
           />
 
-          <Route 
-            path="/messaging" 
-            element={isLoggedIn ? <Messaging /> : <Navigate to="/login" />} 
+          <Route
+            path="/messaging"
+            element={isLoggedIn ? <Messaging /> : <Navigate to="/login" />}
           />
 
-          {/* Staff Routes */}
-          <Route 
-            path="/staff-dashboard" 
-            element={isLoggedIn && userRole === 'staff' ? <StaffDashboard /> : <Navigate to="/login" />} 
+          <Route
+            path="/staff-dashboard"
+            element={isLoggedIn && privilegedRole ? <StaffDashboard /> : <Navigate to={isLoggedIn ? defaultRoute : '/login'} />}
           />
 
-          <Route 
-            path="/halls" 
-            element={isLoggedIn ? <Halls /> : <Navigate to="/login" />} 
+          <Route
+            path="/halls"
+            element={isLoggedIn && privilegedRole ? <Halls /> : <Navigate to={isLoggedIn ? defaultRoute : '/login'} />}
           />
 
-          <Route 
-            path="/hall-details/:hallId" 
-            element={isLoggedIn ? <HallDetails /> : <Navigate to="/login" />} 
+          <Route
+            path="/hall-details/:hallId"
+            element={isLoggedIn && privilegedRole ? <HallDetails /> : <Navigate to={isLoggedIn ? defaultRoute : '/login'} />}
           />
 
-          <Route 
-            path="/book-hall" 
-            element={isLoggedIn ? <BookHall /> : <Navigate to="/login" />} 
+          <Route
+            path="/book-hall"
+            element={isLoggedIn && privilegedRole ? <BookHall /> : <Navigate to={isLoggedIn ? defaultRoute : '/login'} />}
           />
 
-          <Route 
-            path="/my-bookings" 
-            element={isLoggedIn ? <MyBookings /> : <Navigate to="/login" />} 
+          <Route
+            path="/my-bookings"
+            element={isLoggedIn && privilegedRole ? <MyBookings /> : <Navigate to={isLoggedIn ? defaultRoute : '/login'} />}
           />
 
           <Route path="*" element={<Navigate to={isLoggedIn ? defaultRoute : '/login'} />} />

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CourseCard from '../Components/CourseCard';
-import { apiGet } from '../api';
+import { apiGet, apiPost } from '../api';
 import NotificationToast from '../Components/NotificationToast';
 
 export default function Courses() {
@@ -14,7 +14,10 @@ export default function Courses() {
   useEffect(() => {
     const loadCourses = async () => {
       try {
-        const courses = await apiGet('/api/courses');
+        const [courses, myCourses] = await Promise.all([
+          apiGet('/api/courses'),
+          apiGet('/api/my-courses')
+        ]);
         setCourseList(courses.map((course) => ({
           id: course.CourseID,
           title: course.CourseName,
@@ -22,8 +25,17 @@ export default function Courses() {
           courseCode: course.CourseCode,
           instructor: course.Instructor || 'Staff',
           credits: course.Credits || '3',
-          fullDescription: course.Description
+          fullDescription: course.Description,
+          level: 'Undergraduate',
+          semester: 'Current Semester',
+          instructorEmail: 'staff@university.edu',
+          officeHours: 'Sun-Tue 10:00-12:00',
+          assignments: 20,
+          midterm: 30,
+          final: 40,
+          participation: 10
         })));
+        setEnrolledCourses(myCourses.map((course) => course.CourseID));
       } catch (err) {
         setError(err.message || 'Unable to load courses.');
       } finally {
@@ -43,17 +55,26 @@ export default function Courses() {
     );
   });
 
-  const handleEnroll = (courseId) => {
-    if (!enrolledCourses.includes(courseId)) {
+  const handleEnroll = async (courseId) => {
+    if (enrolledCourses.includes(courseId)) {
+      setNotification({
+        type: 'warning',
+        message: 'You are already enrolled in this course!'
+      });
+      return;
+    }
+
+    try {
+      await apiPost('/api/enrollments', { courseId });
       setEnrolledCourses([...enrolledCourses, courseId]);
       setNotification({
         type: 'success',
-        message: '🎉 Successfully enrolled in course!'
+        message: 'Successfully enrolled in course!'
       });
-    } else {
+    } catch (err) {
       setNotification({
         type: 'warning',
-        message: '⚠️ You are already enrolled in this course!'
+        message: err.message || 'Unable to enroll right now.'
       });
     }
   };

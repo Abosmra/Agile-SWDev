@@ -1,7 +1,5 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { RoleContext } from '../context/RoleContext';
-import { ProfileContext } from '../context/ProfileContext';
 import { apiPost } from '../api';
 
 export default function Login({ onLogin }) {
@@ -9,8 +7,6 @@ export default function Login({ onLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { setRole: setUserRole } = useContext(RoleContext);
-  const { updateProfile } = useContext(ProfileContext);
 
   const isFormValid = email.trim() !== '' && password.trim() !== '';
 
@@ -35,16 +31,14 @@ export default function Login({ onLogin }) {
     }
 
     try {
-      const user = await apiPost('/api/login', {
+      const auth = await apiPost('/api/login', {
         username: email,
         password
       });
 
-      const normalizedRole = user.Role ? user.Role.toLowerCase() : 'student';
-      setUserRole(normalizedRole);
-      updateProfile({ email: user.Username, role: user.Role });
-      onLogin();
-      navigate(normalizedRole === 'staff' ? '/staff-dashboard' : '/courses');
+      const normalizedRole = auth.user.Role ? auth.user.Role.toLowerCase() : 'student';
+      onLogin(auth);
+      navigate(['staff', 'admin'].includes(normalizedRole) ? '/staff-dashboard' : '/courses');
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.');
     }

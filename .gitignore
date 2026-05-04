@@ -6,6 +6,8 @@ frontend/build/
 .claude/
 .copilot/
 CLAUDE.md
+.codex/
+AGENTS.md
 graphify-out/
 .graphify_python
 .graphify_*.json

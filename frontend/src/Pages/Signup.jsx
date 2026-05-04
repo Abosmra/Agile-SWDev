@@ -1,6 +1,5 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { RoleContext } from '../context/RoleContext';
 import { apiPost } from '../api';
 
 export default function Signup({ onLogin }) {
@@ -14,7 +13,6 @@ export default function Signup({ onLogin }) {
   const [role, setRole] = useState('student');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { setRole: setUserRole } = useContext(RoleContext);
 
   const isFormValid = 
     formData.firstName.trim() !== '' &&
@@ -50,15 +48,14 @@ export default function Signup({ onLogin }) {
     }
 
     try {
-      await apiPost('/api/signup', {
+      const auth = await apiPost('/api/signup', {
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
         role
       });
-      setUserRole(role);
-      onLogin();
+      onLogin(auth);
       navigate(role === 'staff' ? '/staff-dashboard' : '/courses');
     } catch (err) {
       setError(err.message || 'Signup failed. Please try again.');

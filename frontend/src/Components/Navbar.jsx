@@ -27,7 +27,7 @@ export default function Navbar({ onLogout }) {
             <li><NavLink to="/profile" className={({ isActive }) => (isActive ? 'active-link' : '')}>Profile</NavLink></li>
           </>
         )}
-        {userRole === 'staff' && (
+        {(userRole === 'staff' || userRole === 'admin') && (
           <>
             <li><NavLink to="/staff-dashboard" className={({ isActive }) => (isActive ? 'active-link' : '')}>Dashboard</NavLink></li>
             <li><NavLink to="/halls" className={({ isActive }) => (isActive ? 'active-link' : '')}>Halls</NavLink></li>

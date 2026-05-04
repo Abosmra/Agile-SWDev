@@ -11,33 +11,37 @@ const getInitialProfile = () => {
       // ignore invalid saved profile
     }
   }
-  return {
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    role: 'Student',
-    enrolledCourses: 3,
-    joinDate: 'January 15, 2024',
-    department: 'Computer Science'
-  };
+  return null;
 };
 
 export function ProfileProvider({ children }) {
   const [profileData, setProfileData] = useState(getInitialProfile);
 
   useEffect(() => {
-    localStorage.setItem('profileData', JSON.stringify(profileData));
+    if (profileData) {
+      localStorage.setItem('profileData', JSON.stringify(profileData));
+    } else {
+      localStorage.removeItem('profileData');
+    }
   }, [profileData]);
 
   const updateProfile = (newData) => {
     setProfileData(prev => ({
-      ...prev,
+      ...(prev || {}),
       ...newData
     }));
   };
 
+  const setProfile = (profile) => {
+    setProfileData(profile);
+  };
+
+  const clearProfile = () => {
+    setProfileData(null);
+  };
+
   return (
-    <ProfileContext.Provider value={{ profileData, updateProfile }}>
+    <ProfileContext.Provider value={{ profileData, updateProfile, setProfile, clearProfile }}>
       {children}
     </ProfileContext.Provider>
   );
