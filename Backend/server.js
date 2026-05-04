@@ -131,6 +131,34 @@ app.post('/api/bookings', async (req, res) => {
   }
 });
 
+app.post('/api/signup', async (req, res) => {
+  try {
+    const { email, password, firstName, lastName, role } = req.body;
+    if (!email || !password || !firstName || !lastName || !role) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+    const existing = await runGet(
+      req.app.locals.db,
+      'SELECT UserID FROM Users WHERE Username = ?',
+      [email]
+    );
+    if (existing) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+    await runExec(
+      req.app.locals.db,
+      'INSERT INTO Users (Username, Password, FirstName, LastName, Role) VALUES (?, ?, ?, ?, ?)',
+      [email, password, firstName, lastName, role]
+    );
+    res.json({ message: 'Account created successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;

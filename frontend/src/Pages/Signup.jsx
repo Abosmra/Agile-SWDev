@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { RoleContext } from '../context/RoleContext';
+import { apiPost } from '../api';
 
 export default function Signup({ onLogin }) {
   const [formData, setFormData] = useState({
@@ -30,9 +31,9 @@ export default function Signup({ onLogin }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!isFormValid) {
       setError('Please fill all fields to create an account.');
       return;
@@ -43,11 +44,25 @@ export default function Signup({ onLogin }) {
       return;
     }
 
-    setError('');
-    console.log('Signup data:', formData, 'Role:', role);
-    setUserRole(role);
-    onLogin();
-    navigate(role === 'staff' ? '/staff-dashboard' : '/courses');
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+
+    try {
+      await apiPost('/api/signup', {
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        role
+      });
+      setUserRole(role);
+      onLogin();
+      navigate(role === 'staff' ? '/staff-dashboard' : '/courses');
+    } catch (err) {
+      setError(err.message || 'Signup failed. Please try again.');
+    }
   };
 
   return (
