@@ -123,14 +123,6 @@ function AppContent() {
     element={isLoggedIn ? <Profile /> : <Navigate to="/login" />}
   />
 
-  <Route
-    path="/edit-profile"
-    element={isLoggedIn ? <EditProfile /> : <Navigate to="/login" />}
-  />
-          <Route
-            path="/profile"
-            element={isLoggedIn ? <Profile /> : <Navigate to="/login" />}
-          />
 
   <Route
     path="/courses"
