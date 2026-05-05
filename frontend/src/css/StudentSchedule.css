@@ -1,0 +1,133 @@
+/* ===================== GLOBAL PAGE ===================== */
+.schedule-page {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f7fb;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ===================== MAIN CONTENT ===================== */
+.schedule-container {
+  flex: 1;
+  padding: 24px 32px;
+}
+
+/* Header section */
+.schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.schedule-title h2 {
+  margin: 0;
+  font-size: 26px;
+  color: #2c3e50;
+}
+
+.schedule-title p {
+  margin: 6px 0 0;
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+/* Group selector */
+.group-selector {
+  min-width: 240px;
+}
+
+.group-selector label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #34495e;
+  font-size: 14px;
+}
+
+.group-selector select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #dfe6e9;
+  background: white;
+  outline: none;
+  transition: 0.2s;
+}
+
+.group-selector select:focus {
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
+}
+
+/* ===================== CARD CONTAINER ===================== */
+.schedule-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+}
+
+/* ===================== TABLE ===================== */
+.schedule-table {
+  width: 100%;
+  min-width: 1100px;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.schedule-table thead {
+  background: #eef3ff;
+}
+
+.schedule-table th,
+.schedule-table td {
+  border: 1px solid #e6e9ef;
+  padding: 10px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.schedule-table th {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.schedule-table tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+.schedule-table tbody tr:hover {
+  background: #f0f4ff;
+}
+
+/* Slot column */
+.slot-cell {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Break row */
+.break-row {
+  background: #fff8d6 !important;
+}
+
+/* Empty cells */
+.empty-cell {
+  color: #b2bec3;
+}
+
+/* ===================== ERROR & LOADING ===================== */
+.error-text {
+  margin-top: 20px;
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+.loading-text {
+  margin-top: 20px;
+  color: #7f8c8d;
+}
