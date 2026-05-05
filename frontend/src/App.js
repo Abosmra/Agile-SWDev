@@ -68,8 +68,9 @@ function AppContent() {
     bootstrapAuth();
   }, [setRole, clearRole, setProfile, clearProfile]);
 
-  const showNavbar = isLoggedIn && !['/login', '/signup', '/'].includes(location.pathname);
-
+  const isFullScreenPage = ['/', '/login', '/signup'].includes(location.pathname);
+  const showNavbar = isLoggedIn && !isFullScreenPage;
+  
   const privilegedRole = userRole === 'staff' || userRole === 'admin';
   const defaultRoute = privilegedRole ? '/staff-dashboard' : '/courses';
 
