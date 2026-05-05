@@ -288,6 +288,94 @@ html {
   font-size: 0.95rem;
 }
 
+/* ANNOUNCEMENTS SECTION */
+.welcome-ann-section {
+  padding: 5rem 6rem;
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  text-align: center;
+}
+
+.welcome-ann-section h2 {
+  font-size: 2.2rem;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.welcome-ann-section .section-subtitle {
+  color: rgba(255,255,255,0.75);
+}
+
+.welcome-ann-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+  text-align: left;
+}
+
+.welcome-ann-card {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 16px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.welcome-ann-card:hover {
+  background: rgba(255,255,255,0.18);
+  transform: translateY(-4px);
+}
+
+.welcome-ann-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.welcome-ann-date {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.6);
+  font-weight: 500;
+}
+
+.welcome-ann-card h3 {
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.welcome-ann-card p {
+  color: rgba(255,255,255,0.75);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 0;
+  flex: 1;
+}
+
+.welcome-ann-link {
+  color: rgba(255,255,255,0.9);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  margin-top: auto;
+  transition: color 0.2s ease;
+}
+
+.welcome-ann-link:hover {
+  color: white;
+}
+
+@media (max-width: 900px) {
+  .welcome-ann-section {
+    padding: 3rem 2rem;
+  }
+}
+
 /* FOOTER */
 .footer {
   text-align: center;

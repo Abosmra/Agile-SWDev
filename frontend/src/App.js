@@ -7,7 +7,6 @@ import Welcome from './Pages/Welcome';
 import Login from './Pages/Login';
 import Signup from './Pages/Signup';
 import Profile from './Pages/Profile';
-import EditProfile from './Pages/EditProfile';
 import Courses from './Pages/Courses';
 import Announcements from './Pages/Announcements';
 import Staff from './Pages/Staff';
@@ -128,11 +127,6 @@ function AppContent() {
           <Route
             path="/profile"
             element={isLoggedIn ? <Profile /> : <Navigate to="/login" />}
-          />
-
-          <Route
-            path="/edit-profile"
-            element={isLoggedIn ? <EditProfile /> : <Navigate to="/login" />}
           />
 
           <Route

@@ -23,73 +23,76 @@ export default function Announcements() {
         setIsLoading(false);
       }
     };
-
     loadAnnouncements();
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="announcements-page">
-        <h1>Announcements</h1>
-        <div className="announcements-container">
-          <p style={{ color: '#7f8c8d' }}>⏳ Loading announcements...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="announcements-page">
-        <h1>Announcements</h1>
-        <div className="announcements-container">
-          <p style={{ color: '#c0392b' }}>{error}</p>
-        </div>
-      </div>
-    );
-  }
+  const formatDate = (date) => {
+    if (!date) return null;
+    if (date.includes('hour') || date.includes('minute') || date.includes('day')) return date;
+    return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  };
 
   return (
-    <div className="announcements-page">
-      <h1>Announcements</h1>
-      <div className="announcements-container">
-        <p style={{ color: '#7f8c8d', marginBottom: '20px' }}>
-          Live news from Ain Shams Engineering
-        </p>
-        {announcementsList.length > 0 ? (
-          announcementsList.map((announcement, index) => (
-            <div key={announcement.id || index} className="announcement-item">
-              <h3>{announcement.title}</h3>
-              {announcement.content ? (
-                <p>{announcement.content}</p>
-              ) : (
-                <p style={{ color: '#7f8c8d' }}>
-                  Latest headline from the faculty news page.
-                </p>
-              )}
-              {announcement.date && (
-                <p style={{ fontSize: '0.85rem', color: '#7f8c8d' }}>
-                  {announcement.date.includes('hour') || announcement.date.includes('minute') || announcement.date.includes('day')
-                    ? announcement.date
-                    : new Date(announcement.date).toLocaleDateString()}
-                </p>
-              )}
-              {announcement.sourceUrl && (
-                <a
-                  href={announcement.sourceUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: '#667eea', fontWeight: 'bold' }}
-                >
-                  Read more
-                </a>
-              )}
-            </div>
-          ))
-        ) : (
-          <p style={{ color: '#7f8c8d' }}>No announcements available.</p>
+    <div className="ann-page">
+      <div className="ann-hero">
+        <div>
+          <h1 className="ann-title">Announcements</h1>
+          <p className="ann-subtitle">Live news from Ain Shams University Faculty of Engineering</p>
+        </div>
+        {!isLoading && !error && (
+          <span className="ann-count">{announcementsList.length} updates</span>
         )}
       </div>
+
+      {isLoading && (
+        <div className="ann-state">
+          <div className="ann-spinner" />
+          <p>Loading announcements...</p>
+        </div>
+      )}
+
+      {error && (
+        <div className="ann-state ann-error">
+          <p>{error}</p>
+        </div>
+      )}
+
+      {!isLoading && !error && (
+        <div className="ann-list">
+          {announcementsList.length === 0 ? (
+            <div className="ann-state">
+              <p>No announcements available.</p>
+            </div>
+          ) : (
+            announcementsList.map((ann, index) => (
+              <div key={ann.id || index} className="ann-card">
+                <div className="ann-card-index">{index + 1}</div>
+                <div className="ann-card-body">
+                  <h3 className="ann-card-title">{ann.title}</h3>
+                  <p className="ann-card-content">
+                    {ann.content || 'Latest headline from the faculty news page.'}
+                  </p>
+                  <div className="ann-card-footer">
+                    {ann.date && (
+                      <span className="ann-card-date">{formatDate(ann.date)}</span>
+                    )}
+                    {ann.sourceUrl && (
+                      <a
+                        className="ann-card-link"
+                        href={ann.sourceUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Read more →
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }

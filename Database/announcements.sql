@@ -1,8 +1,8 @@
 CREATE TABLE Announcements (
-    AnnouncementID INT PRIMARY KEY,
-    Title VARCHAR(100),
+    AnnouncementID INTEGER PRIMARY KEY,
+    Title TEXT,
     Content TEXT,
-    Date DATE
+    Date TEXT
 );
 
 INSERT INTO Announcements VALUES (1, 'Midterm Exams', 'Exams start next week', '2026-04-20');

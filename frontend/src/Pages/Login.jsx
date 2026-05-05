@@ -55,6 +55,7 @@ export default function Login({ onLogin }) {
         {/* Left Side - Form */}
         <div className="login-form-side">
           <div className="login-form-wrapper">
+            <button className="login-back-btn" onClick={() => navigate('/')}>← Back</button>
             <h1>Login</h1>
             <p className="login-subtitle">Welcome back! Please enter your details.</p>
 

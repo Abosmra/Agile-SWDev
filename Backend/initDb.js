@@ -91,11 +91,46 @@ async function ensureSchema(db) {
   await ensureColumn(db, 'Courses', 'Instructor', "TEXT DEFAULT 'Staff'");
   await ensureColumn(db, 'Courses', 'Credits', 'INTEGER DEFAULT 3');
   await ensureColumn(db, 'Enrollments', 'UserID', 'INTEGER');
+  await ensureColumn(db, 'Staff', 'Role', "TEXT DEFAULT 'Staff'");
+
+  await runSql(
+    db,
+    `CREATE TABLE IF NOT EXISTS Messages (
+      MessageID INTEGER PRIMARY KEY AUTOINCREMENT,
+      FromUserID INTEGER NOT NULL,
+      ToStaffID INTEGER NOT NULL,
+      Body TEXT NOT NULL,
+      SentDate TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      IsRead INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY (FromUserID) REFERENCES Users(UserID),
+      FOREIGN KEY (ToStaffID) REFERENCES Staff(StaffID)
+    );`
+  );
 
   await runSql(
     db,
     "UPDATE Users SET Department = COALESCE(NULLIF(Department, ''), 'General')"
   );
+
+  await runSql(db, `DELETE FROM Staff WHERE StaffID IN (1, 2, 3) AND Role = 'Advisor'`);
+
+  await runSql(db, `
+    CREATE TABLE IF NOT EXISTS Bookings (
+      BookingID INTEGER PRIMARY KEY AUTOINCREMENT,
+      HallID INTEGER NOT NULL,
+      UserID INTEGER NOT NULL,
+      Date TEXT NOT NULL,
+      StartTime TEXT NOT NULL,
+      EndTime TEXT NOT NULL,
+      Purpose TEXT,
+      Attendees INTEGER,
+      Contact TEXT,
+      Status TEXT DEFAULT 'Pending' CHECK (Status IN ('Confirmed', 'Pending', 'Cancelled')),
+      FOREIGN KEY (HallID) REFERENCES Halls(HallID),
+      FOREIGN KEY (UserID) REFERENCES Users(UserID)
+    )
+  `);
+  await runSql(db, `UPDATE Users SET Role = 'Admin' WHERE Username = 'mohamed@web.dev'`);
   await runSql(
     db,
     "UPDATE Users SET JoinDate = COALESCE(NULLIF(JoinDate, ''), date('now'))"

@@ -18,9 +18,10 @@ export default function Navbar({ onLogout }) {
         <h2>LMS {userRole && `(${userRole.charAt(0).toUpperCase() + userRole.slice(1)})`}</h2>
       </div>
       <ul className="nav-links">
-        {userRole === 'student' && (
+        {(userRole === 'student' || userRole === 'advisor' || userRole === 'doctor') && (
           <>
             <li><NavLink to="/courses" className={({ isActive }) => (isActive ? 'active-link' : '')}>Courses</NavLink></li>
+            <li><NavLink to="/my-courses" className={({ isActive }) => (isActive ? 'active-link' : '')}>My Courses</NavLink></li>
             <li><NavLink to="/announcements" className={({ isActive }) => (isActive ? 'active-link' : '')}>Announcements</NavLink></li>
             <li><NavLink to="/schedule" className={({ isActive }) => (isActive ? 'active-link' : '')}>Schedule</NavLink></li>
             <li><NavLink to="/messaging" className={({ isActive }) => (isActive ? 'active-link' : '')}>Messaging</NavLink></li>

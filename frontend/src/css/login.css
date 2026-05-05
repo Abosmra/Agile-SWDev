@@ -1,265 +1,247 @@
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ======================== PAGE ======================== */
+
 .login-page {
   min-height: 100vh;
   width: 100vw;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  background: linear-gradient(180deg, #f8fafc, #eef2ff);
-  position: relative;
-  overflow: hidden;
+  background: linear-gradient(160deg, #f0f4ff 0%, #e8eeff 100%);
+  padding: 2rem;
+  box-sizing: border-box;
 }
+
 /* ======================== CONTAINER ======================== */
 
 .login-container {
   display: flex;
   width: 100%;
-  max-width: 1200px;
-  height: 90vh;
-
-  border-radius: 28px;
+  max-width: 960px;
+  min-height: 560px;
+  border-radius: 24px;
   overflow: hidden;
-
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
-
-  background: white;
-  z-index: 2;
-  animation: slideUp 0.8s ease-out;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+  animation: slideUp 0.6s ease-out;
 }
 
-/* ======================== LEFT SIDE (LOGIN FORM) ======================== */
+/* ======================== LEFT — FORM SIDE ======================== */
 
 .login-form-side {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  padding: 60px 50px;
-
-  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  padding: 3rem 3rem;
+  background: linear-gradient(145deg, #3b82f6 0%, #1e40af 100%);
   color: white;
   position: relative;
 }
 
-/* subtle inner glow */
 .login-form-side::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top left, rgba(255,255,255,0.15), transparent);
+  background: radial-gradient(circle at top left, rgba(255,255,255,0.12), transparent 60%);
   pointer-events: none;
 }
 
 .login-form-wrapper {
   width: 100%;
-  max-width: 380px;
-  z-index: 2;
+  max-width: 340px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Back button */
+.login-back-btn {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 0.35rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1.75rem;
+  display: inline-block;
+  transition: background 0.2s ease;
+  box-shadow: none;
+}
+
+.login-back-btn:hover {
+  background: rgba(255,255,255,0.25);
+  transform: none;
+  box-shadow: none;
 }
 
 .login-form-side h1 {
-  font-size: 2.6rem;
-  margin-bottom: 8px;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem 0;
   color: white;
 }
 
 .login-subtitle {
-  color: rgba(255,255,255,0.8);
-  margin-bottom: 30px;
+  color: rgba(255,255,255,0.75);
+  margin: 0 0 2rem 0;
+  font-size: 0.95rem;
 }
 
 /* ======================== INPUTS ======================== */
 
-.form-group {
-  margin-bottom: 1.4rem;
+.login-form-side .form-group {
+  margin-bottom: 1.25rem;
 }
 
-.form-group label {
+.login-form-side .form-group label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
   font-weight: 600;
+  font-size: 0.85rem;
   color: rgba(255,255,255,0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.form-group input {
+.login-form-side .form-group input {
   width: 100%;
-  padding: 14px 16px;
-
-  border: none;
-  border-radius: 12px;
-
-  font-size: 1rem;
-
-  background: rgba(255,255,255,0.15);
+  padding: 0.8rem 1rem;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  background: rgba(255,255,255,0.12);
   color: white;
-
   outline: none;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
-.form-group input::placeholder {
-  color: rgba(255,255,255,0.6);
+.login-form-side .form-group input::placeholder {
+  color: rgba(255,255,255,0.45);
 }
 
-.form-group input:focus {
-  background: rgba(255,255,255,0.25);
-  box-shadow: 0 0 0 4px rgba(255,255,255,0.15);
-  transform: translateY(-1px);
+.login-form-side .form-group input:focus {
+  background: rgba(255,255,255,0.22);
+  border-color: rgba(255,255,255,0.5);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.12);
 }
 
-/* ======================== BUTTON ======================== */
-
-.login-submit-btn {
-  width: 100%;
-  padding: 15px;
-
-  background: white;
-  color: #1e40af;
-
-  border: none;
-  border-radius: 12px;
-
-  font-size: 1.05rem;
-  font-weight: 700;
-
-  cursor: pointer;
-  margin-top: 10px;
-
-  transition: all 0.3s ease;
-}
-
-.login-submit-btn:hover:not(:disabled) {
-  transform: translateY(-3px);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-}
-
-.login-submit-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* ======================== RIGHT SIDE IMAGE ======================== */
-
-.login-image-side {
-  flex: 1.2;
-  background: #ffffff;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  position: relative;
-}
-
-.login-image {
-  width: 90%;
-  height: 90%;
-  max-width: 520px;
-
-  object-fit: contain;
-
-  filter: drop-shadow(0 15px 30px rgba(0,0,0,0.12));
-  transition: transform 0.4s ease;
-}
-
-.login-image:hover {
-  transform: scale(1.03);
-}
-
-/* wrapper for input + icon */
 .password-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-/* make ALL inputs consistent */
-.form-group input {
-  width: 100%;
-  padding: 14px 16px;
-  border: none;
-  border-radius: 12px;
-  font-size: 1rem;
-
-  background: rgba(255,255,255,0.15);
-  color: white; /* IMPORTANT */
-
-  outline: none;
-  transition: all 0.3s ease;
+.login-form-side .password-wrapper input {
+  padding-right: 44px;
 }
 
-/* placeholder color */
-.form-group input::placeholder {
-  color: rgba(255,255,255,0.6);
-}
-
-/* focus effect */
-.form-group input:focus {
-  background: rgba(255,255,255,0.25);
-  box-shadow: 0 0 0 4px rgba(255,255,255,0.15);
-  transform: translateY(-1px);
-}
-
-/* ONLY layout fix for password wrapper */
-.password-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-/* IMPORTANT: don't override styling, only spacing */
-.password-wrapper input {
-  padding-right: 45px;
-  color: white; /* ensure consistency */
-}
-
-/* eye icon */
 .eye-icon {
   position: absolute;
-  right: 14px;
-  width: 20px;
-  height: 20px;
+  right: 13px;
+  width: 19px;
+  height: 19px;
   cursor: pointer;
-  opacity: 0.7;
-  transition: 0.2s;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
 }
 
 .eye-icon:hover {
   opacity: 1;
-  transform: scale(1.1);
+}
+
+/* ======================== SUBMIT BUTTON ======================== */
+
+.login-form-wrapper .login-btn {
+  width: 100%;
+  padding: 0.85rem;
+  margin-top: 0.75rem;
+  background: white;
+  color: #1e40af;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+}
+
+.login-form-wrapper .login-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.login-form-wrapper .login-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.login-form-side .error-message {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  margin-bottom: 1.25rem;
+}
+
+/* ======================== RIGHT — IMAGE SIDE ======================== */
+
+.login-image-side {
+  flex: 1.1;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.login-image {
+  width: 85%;
+  max-width: 420px;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 28px rgba(0,0,0,0.1));
+  transition: transform 0.4s ease;
+}
+
+.login-image:hover {
+  transform: scale(1.02);
 }
 
 /* ======================== RESPONSIVE ======================== */
 
-@media (max-width: 900px) {
-  .login-container {
-    flex-direction: column;
-    height: auto;
-    border-radius: 0;
+@media (max-width: 700px) {
+  .login-page {
+    padding: 0;
+    align-items: stretch;
   }
 
-  .login-form-side {
-    padding: 40px 25px;
+  .login-container {
+    flex-direction: column;
+    border-radius: 0;
+    min-height: 100vh;
+    box-shadow: none;
   }
 
   .login-image-side {
-    height: 320px;
+    display: none;
   }
 
-  .login-image {
-    width: 70%;
-    height: 70%;
+  .login-form-side {
+    flex: 1;
+    padding: 2.5rem 1.75rem;
+    justify-content: flex-start;
+    padding-top: 3.5rem;
   }
 
-  @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
+  .login-form-wrapper {
+    max-width: 100%;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 }

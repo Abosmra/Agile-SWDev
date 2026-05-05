@@ -1,10 +1,10 @@
-IF OBJECT_ID('Halls', 'U') IS NOT NULL DROP TABLE Halls;
+DROP TABLE IF EXISTS Halls;
 
 CREATE TABLE Halls (
-    HallID INT IDENTITY(1,1) PRIMARY KEY,
-    HallName VARCHAR(50) NOT NULL,
-    Capacity INT NOT NULL CHECK (Capacity > 0),
-    IsLab BIT NOT NULL DEFAULT 0   -- 0 = classroom, 1 = lab
+    HallID INTEGER PRIMARY KEY AUTOINCREMENT,
+    HallName TEXT NOT NULL,
+    Capacity INTEGER NOT NULL CHECK (Capacity > 0),
+    IsLab INTEGER NOT NULL DEFAULT 0   -- 0 = classroom, 1 = lab
 );
 
 INSERT INTO Halls (HallName, Capacity, IsLab) VALUES

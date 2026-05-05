@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/welcome.css';
 import notes from '../assets/notes.png';
@@ -8,6 +8,14 @@ import education from '../assets/education.png';
 export default function Welcome() {
   const navigate = useNavigate();
   const [active, setActive] = useState('home');
+  const [announcements, setAnnouncements] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/announcements')
+      .then(r => r.ok ? r.json() : [])
+      .then(data => setAnnouncements(data.slice(0, 4)))
+      .catch(() => {});
+  }, []);
 
   const scrollTo = (id) => {
     setActive(id);
@@ -43,6 +51,13 @@ export default function Welcome() {
             onClick={() => scrollTo('about')}
           >
             About
+          </span>
+
+          <span
+            className={active === 'announcements' ? 'active' : ''}
+            onClick={() => scrollTo('announcements')}
+          >
+            News
           </span>
         </div>
 
@@ -186,6 +201,30 @@ export default function Welcome() {
 
         </div>
       </section>
+
+      {/* ANNOUNCEMENTS */}
+      {announcements.length > 0 && (
+        <section className="welcome-ann-section" id="announcements">
+          <h2>Latest News</h2>
+          <p className="section-subtitle">Recent updates from Ain Shams University Faculty of Engineering</p>
+          <div className="welcome-ann-grid">
+            {announcements.map((ann, i) => (
+              <div key={ann.id || i} className="welcome-ann-card">
+                <div className="welcome-ann-meta">
+                  {ann.date && <span className="welcome-ann-date">{ann.date}</span>}
+                </div>
+                <h3>{ann.title}</h3>
+                {ann.content && <p>{ann.content}</p>}
+                {ann.sourceUrl && (
+                  <a href={ann.sourceUrl} target="_blank" rel="noreferrer" className="welcome-ann-link">
+                    Read more →
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* FOOTER */}
       <footer className="footer">

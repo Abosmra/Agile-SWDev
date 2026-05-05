@@ -23,7 +23,7 @@ export default function ChangePasswordModal({ onClose }) {
     }
 
     if (passwords.newPassword !== passwords.confirmPassword) {
-      setError('New passwords do not match!');
+      setError('New passwords do not match.');
       return;
     }
 
@@ -41,42 +41,31 @@ export default function ChangePasswordModal({ onClose }) {
 
   return (
     <div className="modal-overlay">
-      <div className="auth-container modal-content">
-        <h2>Change Password</h2>
-        {error && <p className="error-message">{error}</p>}
-        
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
+      <div className="cp-card">
+        <div className="cp-header">
+          <h2>Change Password</h2>
+          <button className="cp-close" onClick={onClose} type="button">✕</button>
+        </div>
+
+        {error && <div className="error-message cp-error">{error}</div>}
+
+        <form onSubmit={handleSubmit} className="cp-form">
+          <div className="cp-field">
             <label>Current Password</label>
-            <input 
-              type="password" 
-              name="oldPassword" 
-              onChange={handleChange} 
-              required 
-            />
+            <input type="password" name="oldPassword" onChange={handleChange} required placeholder="Enter current password" />
           </div>
-          <div className="form-group">
+          <div className="cp-field">
             <label>New Password</label>
-            <input 
-              type="password" 
-              name="newPassword" 
-              onChange={handleChange} 
-              required 
-            />
+            <input type="password" name="newPassword" onChange={handleChange} required placeholder="Enter new password" />
           </div>
-          <div className="form-group">
+          <div className="cp-field">
             <label>Confirm New Password</label>
-            <input 
-              type="password" 
-              name="confirmPassword" 
-              onChange={handleChange} 
-              required 
-            />
+            <input type="password" name="confirmPassword" onChange={handleChange} required placeholder="Confirm new password" />
           </div>
 
-          <div className="form-buttons">
-            <button type="submit" className="btn-submit">Update</button>
-            <button type="button" className="btn-cancel" onClick={onClose}>Cancel</button>
+          <div className="cp-actions">
+            <button type="submit" className="btn-primary">Update Password</button>
+            <button type="button" className="btn-secondary" onClick={onClose}>Cancel</button>
           </div>
         </form>
       </div>

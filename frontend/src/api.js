@@ -26,6 +26,8 @@ export const clearAuthToken = () => {
   localStorage.removeItem(AUTH_TOKEN_KEY);
 };
 
+const BASE_URL = 'http://localhost:5168';
+
 const request = async (path, options = {}) => {
   const headers = {
     Accept: 'application/json',
@@ -38,7 +40,7 @@ const request = async (path, options = {}) => {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(path, {
+  const response = await fetch(`${BASE_URL}${path}`, {
     ...options,
     headers,
     body: options.body ? JSON.stringify(options.body) : undefined

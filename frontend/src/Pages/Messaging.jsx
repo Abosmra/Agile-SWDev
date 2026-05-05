@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { ProfileContext } from '../context/ProfileContext';
-import { apiGet } from '../api';
+import { apiGet, apiPost } from '../api';
 
 export default function Messaging() {
   const { profileData } = useContext(ProfileContext);
@@ -10,25 +10,54 @@ export default function Messaging() {
   const [newMessage, setNewMessage] = useState('');
 
   useEffect(() => {
-    apiGet('/api/staff').then(data => setStaff(data)).catch(err => console.error(err));
+    apiGet('/api/staff')
+      .then(data => setStaff(data))
+      .catch(err => console.error(err));
   }, []);
 
-  const handleSendMessage = (e) => {
+  useEffect(() => {
+    if (!activeChat) {
+      setMessages([]);
+      return;
+    }
+
+    apiGet(`/api/messages/${activeChat.id}`)
+      .then((data) => setMessages(data))
+      .catch((err) => {
+        console.error(err);
+        setMessages([]);
+      });
+  }, [activeChat]);
+
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (newMessage.trim() && activeChat) {
-      const msg = {
-        id: Date.now(),
-        text: newMessage,
-        sender: `${profileData.firstName} ${profileData.lastName}`,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isUser: true
-      };
-      setMessages([...messages, msg]);
+    if (!newMessage.trim() || !activeChat) return;
+
+    const payload = {
+      toStaffId: activeChat.id,
+      body: newMessage.trim()
+    };
+
+    try {
+      const savedMessage = await apiPost('/api/messages', payload);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          id: savedMessage.id,
+          text: savedMessage.body,
+          sender: savedMessage.sender,
+          time: new Date(savedMessage.sentDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isUser: true
+        }
+      ]);
       setNewMessage('');
+    } catch (err) {
+      console.error(err);
     }
   };
 
   return (
+    <div className="messaging-page">
     <div className="messaging-layout">
       {/* Sidebar: Conversation List */}
       <div className="messaging-sidebar">
@@ -43,11 +72,11 @@ export default function Messaging() {
               onClick={() => setActiveChat(member)}
             >
               <div className="avatar-circle">
-                {member.name.charAt(0)}
+                {(member.name || '').charAt(0)}
               </div>
               <div className="conversation-details">
                 <span className="user-name">{member.name}</span>
-                <span className="last-snippet">{member.role}</span>
+                <span className="last-snippet">{member.role || member.department}</span>
               </div>
             </div>
           ))}
@@ -66,14 +95,18 @@ export default function Messaging() {
             </div>
             
             <div className="chat-history">
-              {messages.map((msg) => (
-                <div key={msg.id} className={`message-row ${msg.isUser ? 'user-sent' : 'received'}`}>
-                  <div className="bubble">
-                    <p>{msg.text}</p>
-                    <span className="bubble-time">{msg.time}</span>
+              {messages.length === 0 ? (
+                <div className="empty-chat-message">No messages yet. Send the first message to your advisor or doctor.</div>
+              ) : (
+                messages.map((msg) => (
+                  <div key={msg.id} className={`message-row ${msg.isUser ? 'user-sent' : 'received'}`}>
+                    <div className="bubble">
+                      <p>{msg.text}</p>
+                      <span className="bubble-time">{msg.time}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             <form className="chat-input-container" onSubmit={handleSendMessage}>
@@ -98,6 +131,7 @@ export default function Messaging() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }

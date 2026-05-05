@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { apiGet } from '../api';
+import { apiGet, apiDelete } from '../api';
+import NotificationToast from '../Components/NotificationToast';
 
 function statusToProgress(status) {
   switch (status) {
@@ -16,6 +17,7 @@ export default function MyCourses() {
   const [courses, setCourses] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     const loadCourses = async () => {
@@ -25,6 +27,7 @@ export default function MyCourses() {
           const progress = statusToProgress(course.Status);
           return {
             id: course.CourseID,
+            enrollmentId: course.EnrollmentID,
             title: course.CourseName,
             courseCode: course.CourseCode,
             progress,
@@ -49,6 +52,16 @@ export default function MyCourses() {
     if (progress >= 50) return '#667eea';
     if (progress >= 25) return '#ff9800';
     return '#f44336';
+  };
+
+  const handleDrop = async (enrollmentId, courseId, courseTitle) => {
+    try {
+      await apiDelete(`/api/my-courses/${enrollmentId}`);
+      setCourses(prev => prev.filter(c => c.id !== courseId));
+      setToast({ type: 'warning', message: `"${courseTitle}" has been dropped.` });
+    } catch (err) {
+      setToast({ type: 'error', message: err.message || 'Unable to drop course.' });
+    }
   };
 
   const getStatusBadgeColor = (status) => {
@@ -97,9 +110,17 @@ export default function MyCourses() {
                     Course Code: <strong>{course.courseCode}</strong>
                   </p>
                 </div>
-                <span style={{ background: getStatusBadgeColor(course.status), color: 'white', padding: '6px 12px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold' }}>
-                  {course.status}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ background: getStatusBadgeColor(course.status), color: 'white', padding: '6px 12px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                    {course.status}
+                  </span>
+                  <button
+                    onClick={() => handleDrop(course.enrollmentId, course.id, course.title)}
+                    style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}
+                  >
+                    Drop
+                  </button>
+                </div>
               </div>
 
               <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', fontSize: '0.9rem', color: '#7f8c8d' }}>
@@ -129,6 +150,13 @@ export default function MyCourses() {
             </div>
           ))}
         </div>
+      )}
+      {toast && (
+        <NotificationToast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast(null)}
+        />
       )}
     </div>
   );

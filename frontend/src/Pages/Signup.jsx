@@ -82,6 +82,22 @@ export default function Signup({ onLogin }) {
               </button>
               <button
                 type="button"
+                className={`role-btn-vertical ${role === 'advisor' ? 'active' : ''}`}
+                onClick={() => setRole('advisor')}
+              >
+                <span className="role-icon">🧑‍🏫</span>
+                <span>Advisor</span>
+              </button>
+              <button
+                type="button"
+                className={`role-btn-vertical ${role === 'doctor' ? 'active' : ''}`}
+                onClick={() => setRole('doctor')}
+              >
+                <span className="role-icon">🩺</span>
+                <span>Doctor</span>
+              </button>
+              <button
+                type="button"
                 className={`role-btn-vertical ${role === 'staff' ? 'active' : ''}`}
                 onClick={() => setRole('staff')}
               >
