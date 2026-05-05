@@ -105,18 +105,38 @@ function MiniCalendar() {
   );
 }
 
-// ── Online Users ──────────────────────────────────────────────────────
-
-const ONLINE_USERS = [
-  { name: 'Maren Maureen',   id: '1094882001', online: true },
-  { name: 'Jenniffer Jane',  id: '1094672000', online: true },
-  { name: 'Ryan Herwinds',   id: '1094342003', online: false },
-  { name: 'Kierra Culhane',  id: '1094662002', online: true },
-];
+// ── Online Users (dynamic) ────────────────────────────────────────────
 
 function OnlineUsers() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [seeAll, setSeeAll] = useState(false);
-  const displayedUsers = seeAll ? ONLINE_USERS : ONLINE_USERS.slice(0, 3);
+
+  const fetchUsers = async () => {
+    try {
+      const data = await apiGet('/api/online-users');
+      setUsers(data);
+      setError('');
+    } catch (err) {
+      setError('Failed to load online users');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+    const interval = setInterval(fetchUsers, 30000); // refresh every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  const displayedUsers = seeAll ? users : users.slice(0, 3);
+
+  if (loading) return <div className="mc-online-loading">Loading users...</div>;
+  if (error) return <div className="mc-online-error">{error}</div>;
+
   return (
     <div className="mc-online">
       <div className="mc-online-header">
@@ -128,7 +148,7 @@ function OnlineUsers() {
       <ul className="mc-online-list">
         {displayedUsers.map(u => (
           <li key={u.id} className="mc-online-item">
-            <div className="mc-avatar">{u.name[0]}</div>
+            <div className="mc-avatar">{u.name.charAt(0)}</div>
             <div className="mc-user-info">
               <span className="mc-user-name">{u.name}</span>
               <span className="mc-user-id">{u.id}</span>
@@ -167,7 +187,7 @@ function Sidebar({ activeView, onNavigate }) {
   );
 }
 
-// ── Course Details Modal (same design as CourseCard) ──────────────────
+// ── Course Details Modal ───────────────────────────────────────────────
 
 function CourseDetailsModal({ course, isEnrolled, onClose, onEnroll }) {
   if (!course) return null;
@@ -291,7 +311,7 @@ export default function MyCourses() {
     loadCourses();
   }, []);
 
-  // Filter helpers – only by search query (no extra filters)
+  // Filter helpers – only by search query
   const filterCourses = (data) => {
     if (!searchQuery.trim()) return data;
     const q = searchQuery.toLowerCase();
