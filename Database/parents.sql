@@ -1,0 +1,10 @@
+IF OBJECT_ID('Parents', 'U') IS NOT NULL DROP TABLE Parents;
+
+CREATE TABLE Parents (
+    ParentID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT NOT NULL,
+    StudentID INT NOT NULL,
+    Phone VARCHAR(20),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (StudentID) REFERENCES Users(UserID)
+);

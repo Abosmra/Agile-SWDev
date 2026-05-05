@@ -1,0 +1,9 @@
+IF OBJECT_ID('LeaveRequests', 'U') IS NOT NULL DROP TABLE LeaveRequests;
+CREATE TABLE LeaveRequests (
+    RequestID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT NOT NULL,
+    StartDate DATE NOT NULL,
+    EndDate DATE NOT NULL,
+    Status VARCHAR(20) DEFAULT 'Pending',
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);

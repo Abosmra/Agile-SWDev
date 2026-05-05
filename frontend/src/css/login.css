@@ -1,0 +1,265 @@
+.login-page {
+  min-height: 100vh;
+  width: 100vw;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: linear-gradient(180deg, #f8fafc, #eef2ff);
+  position: relative;
+  overflow: hidden;
+}
+/* ======================== CONTAINER ======================== */
+
+.login-container {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  height: 90vh;
+
+  border-radius: 28px;
+  overflow: hidden;
+
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+
+  background: white;
+  z-index: 2;
+  animation: slideUp 0.8s ease-out;
+}
+
+/* ======================== LEFT SIDE (LOGIN FORM) ======================== */
+
+.login-form-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 60px 50px;
+
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  color: white;
+  position: relative;
+}
+
+/* subtle inner glow */
+.login-form-side::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(255,255,255,0.15), transparent);
+  pointer-events: none;
+}
+
+.login-form-wrapper {
+  width: 100%;
+  max-width: 380px;
+  z-index: 2;
+}
+
+.login-form-side h1 {
+  font-size: 2.6rem;
+  margin-bottom: 8px;
+  color: white;
+}
+
+.login-subtitle {
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 30px;
+}
+
+/* ======================== INPUTS ======================== */
+
+.form-group {
+  margin-bottom: 1.4rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px 16px;
+
+  border: none;
+  border-radius: 12px;
+
+  font-size: 1rem;
+
+  background: rgba(255,255,255,0.15);
+  color: white;
+
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.form-group input::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+
+.form-group input:focus {
+  background: rgba(255,255,255,0.25);
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.15);
+  transform: translateY(-1px);
+}
+
+/* ======================== BUTTON ======================== */
+
+.login-submit-btn {
+  width: 100%;
+  padding: 15px;
+
+  background: white;
+  color: #1e40af;
+
+  border: none;
+  border-radius: 12px;
+
+  font-size: 1.05rem;
+  font-weight: 700;
+
+  cursor: pointer;
+  margin-top: 10px;
+
+  transition: all 0.3s ease;
+}
+
+.login-submit-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+}
+
+.login-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ======================== RIGHT SIDE IMAGE ======================== */
+
+.login-image-side {
+  flex: 1.2;
+  background: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+}
+
+.login-image {
+  width: 90%;
+  height: 90%;
+  max-width: 520px;
+
+  object-fit: contain;
+
+  filter: drop-shadow(0 15px 30px rgba(0,0,0,0.12));
+  transition: transform 0.4s ease;
+}
+
+.login-image:hover {
+  transform: scale(1.03);
+}
+
+/* wrapper for input + icon */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* make ALL inputs consistent */
+.form-group input {
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+
+  background: rgba(255,255,255,0.15);
+  color: white; /* IMPORTANT */
+
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+/* placeholder color */
+.form-group input::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+
+/* focus effect */
+.form-group input:focus {
+  background: rgba(255,255,255,0.25);
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.15);
+  transform: translateY(-1px);
+}
+
+/* ONLY layout fix for password wrapper */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* IMPORTANT: don't override styling, only spacing */
+.password-wrapper input {
+  padding-right: 45px;
+  color: white; /* ensure consistency */
+}
+
+/* eye icon */
+.eye-icon {
+  position: absolute;
+  right: 14px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: 0.2s;
+}
+
+.eye-icon:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* ======================== RESPONSIVE ======================== */
+
+@media (max-width: 900px) {
+  .login-container {
+    flex-direction: column;
+    height: auto;
+    border-radius: 0;
+  }
+
+  .login-form-side {
+    padding: 40px 25px;
+  }
+
+  .login-image-side {
+    height: 320px;
+  }
+
+  .login-image {
+    width: 70%;
+    height: 70%;
+  }
+
+  @keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+}
