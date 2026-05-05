@@ -17,10 +17,10 @@
 }
 
 /* ======================== Global Styles ======================== */
-* {
+
+html, body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 body {
@@ -40,11 +40,6 @@ code {
   min-height: 100vh;
 }
 
-.main-content {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
 
 /* ======================== Navbar Styles ======================== */
 .navbar {
@@ -937,7 +932,6 @@ button:disabled {
 .announcements-page,
 .staff-page,
 .messaging-page {
-  max-width: 1200px;
   margin: 0 auto;
 }
 
