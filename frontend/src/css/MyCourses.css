@@ -570,3 +570,34 @@
   height: 18px;
   object-fit: contain;
 }
+
+.mc-brand { 
+  font-size: 22px; font-weight: 800; color: white; 
+  padding: 0 24px 24px; letter-spacing: -0.5px; 
+}
+.mc-brand-dot { color: #b3a0ff; }
+
+.mc-profile {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,0.12);
+  margin: 0 14px 24px; border-radius: 16px; padding: 12px 14px;
+  cursor: pointer;
+}
+.mc-avatar-circle {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, #b3a0ff, #7c5cfc);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 800; color: white; flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+.mc-profile-name { display: block; color: white; font-size: 13px; font-weight: 700; }
+.mc-profile-id   { display: block; color: rgba(255,255,255,0.55); font-size: 10.5px; }
+
+.mc-logout-btn {
+  display: flex; align-items: center; gap: 13px;
+  color: rgba(255,255,255,0.5); padding: 11px 26px;
+  cursor: pointer; font-size: 14px; font-weight: 600;
+  background: none; border: none; font-family: inherit;
+  width: 100%; margin-top: auto; transition: color 0.2s;
+}
+.mc-logout-btn:hover { color: #ff8fa3; }

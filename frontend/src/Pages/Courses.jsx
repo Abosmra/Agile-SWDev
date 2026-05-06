@@ -161,31 +161,7 @@ function OnlineUsers() {
   );
 }
 
-// ── Sidebar ────────────────────────────────────────────────────────────
 
-const NAV_ITEMS = [
-  { label: 'Dashboard',   icon: '⊞', view: 'dashboard' },
-  { label: 'All Courses', icon: '◎', view: 'courses' },
-];
-
-function Sidebar({ activeView, onNavigate }) {
-  return (
-    <aside className="mc-sidebar">
-      <nav className="mc-nav">
-        {NAV_ITEMS.map(n => (
-          <div
-            key={n.label}
-            className={`mc-nav-item ${activeView === n.view ? 'active' : ''}`}
-            onClick={() => onNavigate(n.view)}
-          >
-            <span className="mc-nav-icon">{n.icon}</span>
-            <span>{n.label}</span>
-          </div>
-        ))}
-      </nav>
-    </aside>
-  );
-}
 
 // ── Course Details Modal ───────────────────────────────────────────────
 
@@ -377,7 +353,7 @@ export default function MyCourses() {
 
   const handleEnroll = async (courseId) => {
     try {
-      await apiPost('/api/enroll', { courseId });
+      await apiPost('/api/enrollments', { courseId });
       alert('Enrollment request sent!');
     } catch (err) {
       alert('Enrollment failed: ' + err.message);
@@ -443,7 +419,6 @@ export default function MyCourses() {
 
   return (
     <div className="mc-root">
-      <Sidebar activeView={activeView} onNavigate={setActiveView} />
       <main className="mc-main">
         <div className="mc-topbar">
           <h1 className="mc-page-title">{activeView === 'dashboard' ? 'All Courses' : 'My Courses'}</h1>

@@ -133,42 +133,6 @@ function OnlineUsers() {
   );
 }
 
-// ── Sidebar ───────────────────────────────────────────────────────────────────
-
-const NAV_ITEMS = [
-  { label: 'Dashboard',   icon: '⊞', active: true },
-  { label: 'All Courses', icon: '◎' },
-  { label: 'Messages',    icon: '⊙' },
-  { label: 'Friends',     icon: '⚇' },
-  { label: 'Schedule',    icon: '▣' },
-];
-const NAV_BOTTOM = [
-  { label: 'Settings',  icon: '⚙' },
-  { label: 'Directory', icon: 'ℹ' },
-];
-
-function Sidebar() {
-  return (
-    <aside className="mc-sidebar">
-      <nav className="mc-nav">
-        {NAV_ITEMS.map(n => (
-          <div key={n.label} className={`mc-nav-item ${n.active ? 'active' : ''}`}>
-            <span className="mc-nav-icon">{n.icon}</span>
-            <span>{n.label}</span>
-          </div>
-        ))}
-      </nav>
-      <nav className="mc-nav mc-nav-bottom">
-        {NAV_BOTTOM.map(n => (
-          <div key={n.label} className="mc-nav-item">
-            <span className="mc-nav-icon">{n.icon}</span>
-            <span>{n.label}</span>
-          </div>
-        ))}
-      </nav>
-    </aside>
-  );
-}
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
