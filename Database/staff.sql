@@ -1,4 +1,10 @@
-CREATE TABLE Staff (
+DROP TABLE IF EXISTS Courses;
+DROP TABLE IF EXISTS Announcements;
+DROP TABLE IF EXISTS Enrollments;
+DROP TABLE IF EXISTS Staff;
+
+
+cREATE TABLE Staff (
     StaffID INTEGER PRIMARY KEY,
     Name TEXT,
     Department TEXT,

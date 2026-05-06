@@ -1,3 +1,8 @@
+DROP TABLE IF EXISTS Courses;
+DROP TABLE IF EXISTS Announcements;
+DROP TABLE IF EXISTS Enrollments;
+DROP TABLE IF EXISTS Staff;
+
 IF OBJECT_ID('Assignments', 'U') IS NOT NULL DROP TABLE Assignments;
 CREATE TABLE Assignments (
     AssignmentID INT IDENTITY(1,1) PRIMARY KEY,

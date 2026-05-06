@@ -1,13 +1,11 @@
--- Drop table if exists
-DROP TABLE IF EXISTS Users;
-
+-- Drop table if 
 CREATE TABLE Users (
-    UserID INTEGER PRIMARY KEY AUTOINCREMENT,
-    Username TEXT UNIQUE NOT NULL,
-    Password TEXT NOT NULL,
-    GivenName TEXT,
-    FamilyName TEXT,
-    Role TEXT CHECK (Role IN ('Student', 'Staff', 'Admin', 'Advisor', 'Doctor', 'Parent'))
+    UserID INT PRIMARY KEY IDENTITY(1,1),
+    Username NVARCHAR(255) UNIQUE NOT NULL,
+    Password NVARCHAR(255) NOT NULL,
+    GivenName NVARCHAR(100),
+    FamilyName NVARCHAR(100),
+    Role NVARCHAR(50) CHECK (Role IN ('Student', 'Staff', 'Admin', 'Advisor', 'Doctor', 'Parent'))
 );
 
 -- Insert data

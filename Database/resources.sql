@@ -1,3 +1,9 @@
+DROP TABLE IF EXISTS Courses;
+DROP TABLE IF EXISTS Announcements;
+DROP TABLE IF EXISTS Enrollments;
+DROP TABLE IF EXISTS Staff;
+
+
 IF OBJECT_ID('ResourceAllocations', 'U') IS NOT NULL DROP TABLE ResourceAllocations;
 IF OBJECT_ID('Resources', 'U') IS NOT NULL DROP TABLE Resources;
 

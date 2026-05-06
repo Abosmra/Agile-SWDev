@@ -1,3 +1,8 @@
+DROP TABLE IF EXISTS Courses;
+DROP TABLE IF EXISTS Announcements;
+DROP TABLE IF EXISTS Enrollments;
+DROP TABLE IF EXISTS Staff;
+
 CREATE TABLE Announcements (
     AnnouncementID INTEGER PRIMARY KEY,
     Title TEXT,
