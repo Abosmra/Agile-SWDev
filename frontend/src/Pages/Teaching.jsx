@@ -17,7 +17,7 @@ export default function Teaching() {
   const [activeSection, setActiveSection] = useState(initialSection);
   const [selectedCourseId, setSelectedCourseId] = useState(null);
   const [courseDetail, setCourseDetail] = useState(null);
-  const [assignmentForm, setAssignmentForm] = useState({ title: '', dueDate: '', maxScore: 100 });
+  const [assignmentForm, setAssignmentForm] = useState({ title: '', category: 'Assignment', dueDate: '', maxScore: 100 });
   const [gradeForm, setGradeForm] = useState({ studentId: '', assignmentId: '', score: '', feedback: '' });
   const [materialForm, setMaterialForm] = useState({ title: '', type: 'Link', url: '', notes: '' });
   const [notice, setNotice] = useState('');
@@ -102,7 +102,7 @@ export default function Teaching() {
     setError('');
     try {
       await apiPost(`/api/teaching/courses/${selectedCourseId}/assignments`, assignmentForm);
-      setAssignmentForm({ title: '', dueDate: '', maxScore: 100 });
+      setAssignmentForm({ title: '', category: 'Assignment', dueDate: '', maxScore: 100 });
       setNotice('Assignment created.');
       await refreshDetail();
     } catch (err) {
@@ -180,6 +180,11 @@ export default function Teaching() {
     });
     return map;
   }, [courseDetail]);
+
+  const getSubmissionStudentName = (submission) => {
+    const fullName = `${submission.GivenName || ''} ${submission.FamilyName || ''}`.trim();
+    return fullName || submission.Username || `Student ${submission.StudentID}`;
+  };
 
   if (loading) {
     return <div className="teaching-page"><p>Loading teaching workspace...</p></div>;
@@ -269,12 +274,18 @@ export default function Teaching() {
             </div>
 
             <div className="teaching-card">
-              <h2>Create Assignment</h2>
+              <h2>Create Assignment, Quiz, or Project</h2>
               <form onSubmit={handleAssignmentSubmit} className="teaching-form">
                 <input value={assignmentForm.title} onChange={(e) => setAssignmentForm({ ...assignmentForm, title: e.target.value })} placeholder="Assignment title" required />
+                <select value={assignmentForm.category} onChange={(e) => setAssignmentForm({ ...assignmentForm, category: e.target.value })}>
+                  <option>Assignment</option>
+                  <option>Quiz</option>
+                  <option>Lab</option>
+                  <option>Project</option>
+                </select>
                 <input type="date" value={assignmentForm.dueDate} onChange={(e) => setAssignmentForm({ ...assignmentForm, dueDate: e.target.value })} />
                 <input type="number" min="1" value={assignmentForm.maxScore} onChange={(e) => setAssignmentForm({ ...assignmentForm, maxScore: e.target.value })} placeholder="Max score" />
-                <button type="submit">Add Assignment</button>
+                <button type="submit">Add Work Item</button>
               </form>
             </div>
 
@@ -305,10 +316,58 @@ export default function Teaching() {
                 {(courseDetail?.assignments || []).map((assignment) => (
                   <div key={assignment.AssignmentID} className="teaching-list-item">
                     <strong>{assignment.Title}</strong>
-                    <span>Due {assignment.DueDate || 'TBD'} · {assignment.MaxScore} marks</span>
+                    <span>{assignment.Category || 'Assignment'} · Due {assignment.DueDate || 'TBD'} · {assignment.MaxScore} marks</span>
                   </div>
                 ))}
                 {!courseDetail?.assignments?.length && <p>No assignments yet.</p>}
+              </div>
+            </div>
+
+            <div className="teaching-card teaching-wide">
+              <h2>Student Submissions</h2>
+              <div className="teaching-table-wrap">
+                <table className="teaching-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Work</th>
+                      <th>Submission</th>
+                      <th>Submitted</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(courseDetail?.submissions || []).map((submission) => (
+                      <tr key={submission.SubmissionID}>
+                        <td>{getSubmissionStudentName(submission)}</td>
+                        <td>{submission.AssignmentTitle} · {submission.Category}</td>
+                        <td>
+                          {submission.Content || 'No notes'}
+                          {submission.FileName && <div>{submission.FileName}</div>}
+                          {submission.FileUrl && <a href={submission.FileUrl} target="_blank" rel="noreferrer">Open file</a>}
+                        </td>
+                        <td>{submission.SubmittedAt}</td>
+                        <td>
+                          <button
+                            type="button"
+                            className="teaching-inline-action"
+                            onClick={() => setGradeForm({
+                              studentId: submission.StudentID,
+                              assignmentId: submission.AssignmentID,
+                              score: '',
+                              feedback: ''
+                            })}
+                          >
+                            Grade
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {!courseDetail?.submissions?.length && (
+                      <tr><td colSpan="5">No student submissions yet.</td></tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiGet, apiDelete } from '../api';
 import NotificationToast from '../Components/NotificationToast';
 
@@ -137,6 +138,7 @@ function OnlineUsers() {
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function MyCourses() {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [error, setError]     = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -236,6 +238,12 @@ export default function MyCourses() {
                   <span style={{ background: getStatusBadgeColor(course.status), color: 'white', padding: '6px 12px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold' }}>
                     {course.status}
                   </span>
+                  <button
+                    onClick={() => navigate(`/my-courses/${course.id}`)}
+                    style={{ background: '#eef2ff', color: '#4338ca', border: '1px solid #c7d2fe', padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}
+                  >
+                    Open
+                  </button>
                   <button
                     onClick={() => handleDrop(course.enrollmentId, course.id, course.title)}
                     style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}

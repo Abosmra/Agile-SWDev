@@ -56,6 +56,27 @@ async function ensureTeachingSchema(db) {
     FOREIGN KEY (UserID) REFERENCES Users(UserID),
     UNIQUE (CourseID, UserID)
   )`);
+
+  const assignmentColumns = await runQuery(db, 'PRAGMA table_info(Assignments)');
+  if (!assignmentColumns.some((column) => column.name === 'Category')) {
+    await runExec(db, "ALTER TABLE Assignments ADD COLUMN Category TEXT NOT NULL DEFAULT 'Assignment'");
+  }
+
+  await runExec(db, `CREATE TABLE IF NOT EXISTS StudentSubmissions (
+    SubmissionID INTEGER PRIMARY KEY AUTOINCREMENT,
+    AssignmentID INTEGER NOT NULL,
+    CourseID INTEGER NOT NULL,
+    StudentID INTEGER NOT NULL,
+    Content TEXT,
+    FileName TEXT,
+    FileUrl TEXT,
+    SubmittedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    Status TEXT NOT NULL DEFAULT 'Submitted',
+    FOREIGN KEY (AssignmentID) REFERENCES Assignments(AssignmentID),
+    FOREIGN KEY (CourseID) REFERENCES Courses(CourseID),
+    FOREIGN KEY (StudentID) REFERENCES Users(UserID),
+    UNIQUE (AssignmentID, StudentID)
+  )`);
 }
 
 async function getTeachingCourses(db, user) {
@@ -159,7 +180,7 @@ module.exports = function setupTeachingRoutes(app) {
       const course = await requireTeachingCourse(req, res, req.params.courseId);
       if (!course) return;
 
-      const [students, assignments, grades, materials] = await Promise.all([
+      const [students, assignments, grades, materials, submissions] = await Promise.all([
         runQuery(
           req.app.locals.db,
           `SELECT e.EnrollmentID, e.StudentName, e.Status, e.UserID,
@@ -172,7 +193,7 @@ module.exports = function setupTeachingRoutes(app) {
         ),
         runQuery(
           req.app.locals.db,
-          `SELECT AssignmentID, CourseID, Title, DueDate, MaxScore
+          `SELECT AssignmentID, CourseID, Title, Category, DueDate, MaxScore
            FROM Assignments
            WHERE CourseID = ?
            ORDER BY DueDate, AssignmentID`,
@@ -193,10 +214,23 @@ module.exports = function setupTeachingRoutes(app) {
            WHERE CourseID = ?
            ORDER BY UploadedAt DESC`,
           [course.CourseID]
+        ),
+        runQuery(
+          req.app.locals.db,
+          `SELECT s.SubmissionID, s.AssignmentID, s.CourseID, s.StudentID, s.Content, s.FileName,
+                  s.FileUrl, s.SubmittedAt, s.Status,
+                  a.Title AS AssignmentTitle, a.Category,
+                  u.Username, u.GivenName, u.FamilyName
+           FROM StudentSubmissions s
+           INNER JOIN Assignments a ON a.AssignmentID = s.AssignmentID
+           LEFT JOIN Users u ON u.UserID = s.StudentID
+           WHERE s.CourseID = ?
+           ORDER BY s.SubmittedAt DESC`,
+          [course.CourseID]
         )
       ]);
 
-      res.json({ course, students, assignments, grades, materials });
+      res.json({ course, students, assignments, grades, materials, submissions });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -207,18 +241,19 @@ module.exports = function setupTeachingRoutes(app) {
       const course = await requireTeachingCourse(req, res, req.params.courseId);
       if (!course) return;
 
-      const { title, dueDate, maxScore } = req.body;
+      await ensureTeachingSchema(req.app.locals.db);
+      const { title, category, dueDate, maxScore } = req.body;
       if (!title || !String(title).trim()) {
         return res.status(400).json({ error: 'Assignment title is required' });
       }
 
       const result = await runExec(
         req.app.locals.db,
-        `INSERT INTO Assignments (CourseID, Title, DueDate, MaxScore) VALUES (?, ?, ?, ?)`,
-        [course.CourseID, String(title).trim(), dueDate || '', Number(maxScore) || 100]
+        `INSERT INTO Assignments (CourseID, Title, Category, DueDate, MaxScore) VALUES (?, ?, ?, ?, ?)`,
+        [course.CourseID, String(title).trim(), category || 'Assignment', dueDate || '', Number(maxScore) || 100]
       );
 
-      res.status(201).json({ AssignmentID: result.lastID, CourseID: course.CourseID, Title: title, DueDate: dueDate || '', MaxScore: Number(maxScore) || 100 });
+      res.status(201).json({ AssignmentID: result.lastID, CourseID: course.CourseID, Title: title, Category: category || 'Assignment', DueDate: dueDate || '', MaxScore: Number(maxScore) || 100 });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

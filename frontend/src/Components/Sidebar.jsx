@@ -78,6 +78,7 @@ export default function Sidebar({ onLogout }) {
 
   const staffLinks = [
     { label: 'Staff Home',       icon: Icons.dashboard, to: '/staff-dashboard' },
+    { label: 'Messages',         icon: Icons.messaging, to: '/messaging' },
     { label: 'Teaching',         icon: Icons.courses,   to: '/teaching' },
     { label: 'Staff Directory',  icon: Icons.profile,   to: '/staff' },
     { label: 'Facilities',       icon: Icons.halls,     to: '/halls' },

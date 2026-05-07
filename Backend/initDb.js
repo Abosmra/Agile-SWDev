@@ -152,11 +152,13 @@ async function ensureSchema(db) {
       AssignmentID INTEGER PRIMARY KEY AUTOINCREMENT,
       CourseID INTEGER NOT NULL,
       Title TEXT NOT NULL,
+      Category TEXT NOT NULL DEFAULT 'Assignment',
       DueDate TEXT,
       MaxScore INTEGER DEFAULT 100,
       FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
     );
   `);
+  await ensureColumn(db, 'Assignments', 'Category', "TEXT NOT NULL DEFAULT 'Assignment'");
 
   await runSql(db, `
     CREATE TABLE IF NOT EXISTS Grades (
@@ -171,12 +173,30 @@ async function ensureSchema(db) {
   `);
 
   await runSql(db, `
-    INSERT OR IGNORE INTO Assignments (AssignmentID, CourseID, Title, DueDate, MaxScore)
+    CREATE TABLE IF NOT EXISTS StudentSubmissions (
+      SubmissionID INTEGER PRIMARY KEY AUTOINCREMENT,
+      AssignmentID INTEGER NOT NULL,
+      CourseID INTEGER NOT NULL,
+      StudentID INTEGER NOT NULL,
+      Content TEXT,
+      FileName TEXT,
+      FileUrl TEXT,
+      SubmittedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      Status TEXT NOT NULL DEFAULT 'Submitted',
+      FOREIGN KEY (AssignmentID) REFERENCES Assignments(AssignmentID),
+      FOREIGN KEY (CourseID) REFERENCES Courses(CourseID),
+      FOREIGN KEY (StudentID) REFERENCES Users(UserID),
+      UNIQUE (AssignmentID, StudentID)
+    );
+  `);
+
+  await runSql(db, `
+    INSERT OR IGNORE INTO Assignments (AssignmentID, CourseID, Title, Category, DueDate, MaxScore)
     VALUES
-      (1, 1, 'Distributed Systems Lab 1', '2026-05-20', 100),
-      (2, 1, 'Consensus Algorithms Quiz', '2026-05-27', 50),
-      (3, 2, 'Embedded Controller Design', '2026-05-24', 100),
-      (4, 4, 'IoT Sensor Integration Lab', '2026-05-26', 100);
+      (1, 1, 'Distributed Systems Lab 1', 'Lab', '2026-05-20', 100),
+      (2, 1, 'Consensus Algorithms Quiz', 'Quiz', '2026-05-27', 50),
+      (3, 2, 'Embedded Controller Design', 'Assignment', '2026-05-24', 100),
+      (4, 4, 'IoT Sensor Integration Lab', 'Lab', '2026-05-26', 100);
   `);
 
   await runSql(db, `
@@ -184,6 +204,16 @@ async function ensureSchema(db) {
     VALUES
       (1, 1, 1, 92, 'Strong implementation and clear report'),
       (2, 1, 2, 45, 'Good understanding of Raft basics');
+  `);
+
+  await runSql(db, `
+    INSERT OR IGNORE INTO CourseMaterials (MaterialID, CourseID, Title, Type, Url, Notes, UploadedBy)
+    VALUES
+      (1, 1, 'Lecture 1: Distributed Systems Overview', 'Lecture', 'https://example.com/cse362/lecture-1', 'Core concepts and system models', 4),
+      (2, 1, 'Tutorial 1: RPC Practice', 'Tutorial', 'https://example.com/cse362/tutorial-1', 'Practice sheet for remote calls', 4),
+      (3, 1, 'Lab Guide: Socket Cluster', 'Lab', 'https://example.com/cse362/lab-sockets', 'Submit your lab report under work items', 4),
+      (4, 1, 'Project Brief', 'Project', 'https://example.com/cse362/project', 'Team project requirements', 4),
+      (5, 1, 'Reference Links', 'Link', 'https://example.com/cse362/resources', 'Useful documentation and readings', 4);
   `);
 
   await runSql(

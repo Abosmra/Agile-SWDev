@@ -10,6 +10,7 @@ import Announcements from './Pages/Announcements';
 import Staff from './Pages/Staff';
 import Messaging from './Pages/Messaging';
 import MyCourses from './Pages/MyCourses';
+import StudentCourseDetail from './Pages/StudentCourseDetail';
 import StudentSchedule from './Pages/StudentSchedule';
 import StaffDashboard from './Pages/StaffDashboard';
 import AdminDashboard from './Pages/AdminDashboard';
@@ -120,6 +121,7 @@ function AppContent() {
             <>
               <Route path="/courses"        element={<Courses />} />
               <Route path="/my-courses"     element={<MyCourses />} />
+              <Route path="/my-courses/:courseId" element={<StudentCourseDetail />} />
               <Route path="/announcements"  element={<Announcements />} />
               <Route path="/schedule"       element={<StudentSchedule />} />
               <Route path="/messaging"      element={<Messaging />} />
