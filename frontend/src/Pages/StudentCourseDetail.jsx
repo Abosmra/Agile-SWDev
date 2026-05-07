@@ -205,7 +205,7 @@ export default function StudentCourseDetail() {
                     </div>
                     {submission && (
                       <p className="student-submission-meta">
-                        Last submitted {submission.SubmittedAt} {grade ? `· Grade ${grade.Score}/${assignment.MaxScore}` : '· Not graded'}
+                        Last submitted {submission.SubmittedAt} {grade ? `· Graded ${grade.Score}/${assignment.MaxScore}` : '· Not graded'}
                       </p>
                     )}
                     <form className="student-submit-form" onSubmit={(event) => submitWork(event, assignment)}>

@@ -17,7 +17,7 @@ async function getStaffRecord(db, user) {
 }
 
 function courseMatchesStaff(course, user, staffRecord) {
-  if (user.Role === 'Admin' || user.Role === 'Staff' || user.Role === 'Advisor') return true;
+  if (user.Role === 'Admin' || user.Role === 'Staff') return true;
 
   const instructor = String(course.Instructor || '').toLowerCase();
   const courseName = String(course.CourseName || '').toLowerCase();

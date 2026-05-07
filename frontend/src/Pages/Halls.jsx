@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiGet } from '../api';
+import { apiGet, apiPost } from '../api';
+import NotificationToast from '../Components/NotificationToast';
+import '../css/Halls.css';
 
 export default function Halls() {
+  const navigate = useNavigate();
   const [hallsData, setHallsData] = useState([]);
-  const [filters, setFilters] = useState({
-    search: '',
-    capacity: '',
-    type: ''
-  });
+  const [filters, setFilters] = useState({ search: '', capacity: '', type: '' });
+  const [maintenanceForm, setMaintenanceForm] = useState({ roomId: '', description: '' });
+  const [toast, setToast] = useState(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const loadHalls = async () => {
@@ -23,12 +23,13 @@ export default function Halls() {
           capacity: hall.Capacity,
           type: hall.Type,
           floor: hall.Floor,
-          amenities: hall.Amenities,
+          building: hall.Building,
+          amenities: hall.Amenities || [],
           available: hall.Available,
           image: hall.Image
         })));
       } catch (err) {
-        setError(err.message || 'Unable to load halls.');
+        setError(err.message || 'Unable to load rooms and labs.');
       } finally {
         setIsLoading(false);
       }
@@ -37,235 +38,118 @@ export default function Halls() {
     loadHalls();
   }, []);
 
-  const filteredHalls = hallsData.filter(hall => {
-    const capacityMatch = !filters.capacity || hall.capacity >= parseInt(filters.capacity);
+  const hallTypes = useMemo(() => [...new Set(hallsData.map((hall) => hall.type))], [hallsData]);
+  const labsCount = hallsData.filter((hall) => hall.type === 'Lab').length;
+  const availableCount = hallsData.filter((hall) => hall.available).length;
+
+  const filteredHalls = hallsData.filter((hall) => {
+    const query = filters.search.toLowerCase();
+    const capacityMatch = !filters.capacity || hall.capacity >= Number(filters.capacity);
     const typeMatch = !filters.type || hall.type === filters.type;
-    const searchMatch = !filters.search || 
-      hall.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-      hall.type.toLowerCase().includes(filters.search.toLowerCase());
+    const searchMatch = !query || hall.name.toLowerCase().includes(query) || hall.type.toLowerCase().includes(query) || hall.building.toLowerCase().includes(query);
     return capacityMatch && typeMatch && searchMatch;
   });
 
-  const hallTypes = [...new Set(hallsData.map(h => h.type))];
+  const handleMaintenanceSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      await apiPost('/api/maintenance', {
+        roomId: maintenanceForm.roomId,
+        description: maintenanceForm.description
+      });
+      setMaintenanceForm({ roomId: '', description: '' });
+      setToast({ type: 'success', message: 'Maintenance issue reported.' });
+    } catch (err) {
+      setToast({ type: 'error', message: err.message || 'Unable to report maintenance issue.' });
+    }
+  };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '30px' }}>
-        <h1 style={{ color: '#2c3e50', marginBottom: '10px' }}>Available Halls</h1>
-        <p style={{ color: '#7f8c8d' }}>Find and book the perfect space for your event</p>
-        {error && (
-          <p style={{ color: '#c0392b', marginTop: '10px' }}>{error}</p>
-        )}
-      </div>
+    <div className="halls-page">
+      <header className="halls-hero">
+        <div>
+          <p className="halls-kicker">Classroom and Lab Management</p>
+          <h1>Rooms, Labs, and Bookings</h1>
+          <p>Check availability, reserve teaching spaces, and report room issues from one workspace.</p>
+        </div>
+        <button type="button" onClick={() => navigate('/book-hall')}>Reserve Space</button>
+      </header>
+
+      {error && <div className="halls-error">{error}</div>}
+
+      <section className="halls-stats">
+        <div><span>Total Spaces</span><strong>{hallsData.length}</strong></div>
+        <div><span>Available Today</span><strong>{availableCount}</strong></div>
+        <div><span>Labs</span><strong>{labsCount}</strong></div>
+      </section>
+
+      <section className="halls-toolbar">
+        <label>
+          <span>Search</span>
+          <input value={filters.search} onChange={(event) => setFilters({ ...filters, search: event.target.value })} placeholder="Room, lab, or building" />
+        </label>
+        <label>
+          <span>Min Capacity</span>
+          <input type="number" min="1" value={filters.capacity} onChange={(event) => setFilters({ ...filters, capacity: event.target.value })} placeholder="Any" />
+        </label>
+        <label>
+          <span>Type</span>
+          <select value={filters.type} onChange={(event) => setFilters({ ...filters, type: event.target.value })}>
+            <option value="">All spaces</option>
+            {hallTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+          </select>
+        </label>
+        <button type="button" onClick={() => setFilters({ search: '', capacity: '', type: '' })}>Reset</button>
+      </section>
 
       {isLoading ? (
-        <p style={{ color: '#7f8c8d' }}>⏳ Loading halls...</p>
+        <p className="halls-muted">Loading rooms and labs...</p>
       ) : (
-        <>
-      <div style={{
-        background: 'white',
-        padding: '25px',
-        borderRadius: '12px',
-        marginBottom: '30px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-        display: 'flex',
-        gap: '15px',
-        flexWrap: 'wrap',
-        alignItems: 'flex-end'
-      }}>
-        {/* Search */}
-        <div style={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#2c3e50' }}>🔍 Search</label>
-          <input
-            type="text"
-            placeholder="Search by name or type..."
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            style={{
-              width: '100%',
-              padding: '10px',
-              border: '1px solid #e0e0e0',
-              borderRadius: '6px',
-              fontSize: '0.95rem'
-            }}
-          />
-        </div>
-
-        <div>
-          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#2c3e50' }}>👥 Capacity</label>
-          <input
-            type="number"
-            placeholder="Min capacity"
-            value={filters.capacity}
-            onChange={(e) => setFilters({ ...filters, capacity: e.target.value })}
-            style={{
-              padding: '10px',
-              border: '1px solid #e0e0e0',
-              borderRadius: '6px',
-              width: '140px',
-              fontSize: '0.95rem'
-            }}
-          />
-        </div>
-
-        <div>
-          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#2c3e50' }}>📂 Type</label>
-          <select
-            value={filters.type}
-            onChange={(e) => setFilters({ ...filters, type: e.target.value })}
-            style={{
-              padding: '10px',
-              border: '1px solid #e0e0e0',
-              borderRadius: '6px',
-              width: '140px',
-              fontSize: '0.95rem'
-            }}
-          >
-            <option value="">All Types</option>
-            {hallTypes.map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
-        </div>
-
-        <button
-          onClick={() => setFilters({ search: '', capacity: '', type: '' })}
-          style={{
-            padding: '10px 20px',
-            background: '#f0f0f0',
-            border: '1px solid #e0e0e0',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontWeight: 'bold',
-            transition: 'background 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.background = '#e0e0e0'}
-          onMouseLeave={(e) => e.target.style.background = '#f0f0f0'}
-        >
-          Reset
-        </button>
-      </div>
-
-      {/* Results Count */}
-      <p style={{ color: '#7f8c8d', marginBottom: '20px', fontSize: '0.95rem' }}>
-        {filteredHalls.length === 0 
-          ? `No halls found matching your criteria`
-          : `Showing ${filteredHalls.length} of ${hallsData.length} halls`
-        }
-      </p>
-
-      {/* Halls Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-        gap: '20px'
-      }}>
-        {filteredHalls.map((hall) => (
-          <div
-            key={hall.id}
-            onClick={() => navigate(`/hall-details/${hall.id}`)}
-            style={{
-              background: 'white',
-              borderRadius: '12px',
-              overflow: 'hidden',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              border: '1px solid #e0e0e0'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-5px)';
-              e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.15)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-            }}
-          >
-            {/* Header with Image and Status */}
-            <div style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              padding: '30px',
-              textAlign: 'center',
-              color: 'white',
-              position: 'relative',
-              fontSize: '4rem'
-            }}>
-              {hall.image}
-              <div style={{
-                position: 'absolute',
-                top: '10px',
-                right: '10px',
-                background: hall.available ? '#4CAF50' : '#f44336',
-                color: 'white',
-                padding: '5px 10px',
-                borderRadius: '20px',
-                fontSize: '0.8rem',
-                fontWeight: 'bold'
-              }}>
-                {hall.available ? 'Available' : 'Booked'}
+        <section className="halls-grid">
+          {filteredHalls.map((hall) => (
+            <article key={hall.id} className="hall-card">
+              <div className="hall-card-top">
+                <span className="hall-icon">{hall.image}</span>
+                <span className={`hall-status ${hall.available ? 'available' : 'busy'}`}>
+                  {hall.available ? 'Available today' : 'Busy today'}
+                </span>
               </div>
-            </div>
-
-            {/* Content */}
-            <div style={{ padding: '20px' }}>
-              <h3 style={{ margin: '0 0 10px 0', color: '#2c3e50' }}>{hall.name}</h3>
-              
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                marginBottom: '15px',
-                fontSize: '0.9rem',
-                color: '#7f8c8d'
-              }}>
-                <span>👥 {hall.capacity} people</span>
-                <span>📍 {hall.floor} Floor</span>
-              </div>
-
-              <div style={{
-                background: '#f8f9fa',
-                padding: '10px',
-                borderRadius: '6px',
-                marginBottom: '15px'
-              }}>
-                <p style={{ margin: '0 0 8px 0', fontSize: '0.85rem', fontWeight: 'bold', color: '#667eea' }}>
-                  Type: {hall.type}
-                </p>
-                <div style={{ fontSize: '0.85rem', color: '#7f8c8d' }}>
-                  {hall.amenities.join(', ')}
+              <div className="hall-card-body">
+                <h2>{hall.name}</h2>
+                <p>{hall.building} · {hall.floor} floor</p>
+                <div className="hall-meta">
+                  <span>{hall.type}</span>
+                  <span>{hall.capacity} seats</span>
                 </div>
+                <div className="hall-amenities">{hall.amenities.slice(0, 4).join(', ')}</div>
               </div>
+              <div className="hall-card-actions">
+                <button type="button" onClick={() => navigate(`/halls/${hall.id}`)}>Details</button>
+                <button type="button" onClick={() => navigate('/book-hall', { state: { hallId: hall.id } })}>Book</button>
+              </div>
+            </article>
+          ))}
+          {filteredHalls.length === 0 && <p className="halls-muted">No rooms or labs match your filters.</p>}
+        </section>
+      )}
 
-              <button
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  background: hall.available ? '#667eea' : '#ccc',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: hall.available ? 'pointer' : 'not-allowed',
-                  fontWeight: 'bold'
-                }}
-              >
-                View Details
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {filteredHalls.length === 0 && (
-        <div style={{
-          textAlign: 'center',
-          padding: '40px',
-          color: '#7f8c8d'
-        }}>
-          <p style={{ fontSize: '1.2rem' }}>No halls match your filters</p>
+      <section className="maintenance-panel">
+        <div>
+          <p className="halls-kicker">Maintenance</p>
+          <h2>Report a Room or Lab Issue</h2>
+          <p>Send facilities a note about equipment, seating, lighting, projector, or lab readiness problems.</p>
         </div>
-      )}
-        </>
-      )}
+        <form onSubmit={handleMaintenanceSubmit}>
+          <select value={maintenanceForm.roomId} onChange={(event) => setMaintenanceForm({ ...maintenanceForm, roomId: event.target.value })} required>
+            <option value="">Choose room or lab</option>
+            {hallsData.map((hall) => <option key={hall.id} value={hall.id}>{hall.name}</option>)}
+          </select>
+          <textarea value={maintenanceForm.description} onChange={(event) => setMaintenanceForm({ ...maintenanceForm, description: event.target.value })} placeholder="Describe the issue..." rows="4" required />
+          <button type="submit">Report Issue</button>
+        </form>
+      </section>
+
+      {toast && <NotificationToast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
     </div>
   );
 }

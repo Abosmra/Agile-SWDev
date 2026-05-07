@@ -71,7 +71,25 @@ module.exports = function setupHallRoutes(app) {
     }
   });
 
-  app.post('/api/bookings', authenticate, requireRoles(['Staff', 'Admin']), async (req, res) => {
+  app.get('/api/bookings/usage', authenticate, async (req, res) => {
+    try {
+      const bookings = await runQuery(
+        req.app.locals.db,
+        `SELECT b.BookingID, b.HallID, b.Date, b.StartTime, b.EndTime, b.Purpose, b.Status,
+                h.HallName
+         FROM Bookings b
+         INNER JOIN Halls h ON b.HallID = h.HallID
+         WHERE b.Status != 'Cancelled'
+         ORDER BY b.Date DESC, b.StartTime`
+      );
+
+      res.json(bookings);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/bookings', authenticate, async (req, res) => {
     try {
       const bookingPayload = {
         HallID: Number(req.body.HallID),
@@ -113,7 +131,7 @@ module.exports = function setupHallRoutes(app) {
     }
   });
 
-  app.put('/api/bookings/:id', authenticate, requireRoles(['Staff', 'Admin']), async (req, res) => {
+  app.put('/api/bookings/:id', authenticate, async (req, res) => {
     try {
       const existing = await getBookingById(req.app.locals.db, req.params.id);
       if (!existing) {
@@ -164,7 +182,7 @@ module.exports = function setupHallRoutes(app) {
     }
   });
 
-  app.delete('/api/bookings/:id', authenticate, requireRoles(['Staff', 'Admin']), async (req, res) => {
+  app.delete('/api/bookings/:id', authenticate, async (req, res) => {
     try {
       const existing = await getBookingById(req.app.locals.db, req.params.id);
       if (!existing) {
@@ -183,6 +201,57 @@ module.exports = function setupHallRoutes(app) {
 
       const booking = await getBookingById(req.app.locals.db, req.params.id);
       res.json(booking);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/maintenance', authenticate, async (req, res) => {
+    try {
+      const roomId = Number(req.body.roomId);
+      const description = String(req.body.description || '').trim();
+
+      if (!roomId || !description) {
+        return res.status(400).json({ error: 'Room and issue description are required.' });
+      }
+
+      await runExec(
+        req.app.locals.db,
+        `CREATE TABLE IF NOT EXISTS MaintenanceRequests (
+          RequestID INTEGER PRIMARY KEY AUTOINCREMENT,
+          RoomID INTEGER NOT NULL,
+          ReportedByUserID INTEGER NOT NULL,
+          Description TEXT NOT NULL,
+          Status TEXT NOT NULL DEFAULT 'open',
+          ReportedDate TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          ResolvedDate TEXT,
+          FOREIGN KEY (RoomID) REFERENCES Halls(HallID),
+          FOREIGN KEY (ReportedByUserID) REFERENCES Users(UserID)
+        )`
+      );
+
+      const hall = await runGet(req.app.locals.db, 'SELECT HallID FROM Halls WHERE HallID = ?', [roomId]);
+      if (!hall) {
+        return res.status(404).json({ error: 'Room or lab not found.' });
+      }
+
+      const result = await runExec(
+        req.app.locals.db,
+        `INSERT INTO MaintenanceRequests (RoomID, ReportedByUserID, Description, Status)
+         VALUES (?, ?, ?, 'open')`,
+        [roomId, req.user.UserID, description]
+      );
+
+      const request = await runGet(
+        req.app.locals.db,
+        `SELECT mr.RequestID, mr.Description, mr.Status, mr.ReportedDate, h.HallName
+         FROM MaintenanceRequests mr
+         JOIN Halls h ON h.HallID = mr.RoomID
+         WHERE mr.RequestID = ?`,
+        [result.lastID]
+      );
+
+      res.status(201).json(request);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

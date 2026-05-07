@@ -29,6 +29,18 @@ async function ensureLeaveRequestsTable(db) {
       FOREIGN KEY (StaffID) REFERENCES Staff(StaffID)
     )`
   );
+
+  const columns = await runQuery(db, 'PRAGMA table_info(LeaveRequests)');
+  const names = columns.map((column) => column.name);
+  if (!names.includes('StaffID')) {
+    await runExec(db, 'ALTER TABLE LeaveRequests ADD COLUMN StaffID INTEGER');
+  }
+  if (!names.includes('Reason')) {
+    await runExec(db, 'ALTER TABLE LeaveRequests ADD COLUMN Reason TEXT');
+  }
+  if (!names.includes('RequestedAt')) {
+    await runExec(db, "ALTER TABLE LeaveRequests ADD COLUMN RequestedAt TEXT DEFAULT CURRENT_TIMESTAMP");
+  }
 }
 
 async function ensureStaffHrColumns(db) {

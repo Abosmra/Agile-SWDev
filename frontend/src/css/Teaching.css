@@ -206,6 +206,104 @@
   color: #2c3e50;
 }
 
+.teaching-course-accordion {
+  display: grid;
+  gap: 12px;
+}
+
+.teaching-student-course {
+  border: 1px solid #ececf6;
+  border-radius: 16px;
+  background: #fbfcff;
+  overflow: hidden;
+}
+
+.teaching-student-course-head {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  text-align: left;
+  font: inherit;
+}
+
+.teaching-student-arrow {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #eef2ff;
+  color: #7c6fe0;
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.teaching-student-course-head strong,
+.teaching-student-course-head em {
+  display: block;
+}
+
+.teaching-student-course-head strong {
+  color: #2c3e50;
+}
+
+.teaching-student-course-head em {
+  color: #7f8c8d;
+  font-size: 0.86rem;
+  font-style: normal;
+  margin-top: 4px;
+}
+
+.teaching-student-list {
+  display: grid;
+  gap: 8px;
+  padding: 0 16px 16px 62px;
+}
+
+.teaching-student-list p {
+  margin: 0;
+  color: #95a5a6;
+}
+
+.teaching-student-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  border-top: 1px solid #ececf6;
+  padding: 12px 0;
+}
+
+.teaching-student-row strong,
+.teaching-student-row span {
+  display: block;
+}
+
+.teaching-student-row span {
+  color: #7f8c8d;
+  font-size: 0.86rem;
+  margin-top: 3px;
+}
+
+.teaching-student-row em {
+  color: #7c6fe0;
+  background: #eef2ff;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-style: normal;
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 .teaching-form {
   display: grid;
   gap: 12px;

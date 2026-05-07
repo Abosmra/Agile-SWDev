@@ -16,6 +16,7 @@ export default function Teaching() {
   const [catalogCourses, setCatalogCourses] = useState([]);
   const [activeSection, setActiveSection] = useState(initialSection);
   const [selectedCourseId, setSelectedCourseId] = useState(null);
+  const [expandedCourseId, setExpandedCourseId] = useState(null);
   const [courseDetail, setCourseDetail] = useState(null);
   const [assignmentForm, setAssignmentForm] = useState({ title: '', category: 'Assignment', dueDate: '', maxScore: 100 });
   const [gradeForm, setGradeForm] = useState({ studentId: '', assignmentId: '', score: '', feedback: '' });
@@ -65,6 +66,7 @@ export default function Teaching() {
     })));
     if (!selectedCourseId && data.length) {
       setSelectedCourseId(data[0].CourseID);
+      setExpandedCourseId(data[0].CourseID);
     }
   }, [selectedCourseId]);
 
@@ -94,6 +96,14 @@ export default function Teaching() {
 
   const refreshDetail = async () => {
     await loadCourseDetail(selectedCourseId);
+  };
+
+  const toggleCourseStudents = (courseId) => {
+    const nextCourseId = Number(expandedCourseId) === Number(courseId) ? null : courseId;
+    setExpandedCourseId(nextCourseId);
+    if (nextCourseId) {
+      setSelectedCourseId(nextCourseId);
+    }
   };
 
   const handleAssignmentSubmit = async (event) => {
@@ -181,6 +191,13 @@ export default function Teaching() {
     return map;
   }, [courseDetail]);
 
+  const isSubmissionGraded = (submission) => (
+    (courseDetail?.grades || []).some((grade) => (
+      Number(grade.StudentID) === Number(submission.StudentID)
+      && Number(grade.AssignmentID) === Number(submission.AssignmentID)
+    ))
+  );
+
   const getSubmissionStudentName = (submission) => {
     const fullName = `${submission.GivenName || ''} ${submission.FamilyName || ''}`.trim();
     return fullName || submission.Username || `Student ${submission.StudentID}`;
@@ -213,13 +230,6 @@ export default function Teaching() {
           >
             Browse Courses
           </button>
-          {activeSection === 'manage' && (
-            <select value={selectedCourseId || ''} onChange={(event) => setSelectedCourseId(event.target.value)}>
-              {courses.map((course) => (
-                <option key={course.CourseID} value={course.CourseID}>{course.CourseCode} - {course.CourseName}</option>
-              ))}
-            </select>
-          )}
         </div>
       </header>
 
@@ -245,31 +255,41 @@ export default function Teaching() {
 
           <section className="teaching-layout">
             <div className="teaching-card teaching-wide">
-              <h2>Students & Grades</h2>
-              <div className="teaching-table-wrap">
-                <table className="teaching-table">
-                  <thead>
-                    <tr>
-                      <th>Student</th>
-                      <th>Email</th>
-                      <th>Status</th>
-                      <th>Grades</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(courseDetail?.students || []).map((student) => {
-                      const grades = gradesByStudent.get(student.UserID) || [];
-                      return (
-                        <tr key={student.EnrollmentID}>
-                          <td>{getStudentName(student)}</td>
-                          <td>{student.Username || 'Not linked'}</td>
-                          <td>{student.Status}</td>
-                          <td>{grades.length ? grades.map((grade) => `${grade.Score}`).join(', ') : 'No marks yet'}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+              <h2>Course Students</h2>
+              <div className="teaching-course-accordion">
+                {courses.map((course) => {
+                  const isOpen = Number(expandedCourseId) === Number(course.CourseID);
+                  const students = isOpen ? (courseDetail?.students || []) : [];
+                  return (
+                    <article key={course.CourseID} className={`teaching-student-course${isOpen ? ' open' : ''}`}>
+                      <button type="button" className="teaching-student-course-head" onClick={() => toggleCourseStudents(course.CourseID)}>
+                        <span className="teaching-student-arrow">{isOpen ? '⌄' : '›'}</span>
+                        <span>
+                          <strong>{course.CourseCode} - {course.CourseName}</strong>
+                          <em>{isOpen ? `${students.length} enrolled students` : 'Expand to view students'}</em>
+                        </span>
+                      </button>
+                      {isOpen && (
+                        <div className="teaching-student-list">
+                          {students.length === 0 ? (
+                            <p>No enrolled students yet.</p>
+                          ) : students.map((student) => {
+                            const grades = gradesByStudent.get(student.UserID) || [];
+                            return (
+                              <div key={student.EnrollmentID} className="teaching-student-row">
+                                <div>
+                                  <strong>{getStudentName(student)}</strong>
+                                  <span>{student.Username || 'Not linked'} · {student.Status}</span>
+                                </div>
+                                <em>{grades.length ? `${grades.length} graded item${grades.length === 1 ? '' : 's'}` : 'No marks yet'}</em>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </article>
+                  );
+                })}
               </div>
             </div>
 
@@ -337,32 +357,35 @@ export default function Teaching() {
                     </tr>
                   </thead>
                   <tbody>
-                    {(courseDetail?.submissions || []).map((submission) => (
-                      <tr key={submission.SubmissionID}>
-                        <td>{getSubmissionStudentName(submission)}</td>
-                        <td>{submission.AssignmentTitle} · {submission.Category}</td>
-                        <td>
-                          {submission.Content || 'No notes'}
-                          {submission.FileName && <div>{submission.FileName}</div>}
-                          {submission.FileUrl && <a href={submission.FileUrl} target="_blank" rel="noreferrer">Open file</a>}
-                        </td>
-                        <td>{submission.SubmittedAt}</td>
-                        <td>
-                          <button
-                            type="button"
-                            className="teaching-inline-action"
-                            onClick={() => setGradeForm({
-                              studentId: submission.StudentID,
-                              assignmentId: submission.AssignmentID,
-                              score: '',
-                              feedback: ''
-                            })}
-                          >
-                            Grade
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    {(courseDetail?.submissions || []).map((submission) => {
+                      const graded = isSubmissionGraded(submission);
+                      return (
+                        <tr key={submission.SubmissionID}>
+                          <td>{getSubmissionStudentName(submission)}</td>
+                          <td>{submission.AssignmentTitle} · {submission.Category}</td>
+                          <td>
+                            {submission.Content || 'No notes'}
+                            {submission.FileName && <div>{submission.FileName}</div>}
+                            {submission.FileUrl && <a href={submission.FileUrl} target="_blank" rel="noreferrer">Open file</a>}
+                          </td>
+                          <td>{submission.SubmittedAt}</td>
+                          <td>
+                            <button
+                              type="button"
+                              className="teaching-inline-action"
+                              onClick={() => setGradeForm({
+                                studentId: submission.StudentID,
+                                assignmentId: submission.AssignmentID,
+                                score: '',
+                                feedback: ''
+                              })}
+                            >
+                              {graded ? 'Graded' : 'Grade'}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                     {!courseDetail?.submissions?.length && (
                       <tr><td colSpan="5">No student submissions yet.</td></tr>
                     )}

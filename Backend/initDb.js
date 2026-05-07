@@ -75,6 +75,13 @@ async function ensureColumn(db, tableName, columnName, definition) {
   }
 }
 
+async function ensureTableColumn(db, tableName, columnName, definition) {
+  if (!(await tableExists(db, tableName))) {
+    return;
+  }
+  await ensureColumn(db, tableName, columnName, definition);
+}
+
 async function ensureSchema(db) {
   await runSql(db, `
     CREATE TABLE IF NOT EXISTS Sessions (
@@ -196,6 +203,9 @@ async function ensureSchema(db) {
       FOREIGN KEY (StaffID) REFERENCES Staff(StaffID)
     );
   `);
+  await ensureTableColumn(db, 'LeaveRequests', 'StaffID', 'INTEGER');
+  await ensureTableColumn(db, 'LeaveRequests', 'Reason', 'TEXT');
+  await ensureTableColumn(db, 'LeaveRequests', 'RequestedAt', "TEXT DEFAULT CURRENT_TIMESTAMP");
 
   await runSql(db, `
     CREATE TABLE IF NOT EXISTS CourseMaterials (
