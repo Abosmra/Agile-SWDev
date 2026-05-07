@@ -2,6 +2,14 @@ import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RoleContext } from '../context/RoleContext';
 import { formatRoleLabel } from '../roleUtils';
+import '../css/StaffDashboard.css';
+
+const cardThemes = [
+  { bg: '#f0efff', art: '#e0deff', arrow: '#7c6fe0' },
+  { bg: '#f5eeff', art: '#e9d9ff', arrow: '#9b6edc' },
+  { bg: '#fff0f3', art: '#ffd6df', arrow: '#e07090' },
+  { bg: '#eef8ff', art: '#d7efff', arrow: '#4facfe' }
+];
 
 export default function StaffDashboard() {
   const navigate = useNavigate();
@@ -9,151 +17,72 @@ export default function StaffDashboard() {
 
   const dashboardOptions = [
     {
-      id: 1,
+      title: 'Teaching Console',
+      description: 'View your courses, students, grades, assignments, marks, materials, and teaching requests.',
+      icon: 'TC',
+      path: '/teaching'
+    },
+    {
       title: 'Staff Directory',
-      description: 'Manage professors, TAs, office hours, assigned courses, and contact details',
-      icon: '👥',
-      path: '/staff',
-      color: '#0f766e'
+      description: 'Find professors, TAs, office hours, assigned courses, performance, and HR details.',
+      icon: 'SD',
+      path: '/staff'
     },
     {
-      id: 2,
-      title: 'Performance & Research',
-      description: 'Track faculty performance, research output, and development activities',
-      icon: '📈',
-      path: '/staff',
-      color: '#ea580c'
+      title: 'Facilities',
+      description: 'Browse available halls and reserve rooms for classes, labs, meetings, or events.',
+      icon: 'FH',
+      path: '/halls'
     },
     {
-      id: 3,
-      title: 'Payroll & HR',
-      description: 'Review payroll status, leave balances, benefits, and HR information',
-      icon: '💼',
-      path: '/staff',
-      color: '#2563eb'
-    },
-    {
-      id: 4,
-      title: 'View Available Halls',
-      description: 'Browse and view all available halls with their details',
-      icon: '🏛️',
-      path: '/halls',
-      color: '#667eea'
-    },
-    {
-      id: 5,
-      title: 'Book a Hall',
-      description: 'Reserve a hall for your event or class',
-      icon: '📅',
-      path: '/book-hall',
-      color: '#764ba2'
-    },
-    {
-      id: 6,
-      title: 'My Bookings',
-      description: 'Track and manage your hall reservations',
-      icon: '📋',
-      path: '/my-bookings',
-      color: '#f093fb'
-    },
-    {
-      id: 7,
-      title: 'My Courses',
-      description: 'View and manage your enrolled courses',
-      icon: '📚',
-      path: '/my-courses',
-      color: '#4facfe'
-    },
-    {
-      id: 8,
-      title: 'Profile',
-      description: 'View and edit your profile information',
-      icon: '👤',
-      path: '/profile',
-      color: '#43e97b'
+      title: 'Profile & HR',
+      description: 'Review your profile, role, department, and personal account information.',
+      icon: 'HR',
+      path: '/profile'
     }
   ];
 
   return (
-    <div style={{ padding: '20px' }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '30px'
-      }}>
+    <div className="staff-dash-root">
+      <div className="staff-dash-topbar">
         <div>
-          <h1 style={{ margin: 0, fontSize: '2.5rem' }}>Staff Dashboard</h1>
-          <p style={{ color: '#7f8c8d', marginTop: '8px' }}>Welcome back! Manage staff tools, courses, halls, and HR tasks</p>
+          <h1 className="staff-dash-title">Staff Dashboard</h1>
+          <p className="staff-dash-subtitle">A course-style workspace for teaching, staff tools, and academic operations.</p>
         </div>
-        <div style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
-          padding: '15px 25px',
-          borderRadius: '10px',
-          fontWeight: 'bold'
-        }}>
-          {formatRoleLabel(userRole)}
-        </div>
+        <div className="staff-dash-role">{formatRoleLabel(userRole)}</div>
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '20px',
-        marginTop: '20px'
-      }}>
-        {dashboardOptions.map((option) => (
-          <div
-            key={option.id}
-            onClick={() => navigate(option.path)}
-            style={{
-              background: 'white',
-              border: `2px solid ${option.color}`,
-              borderRadius: '12px',
-              padding: '25px',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-              ':hover': {
-                transform: 'translateY(-5px)',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
-              }
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-5px)';
-              e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.15)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-            }}
-          >
-            <div style={{
-              fontSize: '3rem',
-              marginBottom: '15px'
-            }}>
-              {option.icon}
-            </div>
-            <h3 style={{
-              color: option.color,
-              marginTop: 0,
-              marginBottom: '10px',
-              fontSize: '1.3rem'
-            }}>
-              {option.title}
-            </h3>
-            <p style={{
-              color: '#7f8c8d',
-              margin: '10px 0 0 0',
-              fontSize: '0.95rem',
-              lineHeight: '1.5'
-            }}>
-              {option.description}
-            </p>
+      <section className="staff-dash-hero">
+        <div className="staff-dash-feature" onClick={() => navigate('/teaching')}>
+          <div className="staff-dash-feature-copy">
+            <span>Teaching first</span>
+            <h2>Manage or request courses</h2>
+            <p>Doctors and TAs can view assigned courses, manage class work, and request to teach additional courses from the course catalog.</p>
           </div>
-        ))}
-      </div>
+          <div className="staff-dash-feature-art">TC</div>
+        </div>
+        <div className="staff-dash-mini-panel">
+          <h3>Course Requests</h3>
+          <p>Need access to a course? Open the Teaching Console and request to teach it.</p>
+          <button onClick={() => navigate('/teaching?section=catalog')}>Browse Courses</button>
+        </div>
+      </section>
+
+      <section className="staff-dash-grid">
+        {dashboardOptions.map((option, index) => {
+          const theme = cardThemes[index % cardThemes.length];
+          return (
+            <article key={option.title} className="staff-dash-card" style={{ background: theme.bg }} onClick={() => navigate(option.path)}>
+              <div className="staff-dash-card-art" style={{ background: theme.art }}>{option.icon}</div>
+              <div className="staff-dash-card-body">
+                <h3>{option.title}</h3>
+                <p>{option.description}</p>
+              </div>
+              <button className="staff-dash-card-arrow" style={{ background: theme.arrow }}>›</button>
+            </article>
+          );
+        })}
+      </section>
     </div>
   );
 }

@@ -77,12 +77,12 @@ export default function Sidebar({ onLogout }) {
   ];
 
   const staffLinks = [
-    { label: 'Dashboard',   icon: Icons.dashboard, to: '/staff-dashboard' },
-    { label: 'Staff',       icon: Icons.profile,   to: '/staff' },
-    { label: 'Courses',     icon: Icons.courses,   to: '/my-courses' },
-    { label: 'Halls',       icon: Icons.halls,     to: '/halls' },
-    { label: 'My Bookings', icon: Icons.bookings,  to: '/my-bookings' },
-    { label: 'Profile',     icon: Icons.profile,   to: '/profile' },
+    { label: 'Staff Home',       icon: Icons.dashboard, to: '/staff-dashboard' },
+    { label: 'Teaching',         icon: Icons.courses,   to: '/teaching' },
+    { label: 'Staff Directory',  icon: Icons.profile,   to: '/staff' },
+    { label: 'Facilities',       icon: Icons.halls,     to: '/halls' },
+    { label: 'My Reservations',  icon: Icons.bookings,  to: '/my-bookings' },
+    { label: 'Profile & HR',     icon: Icons.profile,   to: '/profile' },
   ];
 
   const links = isStaffRole(userRole) ? staffLinks : studentLinks;
@@ -101,7 +101,10 @@ export default function Sidebar({ onLogout }) {
   };
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${isStaffRole(userRole) ? ' sidebar-staff' : ' sidebar-student'}`}>
+      <div className="sidebar-brand">
+        {isStaffRole(userRole) ? 'Staff Portal' : 'Student Portal'}<span className="sidebar-brand-dot">.</span>
+      </div>
       <div className="sidebar-profile" onClick={() => navigate('/profile')}>
         <div className="sidebar-avatar">{initials}</div>
         <div className="sidebar-profile-info">

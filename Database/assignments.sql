@@ -12,3 +12,9 @@ CREATE TABLE Assignments (
     MaxScore INT DEFAULT 100,
     FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
 );
+
+INSERT OR IGNORE INTO Assignments (AssignmentID, CourseID, Title, DueDate, MaxScore) VALUES
+    (1, 1, 'Distributed Systems Lab 1', '2026-05-20', 100),
+    (2, 1, 'Consensus Algorithms Quiz', '2026-05-27', 50),
+    (3, 2, 'Embedded Controller Design', '2026-05-24', 100),
+    (4, 4, 'IoT Sensor Integration Lab', '2026-05-26', 100);

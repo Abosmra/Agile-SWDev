@@ -6,5 +6,6 @@ module.exports = {
   setupStaffRoutes: require('./staffController'),
   setupMessageRoutes: require('./messageController'),
   setupHallRoutes: require('./hallController'),
-  setupUserRoutes: require('./userController')
+  setupUserRoutes: require('./userController'),
+  setupTeachingRoutes: require('./teachingController')
 };

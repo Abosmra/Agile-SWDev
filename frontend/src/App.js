@@ -12,6 +12,7 @@ import Messaging from './Pages/Messaging';
 import MyCourses from './Pages/MyCourses';
 import StudentSchedule from './Pages/StudentSchedule';
 import StaffDashboard from './Pages/StaffDashboard';
+import Teaching from './Pages/Teaching';
 import Halls from './Pages/Halls';
 import HallDetails from './Pages/HallDetails';
 import BookHall from './Pages/BookHall';
@@ -121,6 +122,7 @@ function AppContent() {
               <Route path="/profile"        element={<Profile />} />
               <Route path="/staff"          element={<Staff />} />
               <Route path="/staff-dashboard" element={<StaffDashboard />} />
+              <Route path="/teaching"       element={<Teaching />} />
               <Route path="/halls"          element={<Halls />} />
               <Route path="/halls/:id"      element={<HallDetails />} />
               <Route path="/book-hall"      element={<BookHall />} />

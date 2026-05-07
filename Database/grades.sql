@@ -14,3 +14,7 @@ CREATE TABLE Grades (
     FOREIGN KEY (StudentID) REFERENCES Users(UserID),
     FOREIGN KEY (AssignmentID) REFERENCES Assignments(AssignmentID)
 );
+
+INSERT OR IGNORE INTO Grades (GradeID, StudentID, AssignmentID, Score, Feedback) VALUES
+    (1, 1, 1, 92, 'Strong implementation and clear report'),
+    (2, 1, 2, 45, 'Good understanding of Raft basics');
