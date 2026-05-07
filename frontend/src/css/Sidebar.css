@@ -1,12 +1,12 @@
 .sidebar {
   width: 220px;
   min-height: 100vh;
-  background: linear-gradient(160deg, #5a3fc0 0%, #3d2a99 100%);
+  background: linear-gradient(160deg, #2563eb 0%, #1e3a8a 100%);
   display: flex;
   flex-direction: column;
   padding: 28px 0 24px;
   border-radius: 0 28px 28px 0;
-  box-shadow: 4px 0 24px rgba(80, 50, 200, 0.18);
+  box-shadow: 4px 0 24px rgba(30, 58, 138, 0.25);
   position: sticky;
   top: 0;
   flex-shrink: 0;
@@ -20,7 +20,7 @@
   padding: 0 24px 24px;
   letter-spacing: -0.5px;
 }
-.sidebar-brand-dot { color: #b3a0ff; }
+.sidebar-brand-dot {  color: #93c5fd;}
 
 /* Profile card */
 .sidebar-profile {
@@ -40,7 +40,7 @@
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #b3a0ff, #7c5cfc);
+  background: linear-gradient(135deg, #93c5fd, #2563eb);
   display: flex;
   align-items: center;
   justify-content: center;

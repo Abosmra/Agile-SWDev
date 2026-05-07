@@ -7,17 +7,7 @@
   overflow: hidden;
 }
  
-/* ── Sidebar ──────────────────────────────────────────────────────────────── */
-.mc-sidebar {
-  width: 200px;
-  min-width: 200px;
-  background: #4b3fa0;
-  display: flex;
-  flex-direction: column;
-  padding: 28px 0 20px;
-  gap: 0;
-}
- 
+
 .mc-brand {
   color: #fff;
   font-size: 1.25rem;
@@ -32,51 +22,7 @@
   gap: 2px;
   flex: 1;
 }
- 
-.mc-nav-bottom {
-  flex: 0;
-  margin-top: auto;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255,255,255,0.12);
-}
- 
-.mc-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 12px 24px;
-  color: rgba(255,255,255,0.65);
-  font-size: 0.9rem;
-  cursor: pointer;
-  border-radius: 0;
-  transition: background 0.2s, color 0.2s;
-  position: relative;
-}
- 
-.mc-nav-item:hover {
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-}
- 
-.mc-nav-item.active {
-  background: rgba(255,255,255,0.12);
-  color: #fff;
-  font-weight: 600;
-}
- 
-.mc-nav-item.active::left {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 4px;
-  background: #fff;
-  border-radius: 0 4px 4px 0;
-}
- 
-.mc-nav-icon {
-  font-size: 1.1rem;
-  opacity: 0.9;
-}
+
  
 /* ── Main content ─────────────────────────────────────────────────────────── */
 .mc-main {
@@ -324,7 +270,7 @@
 .mc-cal-title {
   font-size: 1rem;
   font-weight: 700;
-  color: #4b3fa0;
+  color: #1e3a8a;
 }
  
 .mc-cal-nav {
@@ -348,8 +294,8 @@
 }
  
 .mc-cal-nav button:hover {
-  background: #f0efff;
-  border-color: #7c6fe0;
+  background: #eef2ff;
+  border-color: #2563eb;
 }
  
 .mc-cal-grid {
@@ -390,11 +336,11 @@
 }
  
 .mc-cal-day:hover:not(.mc-cal-empty):not(.mc-cal-today) {
-  background: #f0efff;
+  background: #eef2ff;
 }
  
 .mc-cal-today {
-  background: #4b3fa0 !important;
+  background: #1e3a8a !important;
   color: #fff !important;
   font-weight: 700;
   border-radius: 50%;
@@ -422,14 +368,14 @@
 .mc-online-title {
   font-size: 1rem;
   font-weight: 700;
-  color: #4b3fa0;
+  color: #1e3a8a;
 }
  
 .mc-see-all {
   background: none;
   border: none;
   font-size: 0.82rem;
-  color: #7c6fe0;
+  color: #2563eb;
   cursor: pointer;
   font-weight: 500;
 }
@@ -473,7 +419,7 @@
   flex-shrink: 0;
 }
  
-.mc-status-dot.online  { background: #4b3fa0; }
+.mc-status-dot.online  { background: #2563eb; }
 .mc-status-dot.offline { background: #ccc; }
  
 /* ── Responsive tweaks ────────────────────────────────────────────────────── */
