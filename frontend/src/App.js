@@ -12,6 +12,10 @@ import Messaging from './Pages/Messaging';
 import MyCourses from './Pages/MyCourses';
 import StudentSchedule from './Pages/StudentSchedule';
 import StaffDashboard from './Pages/StaffDashboard';
+import AdminDashboard from './Pages/AdminDashboard';
+import AdminProgress from './Pages/AdminProgress';
+import AdminMaintenance from './Pages/AdminMaintenance';
+import AdminMessages from './Pages/AdminMessages';
 import Teaching from './Pages/Teaching';
 import Halls from './Pages/Halls';
 import HallDetails from './Pages/HallDetails';
@@ -121,6 +125,10 @@ function AppContent() {
               <Route path="/messaging"      element={<Messaging />} />
               <Route path="/profile"        element={<Profile />} />
               <Route path="/staff"          element={<Staff />} />
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/admin-progress" element={<AdminProgress />} />
+              <Route path="/admin-maintenance" element={<AdminMaintenance />} />
+              <Route path="/admin-messages" element={<AdminMessages />} />
               <Route path="/staff-dashboard" element={<StaffDashboard />} />
               <Route path="/teaching"       element={<Teaching />} />
               <Route path="/halls"          element={<Halls />} />

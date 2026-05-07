@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { ProfileContext } from '../context/ProfileContext';
 import { apiGet, apiPost } from '../api';
-import { isStaffRole } from '../roleUtils';
+import { isAdminRole } from '../roleUtils';
 
 export default function Messaging() {
   const { profileData } = useContext(ProfileContext);
@@ -9,7 +9,7 @@ export default function Messaging() {
   const [activeChat, setActiveChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const viewingStudentInbox = isStaffRole(profileData?.role);
+  const viewingStudentInbox = isAdminRole(profileData?.role);
 
   useEffect(() => {
     const endpoint = viewingStudentInbox ? '/api/messages/conversations' : '/api/staff';
@@ -68,7 +68,7 @@ export default function Messaging() {
       {/* Sidebar: Conversation List */}
       <div className="messaging-sidebar">
         <div className="sidebar-header">
-          <h3>{viewingStudentInbox ? 'Student Messages' : 'Messages'}</h3>
+          <h3>{viewingStudentInbox ? 'Admin Messages' : 'Messages'}</h3>
         </div>
         <div className="conversation-list">
           {conversations.map((member) => (
@@ -82,7 +82,7 @@ export default function Messaging() {
               </div>
               <div className="conversation-details">
                 <span className="user-name">{member.name}</span>
-                <span className="last-snippet">{member.lastSnippet || member.role || member.department}</span>
+                <span className="last-snippet">{viewingStudentInbox && member.staffName ? `${member.staffName}: ${member.lastSnippet || ''}` : member.lastSnippet || member.role || member.department}</span>
               </div>
             </div>
           ))}
@@ -96,7 +96,7 @@ export default function Messaging() {
             <div className="chat-header">
               <div className="header-info">
                 <h4>{activeChat.name}</h4>
-                <span>{activeChat.staffName ? `To ${activeChat.staffName}` : activeChat.department}</span>
+                <span>{viewingStudentInbox && activeChat.staffName ? `Conversation through ${activeChat.staffName}` : activeChat.department}</span>
               </div>
             </div>
             

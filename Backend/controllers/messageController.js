@@ -26,24 +26,19 @@ function serializeMessage(message, currentUserId) {
 module.exports = function setupMessageRoutes(app) {
   app.get('/api/messages/conversations', authenticate, async (req, res) => {
     try {
-      if (!isStaffRole(req.user.Role)) {
-        return res.status(403).json({ error: 'Only staff can view student conversations.' });
+      if (normalizeRole(req.user.Role) !== 'Admin') {
+        return res.status(403).json({ error: 'Only admins can view all student conversations.' });
       }
 
-      const role = normalizeRole(req.user.Role);
-      const staffProfile = role === 'Admin' ? null : await getStaffProfileForUser(req.app.locals.db, req.user);
-
-      if (role !== 'Admin' && !staffProfile) {
-        return res.json([]);
-      }
-
-      const params = role === 'Admin' ? [] : [staffProfile.StaffID, req.user.UserID];
-      const staffFilter = role === 'Admin' ? '' : 'WHERE m.ToStaffID = ? OR m.FromUserID = ?';
       const conversations = await runQuery(
-        req.app.locals.db,
-        `SELECT
+         req.app.locals.db,
+         `SELECT
             CASE WHEN normalizeFrom.Role = 'Student' THEN normalizeFrom.UserID ELSE normalizeTo.UserID END AS studentUserId,
-            COALESCE(normalizeFrom.GivenName || ' ' || normalizeFrom.FamilyName, normalizeFrom.Username, normalizeTo.Username) AS name,
+            CASE
+              WHEN normalizeFrom.Role = 'Student'
+                THEN COALESCE(NULLIF(TRIM(normalizeFrom.GivenName || ' ' || normalizeFrom.FamilyName), ''), normalizeFrom.Username)
+              ELSE COALESCE(NULLIF(TRIM(normalizeTo.GivenName || ' ' || normalizeTo.FamilyName), ''), normalizeTo.Username)
+            END AS name,
             normalizeTo.UserID AS toUserId,
             m.ToStaffID AS staffId,
             s.Name AS staffName,
@@ -61,11 +56,9 @@ module.exports = function setupMessageRoutes(app) {
          JOIN Users normalizeFrom ON normalizeFrom.UserID = m.FromUserID
          LEFT JOIN Users normalizeTo ON normalizeTo.UserID = m.ToUserID
          LEFT JOIN Staff s ON s.StaffID = m.ToStaffID
-         ${staffFilter}
          GROUP BY studentUserId, m.ToStaffID
          HAVING studentUserId IS NOT NULL
-         ORDER BY lastSentDate DESC`,
-        params
+         ORDER BY lastSentDate DESC`
       );
 
       res.json(conversations.map((conversation) => ({
@@ -85,14 +78,12 @@ module.exports = function setupMessageRoutes(app) {
 
   app.get('/api/messages/student/:studentId', authenticate, async (req, res) => {
     try {
-      if (!isStaffRole(req.user.Role)) {
-        return res.status(403).json({ error: 'Only staff can view student conversations.' });
+      if (normalizeRole(req.user.Role) !== 'Admin') {
+        return res.status(403).json({ error: 'Only admins can view student conversations.' });
       }
 
       const studentId = Number(req.params.studentId);
-      const role = normalizeRole(req.user.Role);
-      const staffProfile = role === 'Admin' ? null : await getStaffProfileForUser(req.app.locals.db, req.user);
-      const staffId = role === 'Admin' ? Number(req.query.staffId) : staffProfile?.StaffID;
+      const staffId = Number(req.query.staffId);
 
       if (!studentId || !staffId) {
         return res.status(400).json({ error: 'Invalid student conversation selected.' });
@@ -161,7 +152,7 @@ module.exports = function setupMessageRoutes(app) {
         return res.status(400).json({ error: 'Please enter a message.' });
       }
 
-      if (toUserId && isStaffRole(req.user.Role)) {
+      if (toUserId && normalizeRole(req.user.Role) === 'Admin') {
         const role = normalizeRole(req.user.Role);
         const staffProfile = role === 'Admin' ? null : await getStaffProfileForUser(req.app.locals.db, req.user);
         const resolvedStaffId = role === 'Admin' ? Number(staffId) : staffProfile?.StaffID;

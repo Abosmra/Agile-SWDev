@@ -78,7 +78,6 @@ export default function Sidebar({ onLogout }) {
 
   const staffLinks = [
     { label: 'Staff Home',       icon: Icons.dashboard, to: '/staff-dashboard' },
-    { label: 'Messages',         icon: Icons.messaging, to: '/messaging' },
     { label: 'Teaching',         icon: Icons.courses,   to: '/teaching' },
     { label: 'Staff Directory',  icon: Icons.profile,   to: '/staff' },
     { label: 'Facilities',       icon: Icons.halls,     to: '/halls' },
@@ -87,12 +86,10 @@ export default function Sidebar({ onLogout }) {
   ];
 
   const adminLinks = [
-    { label: 'Staff Directory',  icon: Icons.profile,   to: '/staff' },
-    { label: 'Messages',         icon: Icons.messaging, to: '/messaging' },
-    { label: 'Teaching',         icon: Icons.courses,   to: '/teaching' },
-    { label: 'Facilities',       icon: Icons.halls,     to: '/halls' },
-    { label: 'My Reservations',  icon: Icons.bookings,  to: '/my-bookings' },
-    { label: 'Profile & HR',     icon: Icons.profile,   to: '/profile' },
+    { label: 'Dashboard',      icon: Icons.dashboard, to: '/admin-dashboard' },
+    { label: 'Progress',       icon: Icons.myCourses, to: '/admin-progress' },
+    { label: 'Maintenance',    icon: Icons.halls,     to: '/admin-maintenance' },
+    { label: 'Admin Messages', icon: Icons.messaging, to: '/admin-messages' },
   ];
 
   const links = isAdminRole(userRole) ? adminLinks : isStaffRole(userRole) ? staffLinks : studentLinks;
@@ -113,7 +110,7 @@ export default function Sidebar({ onLogout }) {
   return (
     <aside className={`sidebar${isStaffRole(userRole) ? ' sidebar-staff' : ' sidebar-student'}`}>
       <div className="sidebar-brand">
-        {isStaffRole(userRole) ? 'Staff Portal' : 'Student Portal'}<span className="sidebar-brand-dot">.</span>
+        {isAdminRole(userRole) ? 'Admin Portal' : isStaffRole(userRole) ? 'Staff Portal' : 'Student Portal'}<span className="sidebar-brand-dot">.</span>
       </div>
       <div className="sidebar-profile" onClick={() => navigate('/profile')}>
         <div className="sidebar-avatar">{initials}</div>

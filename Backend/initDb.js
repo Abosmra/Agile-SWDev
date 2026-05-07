@@ -147,6 +147,45 @@ async function ensureSchema(db) {
     );
   `);
 
+  await runSql(db, `
+    CREATE TABLE IF NOT EXISTS Assignments (
+      AssignmentID INTEGER PRIMARY KEY AUTOINCREMENT,
+      CourseID INTEGER NOT NULL,
+      Title TEXT NOT NULL,
+      DueDate TEXT,
+      MaxScore INTEGER DEFAULT 100,
+      FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
+    );
+  `);
+
+  await runSql(db, `
+    CREATE TABLE IF NOT EXISTS Grades (
+      GradeID INTEGER PRIMARY KEY AUTOINCREMENT,
+      StudentID INTEGER NOT NULL,
+      AssignmentID INTEGER NOT NULL,
+      Score INTEGER,
+      Feedback TEXT,
+      FOREIGN KEY (StudentID) REFERENCES Users(UserID),
+      FOREIGN KEY (AssignmentID) REFERENCES Assignments(AssignmentID)
+    );
+  `);
+
+  await runSql(db, `
+    INSERT OR IGNORE INTO Assignments (AssignmentID, CourseID, Title, DueDate, MaxScore)
+    VALUES
+      (1, 1, 'Distributed Systems Lab 1', '2026-05-20', 100),
+      (2, 1, 'Consensus Algorithms Quiz', '2026-05-27', 50),
+      (3, 2, 'Embedded Controller Design', '2026-05-24', 100),
+      (4, 4, 'IoT Sensor Integration Lab', '2026-05-26', 100);
+  `);
+
+  await runSql(db, `
+    INSERT OR IGNORE INTO Grades (GradeID, StudentID, AssignmentID, Score, Feedback)
+    VALUES
+      (1, 1, 1, 92, 'Strong implementation and clear report'),
+      (2, 1, 2, 45, 'Good understanding of Raft basics');
+  `);
+
   await runSql(
     db,
     "UPDATE Users SET Department = COALESCE(NULLIF(Department, ''), 'General')"
@@ -170,6 +209,118 @@ async function ensureSchema(db) {
       FOREIGN KEY (UserID) REFERENCES Users(UserID)
     )
   `);
+
+  await runSql(db, `
+    CREATE TABLE IF NOT EXISTS MaintenanceRequests (
+      RequestID INTEGER PRIMARY KEY AUTOINCREMENT,
+      RoomID INTEGER NOT NULL,
+      ReportedByUserID INTEGER NOT NULL,
+      Description TEXT NOT NULL,
+      Status TEXT NOT NULL DEFAULT 'open' CHECK (Status IN ('open', 'in progress', 'closed')),
+      ReportedDate TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      ResolvedDate TEXT,
+      FOREIGN KEY (RoomID) REFERENCES Halls(HallID),
+      FOREIGN KEY (ReportedByUserID) REFERENCES Users(UserID)
+    );
+  `);
+
+  await runSql(db, `
+    CREATE TABLE IF NOT EXISTS Resources (
+      ResourceID INTEGER PRIMARY KEY AUTOINCREMENT,
+      ResourceName TEXT NOT NULL,
+      ResourceType TEXT CHECK (ResourceType IN ('Equipment', 'Software License', 'Book', 'Other')),
+      TotalQuantity INTEGER NOT NULL DEFAULT 0,
+      AvailableQuantity INTEGER NOT NULL DEFAULT 0
+    );
+  `);
+
+  await runSql(db, `
+    CREATE TABLE IF NOT EXISTS ResourceAllocations (
+      AllocationID INTEGER PRIMARY KEY AUTOINCREMENT,
+      ResourceID INTEGER NOT NULL,
+      AllocatedToUserID INTEGER NOT NULL,
+      Department TEXT,
+      Quantity INTEGER NOT NULL DEFAULT 1,
+      AllocatedDate TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      DueDate TEXT,
+      ReturnedDate TEXT,
+      FOREIGN KEY (ResourceID) REFERENCES Resources(ResourceID),
+      FOREIGN KEY (AllocatedToUserID) REFERENCES Users(UserID)
+    );
+  `);
+
+  await runSql(db, `
+    CREATE TABLE IF NOT EXISTS Transcripts (
+      TranscriptID INTEGER PRIMARY KEY AUTOINCREMENT,
+      StudentID INTEGER NOT NULL,
+      GeneratedDate TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PDFPath TEXT NOT NULL,
+      Semester TEXT,
+      GPA REAL,
+      FOREIGN KEY (StudentID) REFERENCES Users(UserID)
+    );
+  `);
+
+  await runSql(db, `
+    CREATE TABLE IF NOT EXISTS AdmissionApplications (
+      ApplicationID INTEGER PRIMARY KEY AUTOINCREMENT,
+      ApplicantName TEXT NOT NULL,
+      Program TEXT NOT NULL,
+      Status TEXT NOT NULL DEFAULT 'Submitted' CHECK (Status IN ('Submitted', 'In Review', 'Accepted', 'Rejected')),
+      SubmittedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  await runSql(db, `
+    CREATE TABLE IF NOT EXISTS Parents (
+      ParentID INTEGER PRIMARY KEY AUTOINCREMENT,
+      UserID INTEGER NOT NULL,
+      StudentID INTEGER NOT NULL,
+      Phone TEXT,
+      FOREIGN KEY (UserID) REFERENCES Users(UserID),
+      FOREIGN KEY (StudentID) REFERENCES Users(UserID)
+    );
+  `);
+
+  await runSql(db, `
+    INSERT OR IGNORE INTO MaintenanceRequests (RequestID, RoomID, ReportedByUserID, Description, Status)
+    VALUES
+      (1, 1, 2, 'Projector not working in Hall A', 'open'),
+      (2, 9, 3, 'Lab network switch needs inspection', 'in progress');
+  `);
+
+  await runSql(db, `
+    INSERT OR IGNORE INTO Resources (ResourceID, ResourceName, ResourceType, TotalQuantity, AvailableQuantity)
+    VALUES
+      (1, 'Laptop Dell XPS', 'Equipment', 10, 8),
+      (2, 'MATLAB License', 'Software License', 25, 12),
+      (3, 'Robotics Kit', 'Equipment', 8, 5),
+      (4, 'Cloud Lab Seat', 'Software License', 60, 20);
+  `);
+
+  await runSql(db, `
+    INSERT OR IGNORE INTO ResourceAllocations (AllocationID, ResourceID, AllocatedToUserID, Department, Quantity, DueDate)
+    VALUES
+      (1, 1, 1, 'Computer Science', 1, '2026-06-01'),
+      (2, 2, 4, 'Computer Science', 3, '2026-08-31'),
+      (3, 3, 101, 'Computer Science', 1, '2026-06-20');
+  `);
+
+  await runSql(db, `
+    INSERT OR IGNORE INTO Transcripts (TranscriptID, StudentID, PDFPath, Semester, GPA)
+    VALUES
+      (1, 1, '/transcripts/student_1_fall2025.pdf', 'Fall 2025', 3.75),
+      (2, 22, '/transcripts/student_22_spring2026.pdf', 'Spring 2026', 3.42);
+  `);
+
+  await runSql(db, `
+    INSERT OR IGNORE INTO AdmissionApplications (ApplicationID, ApplicantName, Program, Status)
+    VALUES
+      (1, 'Lina Mostafa', 'Computer Engineering', 'Submitted'),
+      (2, 'Yehia Samir', 'Software Engineering', 'In Review'),
+      (3, 'Nadine Fouad', 'Mechatronics', 'Accepted');
+  `);
+
   await runSql(db, `UPDATE Users SET Role = 'Admin' WHERE Username = 'mohamed@web.dev'`);
   await runSql(
     db,
