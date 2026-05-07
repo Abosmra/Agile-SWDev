@@ -30,12 +30,6 @@ export default function StaffDashboard() {
       path: '/teaching'
     },
     {
-      title: 'Staff Directory',
-      description: 'Find professors, TAs, office hours, assigned courses, performance, and HR details.',
-      icon: 'SD',
-      path: '/staff'
-    },
-    {
       title: 'Facilities',
       description: 'Browse available halls and reserve rooms for classes, labs, meetings, or events.',
       icon: 'FH',
@@ -43,7 +37,7 @@ export default function StaffDashboard() {
     },
     {
       title: 'Profile & HR',
-      description: 'Review your profile, office hours, contact information, assigned courses, and HR details.',
+      description: 'Review salary, payroll status, benefits, leave balance, and submit leave requests.',
       icon: 'HR',
       path: '/profile'
     }

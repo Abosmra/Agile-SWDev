@@ -93,9 +93,7 @@ export default function Sidebar({ onLogout }) {
     { label: 'Staff Home',       icon: Icons.dashboard, to: '/staff-dashboard' },
     ...(isAdvisor ? [{ label: 'Advisor Panel', icon: Icons.services, to: '/advisor-panel' }] : []),
     { label: 'Messages',         icon: Icons.messaging, to: '/messaging' },
-    { label: 'Students',         icon: Icons.profile,   to: '/students' },
     { label: 'Teaching',         icon: Icons.courses,   to: '/teaching' },
-    { label: 'Staff Directory',  icon: Icons.profile,   to: '/staff' },
     { label: 'Facilities',       icon: Icons.halls,     to: '/halls' },
     { label: 'My Reservations',  icon: Icons.bookings,  to: '/my-bookings' },
     { label: 'Profile & HR',     icon: Icons.profile,   to: '/profile' },
@@ -105,6 +103,7 @@ export default function Sidebar({ onLogout }) {
     { label: 'Dashboard',      icon: Icons.dashboard, to: '/admin-dashboard' },
     { label: 'Progress',       icon: Icons.myCourses, to: '/admin-progress' },
     { label: 'Students',       icon: Icons.profile,   to: '/students' },
+    { label: 'Staff Directory', icon: Icons.profile,   to: '/staff' },
     { label: 'Maintenance',    icon: Icons.halls,     to: '/admin-maintenance' },
     { label: 'Admin Messages', icon: Icons.messaging, to: '/admin-messages' },
   ];

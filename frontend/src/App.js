@@ -48,7 +48,11 @@ function mapUserToProfile(user) {
     staffId: user.StaffID,
     contactInfo: user.ContactInfo,
     officeHours: user.OfficeHours,
-    assignedCourses: user.AssignedCourses
+    assignedCourses: user.AssignedCourses,
+    payrollStatus: user.PayrollStatus,
+    benefitsSummary: user.BenefitsSummary,
+    leaveBalance: user.LeaveBalance,
+    salaryAmount: user.SalaryAmount
   };
 }
 

@@ -16,7 +16,7 @@ export default function Messaging() {
     const endpoint = viewingStudentInbox
       ? '/api/messages/conversations'
       : staffStudentInbox
-        ? '/api/students'
+        ? '/api/messages/staff-conversations'
         : '/api/staff';
     apiGet(endpoint)
       .then(data => setConversations(data))
@@ -92,6 +92,11 @@ export default function Messaging() {
               </div>
             </div>
           ))}
+          {conversations.length === 0 && (
+            <div className="empty-chat-message">
+              No student messages yet.
+            </div>
+          )}
         </div>
       </div>
 

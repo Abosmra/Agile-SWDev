@@ -17,7 +17,8 @@ cREATE TABLE Staff (
     ProfessionalDevelopment TEXT DEFAULT '',
     PayrollStatus TEXT DEFAULT 'Active',
     BenefitsSummary TEXT DEFAULT 'Standard university benefits',
-    LeaveBalance INTEGER DEFAULT 21
+    LeaveBalance INTEGER DEFAULT 21,
+    SalaryAmount INTEGER DEFAULT 18000
 );
 
 INSERT INTO Staff (StaffID, Name, Department, Role, ContactInfo, OfficeHours, AssignedCourses, Research, ProfessionalDevelopment, BenefitsSummary)

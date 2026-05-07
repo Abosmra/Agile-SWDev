@@ -42,6 +42,81 @@ function serializeMessage(message, currentUserId) {
 }
 
 module.exports = function setupMessageRoutes(app) {
+  app.get('/api/messages/staff-conversations', authenticate, async (req, res) => {
+    try {
+      const role = normalizeRole(req.user.Role);
+      if (!isStaffRole(role) || role === 'Admin') {
+        return res.status(403).json({ error: 'Only staff can view staff message conversations.' });
+      }
+
+      const staffProfile = await getStaffProfileForUser(req.app.locals.db, req.user);
+      let conversations;
+
+      if (role === 'Advisor') {
+        conversations = await runQuery(
+          req.app.locals.db,
+          `SELECT
+             u.UserID AS id,
+             COALESCE(NULLIF(TRIM(u.GivenName || ' ' || u.FamilyName), ''), u.Username) AS name,
+             u.Username AS email,
+             u.Department AS department,
+             a.AdvisorID AS staffId,
+             MAX(m.SentDate) AS lastSentDate,
+             (SELECT Body
+                FROM Messages latest
+                WHERE latest.ToStaffID = a.AdvisorID
+                  AND (latest.FromUserID = u.UserID OR latest.ToUserID = u.UserID)
+                ORDER BY latest.SentDate DESC, latest.MessageID DESC
+                LIMIT 1) AS lastSnippet
+           FROM AdvisorAssignments a
+           JOIN Users u ON u.UserID = a.StudentID
+           LEFT JOIN Messages m ON m.ToStaffID = a.AdvisorID
+             AND (m.FromUserID = u.UserID OR m.ToUserID = u.UserID)
+           WHERE a.AdvisorID = ?
+           GROUP BY u.UserID, a.AdvisorID
+           ORDER BY COALESCE(lastSentDate, a.AssignedAt) DESC`,
+          [staffProfile.StaffID]
+        );
+      } else {
+        conversations = await runQuery(
+          req.app.locals.db,
+          `SELECT
+             student.UserID AS id,
+             COALESCE(NULLIF(TRIM(student.GivenName || ' ' || student.FamilyName), ''), student.Username) AS name,
+             student.Username AS email,
+             student.Department AS department,
+             m.ToStaffID AS staffId,
+             MAX(m.SentDate) AS lastSentDate,
+             (SELECT Body
+                FROM Messages latest
+                WHERE latest.ToStaffID = m.ToStaffID
+                  AND (latest.FromUserID = student.UserID OR latest.ToUserID = student.UserID)
+                ORDER BY latest.SentDate DESC, latest.MessageID DESC
+                LIMIT 1) AS lastSnippet
+           FROM Messages m
+           JOIN Users student ON student.UserID = CASE
+             WHEN m.FromUserID = ? THEN m.ToUserID
+             ELSE m.FromUserID
+           END
+           WHERE m.ToStaffID = ?
+             AND student.Role = 'Student'
+           GROUP BY student.UserID, m.ToStaffID
+           ORDER BY lastSentDate DESC`,
+          [req.user.UserID, staffProfile.StaffID]
+        );
+      }
+
+      res.json(conversations.map((conversation) => ({
+        ...conversation,
+        role: 'Student',
+        staffId: conversation.staffId || staffProfile.StaffID,
+        lastSnippet: conversation.lastSnippet || (role === 'Advisor' ? 'Assigned advisee' : 'No message preview')
+      })));
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.get('/api/messages/conversations', authenticate, async (req, res) => {
     try {
       if (normalizeRole(req.user.Role) !== 'Admin') {

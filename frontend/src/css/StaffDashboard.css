@@ -182,7 +182,8 @@
   margin-right: 22px;
   display: grid;
   place-items: center;
-  padding-bottom: 3px;
+  line-height: 1;
+  padding: 0 0 2px;
 }
 
 @media (max-width: 900px) {

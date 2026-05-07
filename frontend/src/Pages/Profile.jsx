@@ -1,15 +1,49 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProfileContext } from '../context/ProfileContext';
 import ChangePasswordModal from './ChangePasswordModal';
 import EditProfile from './EditProfile';
 import { isStaffRole } from '../roleUtils';
+import { apiGet, apiPost } from '../api';
+import NotificationToast from '../Components/NotificationToast';
 
 export default function Profile() {
   const { profileData } = useContext(ProfileContext);
   const navigate = useNavigate();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
+  const [hrData, setHrData] = useState(null);
+  const [leaveForm, setLeaveForm] = useState({ startDate: '', endDate: '', reason: '' });
+  const [toast, setToast] = useState(null);
+  const isStaffProfile = isStaffRole(profileData?.role);
+
+  useEffect(() => {
+    if (!isStaffProfile) return;
+
+    apiGet('/api/staff/hr')
+      .then(setHrData)
+      .catch((err) => setToast({ type: 'error', message: err.message || 'Unable to load HR information.' }));
+  }, [isStaffProfile]);
+
+  const handleLeaveChange = (event) => {
+    const { name, value } = event.target;
+    setLeaveForm((current) => ({ ...current, [name]: value }));
+  };
+
+  const handleLeaveSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const request = await apiPost('/api/staff/leave-requests', leaveForm);
+      setHrData((current) => ({
+        ...(current || {}),
+        leaveRequests: [request, ...(current?.leaveRequests || [])]
+      }));
+      setLeaveForm({ startDate: '', endDate: '', reason: '' });
+      setToast({ type: 'success', message: 'Leave request submitted.' });
+    } catch (err) {
+      setToast({ type: 'error', message: err.message || 'Unable to submit leave request.' });
+    }
+  };
 
   if (!profileData) {
     return <p className="loading">Loading profile...</p>;
@@ -21,7 +55,8 @@ export default function Profile() {
 
   const initials = `${profileData.firstName?.[0] || ''}${profileData.lastName?.[0] || ''}`.toUpperCase() || '?';
   const fullName = `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim();
-  const isStaffProfile = isStaffRole(profileData.role);
+  const salaryAmount = hrData?.salaryAmount ?? profileData.salaryAmount ?? 18000;
+  const leaveRequests = hrData?.leaveRequests || [];
 
   return (
     <div className="profile-page">
@@ -59,8 +94,8 @@ export default function Profile() {
         </div>
         {isStaffProfile && (
           <div className="profile-stat">
-            <span className="stat-num">{profileData.officeHours || 'By appointment'}</span>
-            <span className="stat-lbl">Office Hours</span>
+            <span className="stat-num">{salaryAmount.toLocaleString()} EGP</span>
+            <span className="stat-lbl">Monthly Salary</span>
           </div>
         )}
       </div>
@@ -115,6 +150,67 @@ export default function Profile() {
             </div>
           </div>
         )}
+
+        {isStaffProfile && (
+          <div className="profile-card">
+            <div className="card-heading">
+              <h2>Payroll & Human Resources</h2>
+            </div>
+            <div className="profile-hr-grid">
+              <div className="profile-hr-item">
+                <span className="info-label">Salary</span>
+                <span className="info-value">{salaryAmount.toLocaleString()} EGP / month</span>
+              </div>
+              <div className="profile-hr-item">
+                <span className="info-label">Payroll Status</span>
+                <span className="info-value">{hrData?.payrollStatus || profileData.payrollStatus || 'Active'}</span>
+              </div>
+              <div className="profile-hr-item">
+                <span className="info-label">Leave Balance</span>
+                <span className="info-value">{hrData?.leaveBalance ?? profileData.leaveBalance ?? 21} days</span>
+              </div>
+              <div className="profile-hr-item profile-hr-full">
+                <span className="info-label">Benefits</span>
+                <span className="info-value">{hrData?.benefitsSummary || profileData.benefitsSummary || 'Standard university benefits'}</span>
+              </div>
+            </div>
+
+            <form className="leave-request-form" onSubmit={handleLeaveSubmit}>
+              <div className="cp-row">
+                <div className="cp-field">
+                  <label>Start Date</label>
+                  <input type="date" name="startDate" value={leaveForm.startDate} onChange={handleLeaveChange} required />
+                </div>
+                <div className="cp-field">
+                  <label>End Date</label>
+                  <input type="date" name="endDate" value={leaveForm.endDate} onChange={handleLeaveChange} required />
+                </div>
+              </div>
+              <div className="cp-field">
+                <label>Reason</label>
+                <textarea name="reason" value={leaveForm.reason} onChange={handleLeaveChange} placeholder="Optional note for HR" rows="3" />
+              </div>
+              <button type="submit" className="btn-primary">Request Leave</button>
+            </form>
+
+            <div className="leave-request-list">
+              <h3>Leave Requests</h3>
+              {leaveRequests.length === 0 ? (
+                <p>No leave requests yet.</p>
+              ) : (
+                leaveRequests.map((request) => (
+                  <div key={request.RequestID} className="leave-request-row">
+                    <div>
+                      <strong>{request.StartDate} to {request.EndDate}</strong>
+                      <span>{request.Reason || 'No reason provided'}</span>
+                    </div>
+                    <em>{request.Status}</em>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="profile-footer-actions">
@@ -124,6 +220,13 @@ export default function Profile() {
 
       {isEditOpen && <EditProfile onClose={() => setIsEditOpen(false)} />}
       {isPasswordOpen && <ChangePasswordModal onClose={() => setIsPasswordOpen(false)} />}
+      {toast && (
+        <NotificationToast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

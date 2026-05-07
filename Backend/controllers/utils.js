@@ -419,7 +419,8 @@ async function getUserWithStats(db, userId) {
   if (isStaffRole(user.Role)) {
     staffProfile = await runGet(
       db,
-      `SELECT StaffID, ContactInfo, OfficeHours, AssignedCourses
+      `SELECT StaffID, ContactInfo, OfficeHours, AssignedCourses, PayrollStatus,
+              BenefitsSummary, LeaveBalance, SalaryAmount
        FROM Staff
        WHERE lower(ContactInfo) = lower(?)
           OR lower(Name) = lower(trim(? || ' ' || ?))
@@ -462,7 +463,11 @@ async function getUserWithStats(db, userId) {
     StaffID: staffProfile?.StaffID ?? null,
     ContactInfo: staffProfile?.ContactInfo ?? user.Username,
     OfficeHours: staffProfile?.OfficeHours ?? 'By appointment',
-    AssignedCourses: staffProfile?.AssignedCourses ?? 'Not assigned'
+    AssignedCourses: staffProfile?.AssignedCourses ?? 'Not assigned',
+    PayrollStatus: staffProfile?.PayrollStatus ?? 'Active',
+    BenefitsSummary: staffProfile?.BenefitsSummary ?? 'Standard university benefits',
+    LeaveBalance: staffProfile?.LeaveBalance ?? 21,
+    SalaryAmount: staffProfile?.SalaryAmount ?? 18000
   });
 }
 

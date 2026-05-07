@@ -1,15 +1,12 @@
-DROP TABLE IF EXISTS Courses;
-DROP TABLE IF EXISTS Announcements;
-DROP TABLE IF EXISTS Enrollments;
-DROP TABLE IF EXISTS Staff;
-
-
-IF OBJECT_ID('LeaveRequests', 'U') IS NOT NULL DROP TABLE LeaveRequests;
-CREATE TABLE LeaveRequests (
-    RequestID INT IDENTITY(1,1) PRIMARY KEY,
-    UserID INT NOT NULL,
-    StartDate DATE NOT NULL,
-    EndDate DATE NOT NULL,
-    Status VARCHAR(20) DEFAULT 'Pending',
-    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+CREATE TABLE IF NOT EXISTS LeaveRequests (
+    RequestID INTEGER PRIMARY KEY AUTOINCREMENT,
+    UserID INTEGER NOT NULL,
+    StaffID INTEGER,
+    StartDate TEXT NOT NULL,
+    EndDate TEXT NOT NULL,
+    Reason TEXT,
+    Status TEXT NOT NULL DEFAULT 'Pending' CHECK (Status IN ('Pending', 'Approved', 'Rejected')),
+    RequestedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (StaffID) REFERENCES Staff(StaffID)
 );

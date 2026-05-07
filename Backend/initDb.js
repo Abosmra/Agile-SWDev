@@ -101,6 +101,19 @@ async function ensureSchema(db) {
   await ensureColumn(db, 'Staff', 'PayrollStatus', "TEXT DEFAULT 'Active'");
   await ensureColumn(db, 'Staff', 'BenefitsSummary', "TEXT DEFAULT 'Standard university benefits'");
   await ensureColumn(db, 'Staff', 'LeaveBalance', 'INTEGER DEFAULT 21');
+  await ensureColumn(db, 'Staff', 'SalaryAmount', 'INTEGER DEFAULT 18000');
+
+  await runSql(db, `
+    UPDATE Staff
+    SET SalaryAmount = CASE
+      WHEN Role = 'Advisor' THEN 22000
+      WHEN Role = 'Doctor' THEN 28000
+      WHEN Role = 'TA' THEN 12000
+      WHEN Role = 'Admin' THEN 26000
+      ELSE 18000
+    END
+    WHERE SalaryAmount IS NULL OR SalaryAmount = 18000;
+  `);
 
   await runSql(db, `
     CREATE TABLE IF NOT EXISTS AdvisorStudentLimits (
@@ -168,6 +181,21 @@ async function ensureSchema(db) {
   );
   await ensureColumn(db, 'Messages', 'ToUserID', 'INTEGER');
   await ensureColumn(db, 'Messages', 'Subject', 'TEXT');
+
+  await runSql(db, `
+    CREATE TABLE IF NOT EXISTS LeaveRequests (
+      RequestID INTEGER PRIMARY KEY AUTOINCREMENT,
+      UserID INTEGER NOT NULL,
+      StaffID INTEGER,
+      StartDate TEXT NOT NULL,
+      EndDate TEXT NOT NULL,
+      Reason TEXT,
+      Status TEXT NOT NULL DEFAULT 'Pending' CHECK (Status IN ('Pending', 'Approved', 'Rejected')),
+      RequestedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (UserID) REFERENCES Users(UserID),
+      FOREIGN KEY (StaffID) REFERENCES Staff(StaffID)
+    );
+  `);
 
   await runSql(db, `
     CREATE TABLE IF NOT EXISTS CourseMaterials (

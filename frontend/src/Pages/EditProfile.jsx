@@ -54,7 +54,11 @@ export default function EditProfile({ onClose }) {
         staffId: updatedUser.StaffID,
         contactInfo: updatedUser.ContactInfo,
         officeHours: updatedUser.OfficeHours,
-        assignedCourses: updatedUser.AssignedCourses
+        assignedCourses: updatedUser.AssignedCourses,
+        payrollStatus: updatedUser.PayrollStatus,
+        benefitsSummary: updatedUser.BenefitsSummary,
+        leaveBalance: updatedUser.LeaveBalance,
+        salaryAmount: updatedUser.SalaryAmount
       });
       onClose();
     } catch (err) {
