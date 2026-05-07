@@ -1,4 +1,4 @@
-const { runQuery, runGet, runExec, authenticate, isStaffRole, normalizeRole } = require('./utils');
+const { runQuery, runGet, runExec, authenticate, requireRoles, isStaffRole, normalizeRole } = require('./utils');
 
 async function getStaffProfileForUser(db, user) {
   const existing = await runGet(
@@ -208,6 +208,37 @@ module.exports = function setupMessageRoutes(app) {
     }
   });
 
+  app.get('/api/messages/admin-student/:studentId', authenticate, requireRoles(['Admin']), async (req, res) => {
+    try {
+      const studentId = Number(req.params.studentId);
+      if (!studentId) {
+        return res.status(400).json({ error: 'Invalid student selected.' });
+      }
+
+      const messages = await runQuery(
+        req.app.locals.db,
+        `SELECT m.MessageID AS id,
+                m.FromUserID AS fromUserId,
+                m.ToStaffID AS toStaffId,
+                m.ToUserID AS toUserId,
+                m.Body AS body,
+                m.SentDate AS sentDate,
+                m.IsRead AS isRead,
+                u.GivenName || ' ' || u.FamilyName AS senderName
+         FROM Messages m
+         JOIN Users u ON u.UserID = m.FromUserID
+         WHERE (m.FromUserID = ? AND m.ToUserID = ? AND m.ToStaffID IS NULL)
+            OR (m.ToUserID = ? AND m.FromUserID = ? AND m.ToStaffID IS NULL)
+         ORDER BY m.SentDate ASC, m.MessageID ASC`,
+        [req.user.UserID, studentId, studentId, req.user.UserID]
+      );
+
+      res.json(messages.map((message) => serializeMessage(message, req.user.UserID)));
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.get('/api/messages/:staffId', authenticate, async (req, res) => {
     try {
       const staffId = Number(req.params.staffId);
@@ -245,6 +276,33 @@ module.exports = function setupMessageRoutes(app) {
 
       if (!trimmedBody) {
         return res.status(400).json({ error: 'Please enter a message.' });
+      }
+
+      // Admin sending directly to student
+      if (toUserId && req.user.Role === 'Admin' && !staffId) {
+        const studentId = Number(toUserId);
+
+        if (!studentId) {
+          return res.status(400).json({ error: 'Invalid student selected.' });
+        }
+
+        const result = await runExec(
+          req.app.locals.db,
+          `INSERT INTO Messages (FromUserID, ToStaffID, ToUserID, Body, IsRead)
+           VALUES (?, NULL, ?, ?, 0)`,
+          [req.user.UserID, studentId, trimmedBody]
+        );
+
+        return res.status(201).json({
+          id: result.lastID,
+          fromUserId: req.user.UserID,
+          toUserId: studentId,
+          body: trimmedBody,
+          sentDate: new Date().toISOString(),
+          isRead: 0,
+          isUser: true,
+          sender: `${req.user.GivenName || req.user.Username} ${req.user.FamilyName || ''}`.trim()
+        });
       }
 
       if (toUserId && isStaffRole(req.user.Role)) {

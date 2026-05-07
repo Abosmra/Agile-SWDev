@@ -101,6 +101,7 @@ export default function Sidebar({ onLogout }) {
 
   const adminLinks = [
     { label: 'Dashboard',      icon: Icons.dashboard, to: '/admin-dashboard' },
+    { label: 'Office Tools',   icon: Icons.services,  to: '/admin-office' },
     { label: 'Progress',       icon: Icons.myCourses, to: '/admin-progress' },
     { label: 'Students',       icon: Icons.profile,   to: '/students' },
     { label: 'Staff Directory', icon: Icons.profile,   to: '/staff' },

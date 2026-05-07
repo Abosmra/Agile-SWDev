@@ -150,8 +150,10 @@ export default function AdminDashboard() {
         </div>
         <div className="admin-actions">
           <button onClick={() => navigate('/admin-progress')}>Progress</button>
+          <button onClick={() => navigate('/admin-office')}>Office Tools</button>
           <button onClick={() => navigate('/admin-maintenance')}>Maintenance</button>
           <button onClick={() => navigate('/admin-messages')}>Messages</button>
+          <button onClick={() => navigate('/admin-performance')}>Performance</button>
         </div>
       </header>
 
@@ -308,6 +310,18 @@ export default function AdminDashboard() {
       </section>
 
       <section className="admin-two-column">
+        <article className="admin-panel">
+          <div className="admin-panel-head">
+            <h2>Administrative Office Automation</h2>
+            <button onClick={() => navigate('/admin-office')}>Open tools</button>
+          </div>
+          <div className="admin-office-summary">
+            <div><strong>{studentRecords.length}</strong><span>student records ready</span></div>
+            <div><strong>{overview.curriculum.transcriptCount || 0}</strong><span>generated transcripts</span></div>
+            <div><strong>{overview.curriculum.admissionApplications || 0}</strong><span>active applications</span></div>
+          </div>
+        </article>
+
         <article className="admin-panel">
           <div className="admin-panel-head">
             <h2>Community Messages</h2>

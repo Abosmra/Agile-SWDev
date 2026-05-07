@@ -14,7 +14,7 @@ export default function Messaging() {
 
   useEffect(() => {
     const endpoint = viewingStudentInbox
-      ? '/api/messages/conversations'
+      ? '/api/admin/message-contacts'
       : staffStudentInbox
         ? '/api/messages/staff-conversations'
         : '/api/staff';
@@ -29,10 +29,19 @@ export default function Messaging() {
       return;
     }
 
+    const isStaffContact = activeChat.conversationType === 'staff';
     const studentUserId = activeChat.studentUserId || activeChat.id;
-    const endpoint = viewingStudentInbox || staffStudentInbox
-      ? `/api/messages/student/${studentUserId}?staffId=${activeChat.staffId || ''}`
-      : `/api/messages/${activeChat.id}`;
+    let endpoint;
+    if (isStaffContact) {
+      endpoint = `/api/messages/${activeChat.id}`;
+    } else if (viewingStudentInbox && activeChat.conversationType === 'student' && !activeChat.staffId) {
+      // Direct admin-student conversation
+      endpoint = `/api/messages/admin-student/${studentUserId}`;
+    } else if (viewingStudentInbox || staffStudentInbox) {
+      endpoint = `/api/messages/student/${studentUserId}?staffId=${activeChat.staffId || ''}`;
+    } else {
+      endpoint = `/api/messages/${activeChat.id}`;
+    }
 
     apiGet(endpoint)
       .then((data) => setMessages(data))
@@ -46,7 +55,11 @@ export default function Messaging() {
     e.preventDefault();
     if (!newMessage.trim() || !activeChat) return;
 
-    const payload = viewingStudentInbox || staffStudentInbox
+    const payload = activeChat.conversationType === 'staff'
+      ? { toStaffId: activeChat.id, body: newMessage.trim() }
+      : viewingStudentInbox && activeChat.conversationType === 'student' && !activeChat.staffId
+      ? { toUserId: activeChat.id, body: newMessage.trim() }
+      : viewingStudentInbox || staffStudentInbox
       ? { toUserId: activeChat.studentUserId || activeChat.id, staffId: activeChat.staffId, body: newMessage.trim() }
       : { toStaffId: activeChat.id, body: newMessage.trim() };
 
@@ -74,7 +87,7 @@ export default function Messaging() {
       {/* Sidebar: Conversation List */}
       <div className="messaging-sidebar">
         <div className="sidebar-header">
-          <h3>{viewingStudentInbox || staffStudentInbox ? 'Student Messages' : 'Messages'}</h3>
+          <h3>{viewingStudentInbox ? 'Staff & Student Messages' : viewingStudentInbox || staffStudentInbox ? 'Student Messages' : 'Messages'}</h3>
         </div>
         <div className="conversation-list">
           {conversations.map((member) => (
@@ -88,7 +101,13 @@ export default function Messaging() {
               </div>
               <div className="conversation-details">
                 <span className="user-name">{member.name}</span>
-                <span className="last-snippet">{viewingStudentInbox && member.staffName ? `${member.staffName}: ${member.lastSnippet || ''}` : member.lastSnippet || member.role || member.department}</span>
+                <span className="last-snippet">
+                  {viewingStudentInbox && member.conversationType === 'staff'
+                    ? `${member.role || 'Staff'} · ${member.lastSnippet || member.department || ''}`
+                    : viewingStudentInbox && member.staffName
+                      ? `${member.staffName}: ${member.lastSnippet || ''}`
+                      : member.lastSnippet || member.role || member.department}
+                </span>
               </div>
             </div>
           ))}
@@ -107,7 +126,13 @@ export default function Messaging() {
             <div className="chat-header">
               <div className="header-info">
                 <h4>{activeChat.name}</h4>
-                <span>{viewingStudentInbox && activeChat.staffName ? `Conversation through ${activeChat.staffName}` : activeChat.department || activeChat.email}</span>
+                <span>
+                  {viewingStudentInbox && activeChat.conversationType === 'staff'
+                    ? activeChat.email || activeChat.department
+                    : viewingStudentInbox && activeChat.staffName
+                      ? `Conversation through ${activeChat.staffName}`
+                      : activeChat.department || activeChat.email}
+                </span>
               </div>
             </div>
             
