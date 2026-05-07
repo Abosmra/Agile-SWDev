@@ -13,6 +13,18 @@ INSERT INTO Users (Username, Password, GivenName, FamilyName, Role)
 VALUES ('mai@example.com', '123456', 'Mai', 'User', 'Student');
 
 INSERT INTO Users (Username, Password, GivenName, FamilyName, Role) 
+VALUES ('mariam.riyad@student.asu.eg', 'student123', 'Mariam', 'Riyad', 'Student');
+
+INSERT INTO Users (Username, Password, GivenName, FamilyName, Role) 
+VALUES ('mariam.shaker@student.asu.eg', 'student123', 'Mariam', 'Shaker', 'Student');
+
+INSERT INTO Users (Username, Password, GivenName, FamilyName, Role) 
+VALUES ('maryam.hamdy@student.asu.eg', 'student123', 'Maryam', 'Hamdy', 'Student');
+
+INSERT INTO Users (Username, Password, GivenName, FamilyName, Role) 
+VALUES ('basmala.hany@student.asu.eg', 'student123', 'Basmala', 'Hany', 'Student');
+
+INSERT INTO Users (Username, Password, GivenName, FamilyName, Role) 
 VALUES ('mohamed@web.dev', '12345678', 'Mohamed', 'User', 'Admin');
 
 INSERT INTO Users (Username, Password, GivenName, FamilyName, Role) 
