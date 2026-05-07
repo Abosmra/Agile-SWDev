@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { apiGet, apiPost } from '../api';
 import '../css/MyCourses.css';
 import searchIcon from '../assets/search.png';
@@ -200,10 +200,10 @@ function CourseDetailsModal({ course, isEnrolled, onClose, onEnroll }) {
           <div className="details-section">
             <h3>Assessment Methods</h3>
             <div className="assessment-grid">
-              <div className="assessment-item"><span>Assignments:</span><strong>{course.assignments}%</strong></div>
-              <div className="assessment-item"><span>Midterm Exam:</span><strong>{course.midterm}%</strong></div>
-              <div className="assessment-item"><span>Final Exam:</span><strong>{course.final}%</strong></div>
-              <div className="assessment-item"><span>Participation:</span><strong>{course.participation}%</strong></div>
+              <div className="assessment-item"><span>Assignments:</span><strong>{course.assignments}</strong></div>
+              <div className="assessment-item"><span>Midterm Exam:</span><strong>{course.midterm}</strong></div>
+              <div className="assessment-item"><span>Final Exam:</span><strong>{course.final}</strong></div>
+              <div className="assessment-item"><span>Participation:</span><strong>{course.participation}</strong></div>
             </div>
           </div>
 
@@ -233,7 +233,7 @@ export default function MyCourses() {
   const [allCourses, setAllCourses] = useState([]); // all courses
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [activeView, setActiveView] = useState('dashboard');
+  const [activeView] = useState('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
 
@@ -256,6 +256,9 @@ export default function MyCourses() {
           id: c.CourseID,
           title: c.CourseName,
           courseCode: c.CourseCode,
+          description: c.Description,
+          instructor: c.Instructor || 'Instructor pending',
+          credits: c.Credits || 3,
           theme: CARD_THEMES[idx % CARD_THEMES.length],
           ...getCourseMetadata(c.CourseName, idx),
         })));
@@ -267,6 +270,9 @@ export default function MyCourses() {
             id: c.CourseID,
             title: c.CourseName,
             courseCode: c.CourseCode,
+            description: c.Description,
+            instructor: c.Instructor || 'Instructor pending',
+            credits: c.Credits || 3,
             progress,
             status: c.Status,
             lessons: 20,
@@ -288,16 +294,18 @@ export default function MyCourses() {
   }, []);
 
   // Filter helpers – only by search query
-  const filterCourses = (data) => {
+  const filterCourses = useCallback((data) => {
     if (!searchQuery.trim()) return data;
     const q = searchQuery.toLowerCase();
     return data.filter(c => c.title.toLowerCase().includes(q));
-  };
+  }, [searchQuery]);
 
-  const filteredEnrolledCourses = useMemo(() => filterCourses(courses), [courses, searchQuery]);
-  const filteredAllCourses = useMemo(() => filterCourses(allCourses), [allCourses, searchQuery]);
+  const filteredEnrolledCourses = useMemo(() => filterCourses(courses), [courses, filterCourses]);
+  const filteredAllCourses = useMemo(() => filterCourses(allCourses), [allCourses, filterCourses]);
 
-  const getDesc = (title) => {
+  const getDesc = (course) => {
+    if (course.description) return course.description;
+    const title = course.title || '';
     const t = title.toLowerCase();
     if (t.includes('operating')) return 'Learn the basic operating system abstractions, mechanisms, and their implementations.';
     if (t.includes('intelligence')) return 'Intelligence demonstrated by machines, unlike the natural intelligence displayed by humans and animals.';
@@ -305,12 +313,8 @@ export default function MyCourses() {
     return 'Explore key concepts and hands-on knowledge in this course.';
   };
 
-  const getAuthor = (title) => {
-    const t = title.toLowerCase();
-    if (t.includes('operating')) return 'Mark Lee';
-    if (t.includes('intelligence')) return 'Jung Jaehyun';
-    if (t.includes('software')) return 'Kim Taeyeong';
-    return 'Instructor';
+  const getAuthor = (course) => {
+    return course.instructor || 'Instructor pending';
   };
 
   // Open modal and fetch full details
@@ -325,21 +329,20 @@ export default function MyCourses() {
         fullDescription: details.fullDescription || details.description,
       });
     } catch (err) {
-      // Fallback mock data
       setModalCourseDetails({
         ...course,
-        description: getDesc(course.title),
-        fullDescription: getDesc(course.title),
-        instructor: getAuthor(course.title),
-        instructorEmail: `${getAuthor(course.title).toLowerCase().replace(' ', '.')}@university.com`,
-        officeHours: 'Wed 2-4 PM',
-        credits: 3,
-        semester: 'Fall 2025',
-        assignments: 30,
-        midterm: 30,
-        final: 30,
-        participation: 10,
-        prerequisites: 'None',
+        description: course.description || 'No description available.',
+        fullDescription: course.description || 'No description available.',
+        instructor: course.instructor || 'Instructor pending',
+        instructorEmail: 'Available from staff directory',
+        officeHours: 'Available from staff directory',
+        credits: course.credits || 3,
+        semester: 'Current semester',
+        assignments: 'See course page',
+        midterm: 'See course page',
+        final: 'See course page',
+        participation: 'See course page',
+        prerequisites: 'None listed',
       });
     } finally {
       setLoadingDetails(false);
@@ -354,7 +357,7 @@ export default function MyCourses() {
   const handleEnroll = async (courseId) => {
     try {
       await apiPost('/api/enrollments', { courseId });
-      alert('Enrollment request sent!');
+      alert('Enrollment request sent to your advisor for approval.');
     } catch (err) {
       alert('Enrollment failed: ' + err.message);
     }
@@ -373,8 +376,8 @@ export default function MyCourses() {
             </div>
             <div className="mc-card-body">
               <h3 className="mc-card-title">{course.title}</h3>
-              <p className="mc-card-desc">{getDesc(course.title)}</p>
-              <p className="mc-card-author">Created by <strong>{getAuthor(course.title)}</strong></p>
+              <p className="mc-card-desc">{getDesc(course)}</p>
+              <p className="mc-card-author">Created by <strong>{getAuthor(course)}</strong></p>
               {showProgress && (
                 <div className="mc-progress">
                   <div className="mc-progress-bar" style={{ width: `${course.progress}%` }}></div>

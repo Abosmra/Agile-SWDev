@@ -14,7 +14,7 @@ export function isAdminRole(role) {
 
 export function getDefaultRouteForRole(role) {
   if (isAdminRole(role)) return '/admin-dashboard';
-  return isStaffRole(role) ? '/staff-dashboard' : '/courses';
+  return isStaffRole(role) ? '/staff-dashboard' : '/student-dashboard';
 }
 
 export function formatRoleLabel(role) {

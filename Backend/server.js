@@ -11,7 +11,8 @@ const {
   setupHallRoutes,
   setupUserRoutes,
   setupTeachingRoutes,
-  setupAdminRoutes
+  setupAdminRoutes,
+  setupAdvisorRoutes
 } = require('./controllers');
 const { migrateLegacyUsers, migrateEnrollmentOwnership } = require('./controllers/utils');
 
@@ -38,6 +39,7 @@ async function startServer() {
     setupUserRoutes(app);
     setupTeachingRoutes(app);
     setupAdminRoutes(app);
+    setupAdvisorRoutes(app);
 
     app.listen(port, () => {
       console.log(`Backend server listening on http://localhost:${port}`);

@@ -8,5 +8,6 @@ module.exports = {
   setupHallRoutes: require('./hallController'),
   setupUserRoutes: require('./userController'),
   setupTeachingRoutes: require('./teachingController'),
-  setupAdminRoutes: require('./adminController')
+  setupAdminRoutes: require('./adminController'),
+  setupAdvisorRoutes: require('./advisorController')
 };

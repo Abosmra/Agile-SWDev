@@ -34,6 +34,80 @@ async function getStudentEnrollment(db, userId, courseId) {
   );
 }
 
+async function ensureAdvisorWorkflowSchema(db) {
+  await runExec(db, `
+    CREATE TABLE IF NOT EXISTS AdvisorStudentLimits (
+      AdvisorID INTEGER PRIMARY KEY,
+      MaxStudents INTEGER NOT NULL DEFAULT 20,
+      FOREIGN KEY (AdvisorID) REFERENCES Staff(StaffID)
+    );
+  `);
+
+  await runExec(db, `
+    CREATE TABLE IF NOT EXISTS AdvisorAssignments (
+      AssignmentID INTEGER PRIMARY KEY AUTOINCREMENT,
+      AdvisorID INTEGER NOT NULL,
+      StudentID INTEGER NOT NULL UNIQUE,
+      AssignedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (AdvisorID) REFERENCES Staff(StaffID),
+      FOREIGN KEY (StudentID) REFERENCES Users(UserID)
+    );
+  `);
+
+  await runExec(db, `
+    CREATE TABLE IF NOT EXISTS AcademicRequests (
+      RequestID INTEGER PRIMARY KEY AUTOINCREMENT,
+      RequestType TEXT NOT NULL CHECK (RequestType IN ('Enrollment', 'DropCourse')),
+      EnrollmentID INTEGER,
+      CourseID INTEGER NOT NULL,
+      StudentID INTEGER NOT NULL,
+      AdvisorID INTEGER NOT NULL,
+      Status TEXT NOT NULL DEFAULT 'Pending' CHECK (Status IN ('Pending', 'Approved', 'Cancelled')),
+      RequestedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      ReviewedAt TEXT,
+      Notes TEXT,
+      FOREIGN KEY (EnrollmentID) REFERENCES Enrollments(EnrollmentID),
+      FOREIGN KEY (CourseID) REFERENCES Courses(CourseID),
+      FOREIGN KEY (StudentID) REFERENCES Users(UserID),
+      FOREIGN KEY (AdvisorID) REFERENCES Staff(StaffID)
+    );
+  `);
+}
+
+async function getOrAssignAdvisor(db, studentId) {
+  const existing = await runGet(
+    db,
+    `SELECT AdvisorID FROM AdvisorAssignments WHERE StudentID = ?`,
+    [studentId]
+  );
+  if (existing) return existing.AdvisorID;
+
+  const advisor = await runGet(
+    db,
+    `SELECT s.StaffID AS AdvisorID, COUNT(a.AssignmentID) AS CurrentStudents, l.MaxStudents
+     FROM Staff s
+     JOIN AdvisorStudentLimits l ON l.AdvisorID = s.StaffID
+     LEFT JOIN AdvisorAssignments a ON a.AdvisorID = s.StaffID
+     WHERE s.Role = 'Advisor'
+     GROUP BY s.StaffID
+     HAVING CurrentStudents < l.MaxStudents
+     ORDER BY CurrentStudents ASC, s.StaffID ASC
+     LIMIT 1`
+  );
+
+  if (!advisor) {
+    throw new Error('No advisor has available student capacity.');
+  }
+
+  await runExec(
+    db,
+    `INSERT INTO AdvisorAssignments (AdvisorID, StudentID) VALUES (?, ?)`,
+    [advisor.AdvisorID, studentId]
+  );
+
+  return advisor.AdvisorID;
+}
+
 module.exports = function setupCourseRoutes(app) {
   app.get('/api/courses', authenticate, async (req, res) => {
     try {
@@ -44,6 +118,42 @@ module.exports = function setupCourseRoutes(app) {
          ORDER BY CourseName`
       );
       res.json(courses);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/courses/:courseId', authenticate, async (req, res) => {
+    try {
+      const course = await runGet(
+        req.app.locals.db,
+        `SELECT CourseID, CourseCode, CourseName, Instructor, Credits, Description
+         FROM Courses
+         WHERE CourseID = ?`,
+        [Number(req.params.courseId)]
+      );
+
+      if (!course) {
+        return res.status(404).json({ error: 'Course not found' });
+      }
+
+      res.json({
+        id: course.CourseID,
+        title: course.CourseName,
+        courseCode: course.CourseCode,
+        description: course.Description,
+        fullDescription: course.Description,
+        instructor: course.Instructor || 'Instructor pending',
+        instructorEmail: 'Available from staff directory',
+        officeHours: 'Available from staff directory',
+        credits: course.Credits || 3,
+        semester: 'Current semester',
+        assignments: 'See course page',
+        midterm: 'See course page',
+        final: 'See course page',
+        participation: 'See course page',
+        prerequisites: 'None listed'
+      });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -68,9 +178,11 @@ module.exports = function setupCourseRoutes(app) {
   });
   app.delete('/api/my-courses/:enrollmentId', authenticate, async (req, res) => {
     try {
+      await ensureAdvisorWorkflowSchema(req.app.locals.db);
+
       const enrollment = await runGet(
         req.app.locals.db,
-        `SELECT EnrollmentID FROM Enrollments WHERE EnrollmentID = ? AND UserID = ?`,
+        `SELECT EnrollmentID, CourseID, Status FROM Enrollments WHERE EnrollmentID = ? AND UserID = ? AND Status != 'Dropped'`,
         [req.params.enrollmentId, req.user.UserID]
       );
 
@@ -78,13 +190,36 @@ module.exports = function setupCourseRoutes(app) {
         return res.status(404).json({ error: 'Enrollment not found' });
       }
 
-      await runExec(
+      if (enrollment.Status === 'Drop Pending') {
+        return res.status(409).json({ error: 'Drop request is already pending advisor review.' });
+      }
+
+      const existingRequest = await runGet(
         req.app.locals.db,
-        `UPDATE Enrollments SET Status = 'Dropped' WHERE EnrollmentID = ?`,
+        `SELECT RequestID
+         FROM AcademicRequests
+         WHERE EnrollmentID = ? AND RequestType = 'DropCourse' AND Status = 'Pending'`,
         [enrollment.EnrollmentID]
       );
+      if (existingRequest) {
+        return res.status(409).json({ error: 'Drop request is already pending advisor review.' });
+      }
 
-      res.json({ message: 'Course dropped successfully' });
+      const advisorId = await getOrAssignAdvisor(req.app.locals.db, req.user.UserID);
+
+      await runExec(
+        req.app.locals.db,
+        `UPDATE Enrollments SET Status = 'Drop Pending' WHERE EnrollmentID = ?`,
+        [enrollment.EnrollmentID]
+      );
+      const request = await runExec(
+        req.app.locals.db,
+        `INSERT INTO AcademicRequests (RequestType, EnrollmentID, CourseID, StudentID, AdvisorID)
+         VALUES ('DropCourse', ?, ?, ?, ?)`,
+        [enrollment.EnrollmentID, enrollment.CourseID, req.user.UserID, advisorId]
+      );
+
+      res.json({ message: 'Drop request sent to advisor.', RequestID: request.lastID, status: 'Drop Pending' });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

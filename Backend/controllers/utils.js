@@ -423,8 +423,29 @@ async function getUserWithStats(db, userId) {
     [userId]
   );
 
+  const creditsRow = await runGet(
+    db,
+    `SELECT COALESCE(SUM(c.Credits), 0) AS Total
+     FROM Enrollments e
+     JOIN Courses c ON c.CourseID = e.CourseID
+     WHERE e.UserID = ? AND e.Status = 'Completed'`,
+    [userId]
+  );
+
+  const gpaRow = await runGet(
+    db,
+    `SELECT GPA
+     FROM Transcripts
+     WHERE StudentID = ? AND GPA IS NOT NULL
+     ORDER BY GeneratedDate DESC, TranscriptID DESC
+     LIMIT 1`,
+    [userId]
+  );
+
   return serializeUser(user, {
-    EnrolledCourses: enrollmentCountRow ? enrollmentCountRow.Total : 0
+    EnrolledCourses: enrollmentCountRow ? enrollmentCountRow.Total : 0,
+    GPA: gpaRow?.GPA ?? null,
+    CompletedCredits: creditsRow ? creditsRow.Total : 0
   });
 }
 

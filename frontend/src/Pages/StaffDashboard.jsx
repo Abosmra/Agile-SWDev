@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RoleContext } from '../context/RoleContext';
-import { formatRoleLabel } from '../roleUtils';
+import { formatRoleLabel, normalizeRoleName } from '../roleUtils';
 import '../css/StaffDashboard.css';
 
 const cardThemes = [
@@ -14,8 +14,15 @@ const cardThemes = [
 export default function StaffDashboard() {
   const navigate = useNavigate();
   const { userRole } = useContext(RoleContext);
+  const isAdvisor = normalizeRoleName(userRole) === 'advisor';
 
   const dashboardOptions = [
+    ...(isAdvisor ? [{
+      title: 'Advisor Panel',
+      description: 'Approve or cancel student enrollment requests and pending course-drop requests.',
+      icon: 'AP',
+      path: '/advisor-panel'
+    }] : []),
     {
       title: 'Teaching Console',
       description: 'View your courses, students, grades, assignments, marks, materials, and teaching requests.',

@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { ProfileContext } from '../context/ProfileContext';
 import { apiGet, apiPost } from '../api';
-import { isAdminRole } from '../roleUtils';
+import { isAdminRole, isStaffRole } from '../roleUtils';
 
 export default function Messaging() {
   const { profileData } = useContext(ProfileContext);
@@ -10,13 +10,18 @@ export default function Messaging() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const viewingStudentInbox = isAdminRole(profileData?.role);
+  const staffStudentInbox = !viewingStudentInbox && isStaffRole(profileData?.role);
 
   useEffect(() => {
-    const endpoint = viewingStudentInbox ? '/api/messages/conversations' : '/api/staff';
+    const endpoint = viewingStudentInbox
+      ? '/api/messages/conversations'
+      : staffStudentInbox
+        ? '/api/students'
+        : '/api/staff';
     apiGet(endpoint)
       .then(data => setConversations(data))
       .catch(err => console.error(err));
-  }, [viewingStudentInbox]);
+  }, [viewingStudentInbox, staffStudentInbox]);
 
   useEffect(() => {
     if (!activeChat) {
@@ -24,8 +29,9 @@ export default function Messaging() {
       return;
     }
 
-    const endpoint = viewingStudentInbox
-      ? `/api/messages/student/${activeChat.studentUserId}?staffId=${activeChat.staffId || ''}`
+    const studentUserId = activeChat.studentUserId || activeChat.id;
+    const endpoint = viewingStudentInbox || staffStudentInbox
+      ? `/api/messages/student/${studentUserId}?staffId=${activeChat.staffId || ''}`
       : `/api/messages/${activeChat.id}`;
 
     apiGet(endpoint)
@@ -34,14 +40,14 @@ export default function Messaging() {
         console.error(err);
         setMessages([]);
       });
-  }, [activeChat, viewingStudentInbox]);
+  }, [activeChat, viewingStudentInbox, staffStudentInbox]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !activeChat) return;
 
-    const payload = viewingStudentInbox
-      ? { toUserId: activeChat.studentUserId, staffId: activeChat.staffId, body: newMessage.trim() }
+    const payload = viewingStudentInbox || staffStudentInbox
+      ? { toUserId: activeChat.studentUserId || activeChat.id, staffId: activeChat.staffId, body: newMessage.trim() }
       : { toStaffId: activeChat.id, body: newMessage.trim() };
 
     try {
@@ -68,7 +74,7 @@ export default function Messaging() {
       {/* Sidebar: Conversation List */}
       <div className="messaging-sidebar">
         <div className="sidebar-header">
-          <h3>{viewingStudentInbox ? 'Admin Messages' : 'Messages'}</h3>
+          <h3>{viewingStudentInbox || staffStudentInbox ? 'Student Messages' : 'Messages'}</h3>
         </div>
         <div className="conversation-list">
           {conversations.map((member) => (
@@ -96,14 +102,14 @@ export default function Messaging() {
             <div className="chat-header">
               <div className="header-info">
                 <h4>{activeChat.name}</h4>
-                <span>{viewingStudentInbox && activeChat.staffName ? `Conversation through ${activeChat.staffName}` : activeChat.department}</span>
+                <span>{viewingStudentInbox && activeChat.staffName ? `Conversation through ${activeChat.staffName}` : activeChat.department || activeChat.email}</span>
               </div>
             </div>
             
             <div className="chat-history">
               {messages.length === 0 ? (
                 <div className="empty-chat-message">
-                  {viewingStudentInbox ? 'No messages in this student conversation yet.' : 'No messages yet. Send the first message to your advisor or doctor.'}
+                  {viewingStudentInbox || staffStudentInbox ? 'No messages in this student conversation yet.' : 'No messages yet. Send the first message to your advisor or doctor.'}
                 </div>
               ) : (
                 messages.map((msg) => (
@@ -133,7 +139,7 @@ export default function Messaging() {
             <div className="empty-content">
               <div className="welcome-icon">💬</div>
               <h2>Welcome to LMS Chats</h2>
-              <p>{viewingStudentInbox ? 'Select a student conversation from the left.' : 'Select a staff member or instructor from the left to start a conversation.'}</p>
+              <p>{viewingStudentInbox || staffStudentInbox ? 'Select a student from the left.' : 'Select a staff member or instructor from the left to start a conversation.'}</p>
               <div className="theme-divider"></div>
             </div>
           </div>

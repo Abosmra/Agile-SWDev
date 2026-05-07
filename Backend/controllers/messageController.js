@@ -1,7 +1,7 @@
 const { runQuery, runGet, runExec, authenticate, isStaffRole, normalizeRole } = require('./utils');
 
 async function getStaffProfileForUser(db, user) {
-  return runGet(
+  const existing = await runGet(
     db,
     `SELECT StaffID, Name
      FROM Staff
@@ -11,6 +11,24 @@ async function getStaffProfileForUser(db, user) {
      LIMIT 1`,
     [user.Username, `${user.GivenName || ''} ${user.FamilyName || ''}`.trim()]
   );
+  if (existing) return existing;
+
+  const result = await runExec(
+    db,
+    `INSERT INTO Staff (Name, Department, Role, ContactInfo)
+     VALUES (?, ?, ?, ?)`,
+    [
+      `${user.GivenName || ''} ${user.FamilyName || ''}`.trim() || user.Username,
+      user.Department || 'General',
+      normalizeRole(user.Role),
+      user.Username
+    ]
+  );
+
+  return {
+    StaffID: result.lastID,
+    Name: `${user.GivenName || ''} ${user.FamilyName || ''}`.trim() || user.Username
+  };
 }
 
 function serializeMessage(message, currentUserId) {
@@ -78,15 +96,17 @@ module.exports = function setupMessageRoutes(app) {
 
   app.get('/api/messages/student/:studentId', authenticate, async (req, res) => {
     try {
-      if (normalizeRole(req.user.Role) !== 'Admin') {
-        return res.status(403).json({ error: 'Only admins can view student conversations.' });
-      }
-
+      const role = normalizeRole(req.user.Role);
       const studentId = Number(req.params.studentId);
-      const staffId = Number(req.query.staffId);
+      const staffProfile = role === 'Admin' ? null : await getStaffProfileForUser(req.app.locals.db, req.user);
+      const staffId = role === 'Admin' ? Number(req.query.staffId) : staffProfile?.StaffID;
 
       if (!studentId || !staffId) {
         return res.status(400).json({ error: 'Invalid student conversation selected.' });
+      }
+
+      if (role !== 'Admin' && !isStaffRole(role)) {
+        return res.status(403).json({ error: 'Only staff can view student conversations.' });
       }
 
       const messages = await runQuery(
@@ -152,7 +172,7 @@ module.exports = function setupMessageRoutes(app) {
         return res.status(400).json({ error: 'Please enter a message.' });
       }
 
-      if (toUserId && normalizeRole(req.user.Role) === 'Admin') {
+      if (toUserId && isStaffRole(req.user.Role)) {
         const role = normalizeRole(req.user.Role);
         const staffProfile = role === 'Admin' ? null : await getStaffProfileForUser(req.app.locals.db, req.user);
         const resolvedStaffId = role === 'Admin' ? Number(staffId) : staffProfile?.StaffID;

@@ -8,8 +8,12 @@ import Profile from './Pages/Profile';
 import Courses from './Pages/Courses';
 import Announcements from './Pages/Announcements';
 import Staff from './Pages/Staff';
+import Students from './Pages/Students';
 import Messaging from './Pages/Messaging';
 import MyCourses from './Pages/MyCourses';
+import StudentDashboard from './Pages/StudentDashboard';
+import MyServices from './Pages/MyServices';
+import AdvisorPanel from './Pages/AdvisorPanel';
 import StudentCourseDetail from './Pages/StudentCourseDetail';
 import StudentSchedule from './Pages/StudentSchedule';
 import StaffDashboard from './Pages/StaffDashboard';
@@ -36,6 +40,8 @@ function mapUserToProfile(user) {
     email: user.Username,
     role: user.Role,
     enrolledCourses: user.EnrolledCourses || 0,
+    gpa: user.GPA,
+    completedCredits: user.CompletedCredits || 0,
     joinDate: user.JoinDate || '',
     department: user.Department || 'General'
   };
@@ -120,18 +126,23 @@ function AppContent() {
           {isLoggedIn ? (
             <>
               <Route path="/courses"        element={<Courses />} />
+              <Route path="/student-dashboard" element={<StudentDashboard />} />
               <Route path="/my-courses"     element={<MyCourses />} />
+              <Route path="/my-services"    element={<MyServices />} />
+              <Route path="/my-services/:section" element={<MyServices />} />
               <Route path="/my-courses/:courseId" element={<StudentCourseDetail />} />
               <Route path="/announcements"  element={<Announcements />} />
               <Route path="/schedule"       element={<StudentSchedule />} />
               <Route path="/messaging"      element={<Messaging />} />
               <Route path="/profile"        element={<Profile />} />
               <Route path="/staff"          element={<Staff />} />
+              <Route path="/students"       element={<Students />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
               <Route path="/admin-progress" element={<AdminProgress />} />
               <Route path="/admin-maintenance" element={<AdminMaintenance />} />
               <Route path="/admin-messages" element={<AdminMessages />} />
               <Route path="/staff-dashboard" element={<StaffDashboard />} />
+              <Route path="/advisor-panel" element={<AdvisorPanel />} />
               <Route path="/teaching"       element={<Teaching />} />
               <Route path="/halls"          element={<Halls />} />
               <Route path="/halls/:id"      element={<HallDetails />} />

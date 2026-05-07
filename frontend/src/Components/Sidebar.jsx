@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { RoleContext } from '../context/RoleContext';
 import { ProfileContext } from '../context/ProfileContext';
-import { isAdminRole, isStaffRole } from '../roleUtils';
+import { isAdminRole, isStaffRole, normalizeRoleName } from '../roleUtils';
 import '../css/Sidebar.css';
 
 // ── SVG Icons ────────────────────────────────────────────────────────────────
@@ -31,6 +31,11 @@ const Icons = {
   messaging: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+  ),
+  services: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/>
     </svg>
   ),
   profile: (
@@ -68,6 +73,7 @@ export default function Sidebar({ onLogout }) {
   const navigate = useNavigate();
 
   const studentLinks = [
+    { label: 'Dashboard',     icon: Icons.dashboard,     to: '/student-dashboard' },
     { label: 'Courses',       icon: Icons.courses,       to: '/courses' },
     { label: 'My Courses',    icon: Icons.myCourses,     to: '/my-courses' },
     { label: 'Announcements', icon: Icons.announcements, to: '/announcements' },
@@ -76,9 +82,18 @@ export default function Sidebar({ onLogout }) {
     { label: 'Profile',       icon: Icons.profile,       to: '/profile' },
   ];
 
+  const studentServiceLinks = [
+    { label: 'Drop Course', icon: Icons.services, to: '/my-services/drop' },
+    { label: 'My Advisor',  icon: Icons.profile,  to: '/my-services/advisor' },
+  ];
+
+  const isAdvisor = normalizeRoleName(userRole) === 'advisor';
+
   const staffLinks = [
     { label: 'Staff Home',       icon: Icons.dashboard, to: '/staff-dashboard' },
+    ...(isAdvisor ? [{ label: 'Advisor Panel', icon: Icons.services, to: '/advisor-panel' }] : []),
     { label: 'Messages',         icon: Icons.messaging, to: '/messaging' },
+    { label: 'Students',         icon: Icons.profile,   to: '/students' },
     { label: 'Teaching',         icon: Icons.courses,   to: '/teaching' },
     { label: 'Staff Directory',  icon: Icons.profile,   to: '/staff' },
     { label: 'Facilities',       icon: Icons.halls,     to: '/halls' },
@@ -89,11 +104,13 @@ export default function Sidebar({ onLogout }) {
   const adminLinks = [
     { label: 'Dashboard',      icon: Icons.dashboard, to: '/admin-dashboard' },
     { label: 'Progress',       icon: Icons.myCourses, to: '/admin-progress' },
+    { label: 'Students',       icon: Icons.profile,   to: '/students' },
     { label: 'Maintenance',    icon: Icons.halls,     to: '/admin-maintenance' },
     { label: 'Admin Messages', icon: Icons.messaging, to: '/admin-messages' },
   ];
 
   const links = isAdminRole(userRole) ? adminLinks : isStaffRole(userRole) ? staffLinks : studentLinks;
+  const showStudentServices = !isAdminRole(userRole) && !isStaffRole(userRole);
 
   const displayName = profileData
     ? `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() || profileData.email || 'User'
@@ -132,6 +149,22 @@ export default function Sidebar({ onLogout }) {
             {label}
           </NavLink>
         ))}
+
+        {showStudentServices && (
+          <>
+            <div className="sidebar-section-title">My Service</div>
+            {studentServiceLinks.map(({ label, icon, to }) => (
+              <NavLink
+                key={label}
+                to={to}
+                className={({ isActive }) => `sidebar-nav-item${isActive ? ' active' : ''}`}
+              >
+                <span className="sidebar-nav-icon">{icon}</span>
+                {label}
+              </NavLink>
+            ))}
+          </>
+        )}
       </nav>
 
       <button className="sidebar-logout" onClick={handleLogout}>
