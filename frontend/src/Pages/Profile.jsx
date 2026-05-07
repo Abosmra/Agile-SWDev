@@ -57,6 +57,12 @@ export default function Profile() {
           <span className="stat-num">{profileData.role}</span>
           <span className="stat-lbl">Account Type</span>
         </div>
+        {isStaffProfile && (
+          <div className="profile-stat">
+            <span className="stat-num">{profileData.officeHours || 'By appointment'}</span>
+            <span className="stat-lbl">Office Hours</span>
+          </div>
+        )}
       </div>
 
       <div className="profile-body">
@@ -87,6 +93,28 @@ export default function Profile() {
             </div>
           </div>
         </div>
+
+        {isStaffProfile && (
+          <div className="profile-card">
+            <div className="card-heading">
+              <h2>Academic Staff Details</h2>
+            </div>
+            <div className="info-grid">
+              <div className="info-item info-full">
+                <span className="info-label">Contact Information</span>
+                <span className="info-value">{profileData.contactInfo || profileData.email}</span>
+              </div>
+              <div className="info-item info-full">
+                <span className="info-label">Office Hours</span>
+                <span className="info-value">{profileData.officeHours || 'By appointment'}</span>
+              </div>
+              <div className="info-item info-full">
+                <span className="info-label">Assigned Courses</span>
+                <span className="info-value">{profileData.assignedCourses || 'Not assigned'}</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="profile-footer-actions">

@@ -16,7 +16,7 @@ export default function StudentDashboard() {
     { label: 'All Courses', value: 'Open', detail: 'Browse catalog', path: '/courses' },
     { label: 'Enroll Course', value: '+', detail: 'Advisor approval', path: '/my-services/enroll' },
     { label: 'Drop Course', value: '-', detail: 'Request review', path: '/my-services/drop' },
-    { label: 'My Advisor', value: 'AD', detail: 'Message support', path: '/my-services/advisor' },
+    { label: 'My Advisor', value: 'AD', detail: 'Message support', path: '/my-advisor' },
     { label: 'Schedule', value: 'SC', detail: 'Classes and time', path: '/schedule' },
     { label: 'Messages', value: 'MS', detail: 'Chats', path: '/messaging' },
     { label: 'Announcements', value: 'AN', detail: 'Campus updates', path: '/announcements' },

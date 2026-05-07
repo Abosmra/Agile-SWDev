@@ -415,6 +415,19 @@ async function getUserWithStats(db, userId) {
     return null;
   }
 
+  let staffProfile = null;
+  if (isStaffRole(user.Role)) {
+    staffProfile = await runGet(
+      db,
+      `SELECT StaffID, ContactInfo, OfficeHours, AssignedCourses
+       FROM Staff
+       WHERE lower(ContactInfo) = lower(?)
+          OR lower(Name) = lower(trim(? || ' ' || ?))
+       LIMIT 1`,
+      [user.Username, user.GivenName || '', user.FamilyName || '']
+    );
+  }
+
   const enrollmentCountRow = await runGet(
     db,
     `SELECT COUNT(*) AS Total
@@ -445,7 +458,11 @@ async function getUserWithStats(db, userId) {
   return serializeUser(user, {
     EnrolledCourses: enrollmentCountRow ? enrollmentCountRow.Total : 0,
     GPA: gpaRow?.GPA ?? null,
-    CompletedCredits: creditsRow ? creditsRow.Total : 0
+    CompletedCredits: creditsRow ? creditsRow.Total : 0,
+    StaffID: staffProfile?.StaffID ?? null,
+    ContactInfo: staffProfile?.ContactInfo ?? user.Username,
+    OfficeHours: staffProfile?.OfficeHours ?? 'By appointment',
+    AssignedCourses: staffProfile?.AssignedCourses ?? 'Not assigned'
   });
 }
 

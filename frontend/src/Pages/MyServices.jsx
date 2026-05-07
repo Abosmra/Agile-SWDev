@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { apiDelete, apiGet, apiPost } from '../api';
 import NotificationToast from '../Components/NotificationToast';
 import '../css/MyServices.css';
 
 export default function MyServices() {
+  const navigate = useNavigate();
+  const { section } = useParams();
   const [courses, setCourses] = useState([]);
   const [allCourses, setAllCourses] = useState([]);
-  const [advisor, setAdvisor] = useState(null);
-  const [message, setMessage] = useState('');
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [loadingAllCourses, setLoadingAllCourses] = useState(true);
-  const [loadingAdvisor, setLoadingAdvisor] = useState(true);
   const [toast, setToast] = useState(null);
 
   const loadCourses = async () => {
@@ -49,23 +49,15 @@ export default function MyServices() {
     }
   };
 
-  const loadAdvisor = async () => {
-    try {
-      setLoadingAdvisor(true);
-      const data = await apiGet('/api/my-advisor');
-      setAdvisor(data);
-    } catch (err) {
-      setToast({ type: 'error', message: err.message || 'Unable to load advisor.' });
-    } finally {
-      setLoadingAdvisor(false);
-    }
-  };
-
   useEffect(() => {
+    if (section === 'advisor') {
+      navigate('/my-advisor', { replace: true });
+      return;
+    }
+
     loadCourses();
     loadAllCourses();
-    loadAdvisor();
-  }, []);
+  }, [navigate, section]);
 
   const enrolledCourseIds = new Set(courses.map((course) => course.id));
   const availableCourses = allCourses.filter((course) => !enrolledCourseIds.has(course.id));
@@ -79,19 +71,6 @@ export default function MyServices() {
       setToast({ type: 'success', message: `Drop request for "${course.title}" was sent to your advisor.` });
     } catch (err) {
       setToast({ type: 'error', message: err.message || 'Unable to send drop request.' });
-    }
-  };
-
-  const handleSendAdvisorMessage = async (event) => {
-    event.preventDefault();
-    if (!advisor || !message.trim()) return;
-
-    try {
-      await apiPost('/api/messages', { toStaffId: advisor.id, body: message.trim() });
-      setMessage('');
-      setToast({ type: 'success', message: `Message sent to ${advisor.name}.` });
-    } catch (err) {
-      setToast({ type: 'error', message: err.message || 'Unable to send message.' });
     }
   };
 
@@ -117,8 +96,8 @@ export default function MyServices() {
   return (
     <div className="services-page">
       <header className="services-header">
-        <h1>My Service</h1>
-        <p>Manage course services and contact your assigned advisor.</p>
+        <h1>Course Services</h1>
+        <p>Request new course enrollments or send drop-course requests to your advisor.</p>
       </header>
 
       <div className="services-grid">
@@ -184,45 +163,6 @@ export default function MyServices() {
           )}
         </section>
 
-        <section className="service-panel">
-          <div className="service-panel-header">
-            <div>
-              <span className="service-kicker">Academic Support</span>
-              <h2>My Advisor</h2>
-            </div>
-          </div>
-
-          {loadingAdvisor ? (
-            <p className="service-muted">Loading your advisor...</p>
-          ) : advisor ? (
-            <>
-              <div className="advisor-card">
-                <div className="advisor-avatar">{advisor.name.charAt(0)}</div>
-                <div>
-                  <h3>{advisor.name}</h3>
-                  <p>{advisor.department}</p>
-                  <span>{advisor.currentStudents}/{advisor.maxStudents} students assigned</span>
-                </div>
-              </div>
-
-              <form className="advisor-message-form" onSubmit={handleSendAdvisorMessage}>
-                <label htmlFor="advisor-message">Message assigned advisor</label>
-                <textarea
-                  id="advisor-message"
-                  value={message}
-                  onChange={(event) => setMessage(event.target.value)}
-                  placeholder="Write your question..."
-                  rows="6"
-                />
-                <button className="service-primary-btn" type="submit" disabled={!message.trim()}>
-                  Send Message
-                </button>
-              </form>
-            </>
-          ) : (
-            <p className="service-empty">No advisor is currently assigned.</p>
-          )}
-        </section>
       </div>
 
       {toast && (

@@ -84,7 +84,7 @@ export default function Sidebar({ onLogout }) {
 
   const studentServiceLinks = [
     { label: 'Drop Course', icon: Icons.services, to: '/my-services/drop' },
-    { label: 'My Advisor',  icon: Icons.profile,  to: '/my-services/advisor' },
+    { label: 'My Advisor',  icon: Icons.profile,  to: '/my-advisor' },
   ];
 
   const isAdvisor = normalizeRoleName(userRole) === 'advisor';

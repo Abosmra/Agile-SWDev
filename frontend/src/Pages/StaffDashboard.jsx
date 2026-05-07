@@ -43,7 +43,7 @@ export default function StaffDashboard() {
     },
     {
       title: 'Profile & HR',
-      description: 'Review your profile, role, department, and personal account information.',
+      description: 'Review your profile, office hours, contact information, assigned courses, and HR details.',
       icon: 'HR',
       path: '/profile'
     }

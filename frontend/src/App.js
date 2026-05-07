@@ -13,6 +13,7 @@ import Messaging from './Pages/Messaging';
 import MyCourses from './Pages/MyCourses';
 import StudentDashboard from './Pages/StudentDashboard';
 import MyServices from './Pages/MyServices';
+import MyAdvisor from './Pages/MyAdvisor';
 import AdvisorPanel from './Pages/AdvisorPanel';
 import StudentCourseDetail from './Pages/StudentCourseDetail';
 import StudentSchedule from './Pages/StudentSchedule';
@@ -43,7 +44,11 @@ function mapUserToProfile(user) {
     gpa: user.GPA,
     completedCredits: user.CompletedCredits || 0,
     joinDate: user.JoinDate || '',
-    department: user.Department || 'General'
+    department: user.Department || 'General',
+    staffId: user.StaffID,
+    contactInfo: user.ContactInfo,
+    officeHours: user.OfficeHours,
+    assignedCourses: user.AssignedCourses
   };
 }
 
@@ -130,6 +135,7 @@ function AppContent() {
               <Route path="/my-courses"     element={<MyCourses />} />
               <Route path="/my-services"    element={<MyServices />} />
               <Route path="/my-services/:section" element={<MyServices />} />
+              <Route path="/my-advisor"      element={<MyAdvisor />} />
               <Route path="/my-courses/:courseId" element={<StudentCourseDetail />} />
               <Route path="/announcements"  element={<Announcements />} />
               <Route path="/schedule"       element={<StudentSchedule />} />

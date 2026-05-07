@@ -48,7 +48,13 @@ export default function EditProfile({ onClose }) {
         role: updatedUser.Role,
         department: updatedUser.Department,
         joinDate: updatedUser.JoinDate,
-        enrolledCourses: updatedUser.EnrolledCourses
+        enrolledCourses: updatedUser.EnrolledCourses,
+        gpa: updatedUser.GPA,
+        completedCredits: updatedUser.CompletedCredits,
+        staffId: updatedUser.StaffID,
+        contactInfo: updatedUser.ContactInfo,
+        officeHours: updatedUser.OfficeHours,
+        assignedCourses: updatedUser.AssignedCourses
       });
       onClose();
     } catch (err) {
