@@ -114,6 +114,8 @@ async function ensureSchema(db) {
       FOREIGN KEY (ToStaffID) REFERENCES Staff(StaffID)
     );`
   );
+  await ensureColumn(db, 'Messages', 'ToUserID', 'INTEGER');
+  await ensureColumn(db, 'Messages', 'Subject', 'TEXT');
 
   await runSql(db, `
     CREATE TABLE IF NOT EXISTS CourseMaterials (
@@ -175,6 +177,86 @@ async function ensureSchema(db) {
   );
 }
 
+async function ensureDemoStudentEnrollments(db) {
+  const demoStudents = [
+    ['student01@example.com', 'Youssef', 'Adel'],
+    ['student02@example.com', 'Farida', 'Nasser'],
+    ['student03@example.com', 'Omar', 'Hany'],
+    ['student04@example.com', 'Laila', 'Mostafa'],
+    ['student05@example.com', 'Karim', 'Said'],
+    ['student06@example.com', 'Nour', 'Magdy'],
+    ['student07@example.com', 'Mariam', 'Tarek'],
+    ['student08@example.com', 'Hassan', 'Fouad'],
+    ['student09@example.com', 'Salma', 'Ibrahim'],
+    ['student10@example.com', 'Ali', 'Sherif'],
+    ['student11@example.com', 'Jana', 'Wael'],
+    ['student12@example.com', 'Ziad', 'Samir'],
+    ['student13@example.com', 'Nada', 'Khaled'],
+    ['student14@example.com', 'Seif', 'Maher'],
+    ['student15@example.com', 'Hana', 'Ashraf'],
+    ['student16@example.com', 'Adam', 'Yasser'],
+    ['student17@example.com', 'Rana', 'Gamal'],
+    ['student18@example.com', 'Mazen', 'Nabil'],
+    ['student19@example.com', 'Malak', 'Ayman'],
+    ['student20@example.com', 'Yara', 'Hesham'],
+    ['student21@example.com', 'Talia', 'Osama'],
+    ['student22@example.com', 'Fares', 'Amr'],
+    ['student23@example.com', 'Dina', 'Kareem'],
+    ['student24@example.com', 'Eyad', 'Hatem'],
+    ['student25@example.com', 'Leen', 'Sameh'],
+    ['student26@example.com', 'Amira', 'Walid'],
+    ['student27@example.com', 'Marwan', 'Fathy'],
+    ['student28@example.com', 'Sofia', 'Reda'],
+    ['student29@example.com', 'Khaled', 'Ehab'],
+    ['student30@example.com', 'Reem', 'Bassem'],
+    ['student31@example.com', 'Yassin', 'Nader'],
+    ['student32@example.com', 'Mona', 'Tamer'],
+    ['student33@example.com', 'Ola', 'Ramy'],
+    ['student34@example.com', 'Hussein', 'Adham'],
+    ['student35@example.com', 'Judy', 'Mounir'],
+    ['student36@example.com', 'Bilal', 'Atef'],
+    ['student37@example.com', 'Sara', 'Lotfy'],
+    ['student38@example.com', 'Tarek', 'Hassan'],
+    ['student39@example.com', 'Mai', 'Ahmed'],
+    ['student40@example.com', 'Ahmed', 'Saber']
+  ];
+
+  for (const [username, givenName, familyName] of demoStudents) {
+    await runSql(db, `
+      INSERT OR IGNORE INTO Users (Username, Password, GivenName, FamilyName, Role, Department, JoinDate)
+      VALUES ('${username}', 'student123', '${givenName}', '${familyName}', 'Student', 'Computer Science', date('now'));
+    `);
+  }
+
+  const students = await runQuery(
+    db,
+    `SELECT UserID, GivenName, FamilyName
+     FROM Users
+     WHERE Role = 'Student'
+     ORDER BY UserID`
+  );
+  const courses = await runQuery(db, 'SELECT CourseID FROM Courses ORDER BY CourseID');
+  const statuses = ['Enrolled', 'Enrolled', 'Enrolled', 'Completed', 'Pending'];
+
+  for (const course of courses) {
+    for (let index = 0; index < Math.min(20, students.length); index += 1) {
+      const student = students[(index * 7 + course.CourseID * 3) % students.length];
+      const existing = await runGet(
+        db,
+        'SELECT EnrollmentID FROM Enrollments WHERE UserID = ? AND CourseID = ?',
+        [student.UserID, course.CourseID]
+      );
+
+      if (!existing) {
+        await runSql(db, `
+          INSERT INTO Enrollments (StudentName, CourseID, Status, UserID)
+          VALUES ('${student.GivenName} ${student.FamilyName}', ${course.CourseID}, '${statuses[(index + course.CourseID) % statuses.length]}', ${student.UserID});
+        `);
+      }
+    }
+  }
+}
+
 function fileExists(filePath) {
   try {
     return fs.existsSync(filePath);
@@ -199,6 +281,7 @@ async function initDatabase() {
       if (row) {
         try {
           await ensureSchema(db);
+          await ensureDemoStudentEnrollments(db);
           return resolve(db);
         } catch (error) {
           return reject(error);
@@ -209,6 +292,7 @@ async function initDatabase() {
         const combinedSql = SQL_FILES.map(getSqlText).join('\n');
         await runSql(db, combinedSql);
         await ensureSchema(db);
+        await ensureDemoStudentEnrollments(db);
         resolve(db);
       } catch (error) {
         reject(error);

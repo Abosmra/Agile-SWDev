@@ -1,20 +1,22 @@
-DROP TABLE IF EXISTS Courses;
-DROP TABLE IF EXISTS Announcements;
 DROP TABLE IF EXISTS Enrollments;
-DROP TABLE IF EXISTS Staff;
 
 CREATE TABLE Enrollments (
     EnrollmentID INTEGER PRIMARY KEY,
     StudentName TEXT,
     CourseID INTEGER,
     Status TEXT,
-    FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
+    UserID INTEGER,
+    FOREIGN KEY (CourseID) REFERENCES Courses(CourseID),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
 
-INSERT INTO Enrollments VALUES (1, 'Mai Ahmed', 1, 'Enrolled');
-INSERT INTO Enrollments VALUES (2, 'Tarek Hassan', 2, 'Completed');
-INSERT INTO Enrollments VALUES (3, 'Sara Ali', 3, 'Pending');
+INSERT INTO Enrollments (EnrollmentID, StudentName, CourseID, Status, UserID) VALUES
+    (1, 'Mai User', 1, 'Enrolled', 1),
+    (2, 'Mai User', 7, 'Enrolled', 1),
+    (3, 'Mai User', 12, 'Pending', 1);
 
 /*
-Note: From Mai this is for sprint  1
+Additional demo students and roughly 20 enrollments per course are created by
+Backend/initDb.js. Keeping that logic in JavaScript avoids hundreds of brittle
+static rows while still populating the SQLite database consistently.
 */

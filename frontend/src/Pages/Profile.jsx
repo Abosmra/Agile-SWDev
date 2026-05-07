@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ProfileContext } from '../context/ProfileContext';
 import ChangePasswordModal from './ChangePasswordModal';
 import EditProfile from './EditProfile';
+import { isStaffRole } from '../roleUtils';
 
 export default function Profile() {
   const { profileData } = useContext(ProfileContext);
@@ -20,6 +21,7 @@ export default function Profile() {
 
   const initials = `${profileData.firstName?.[0] || ''}${profileData.lastName?.[0] || ''}`.toUpperCase() || '?';
   const fullName = `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim();
+  const isStaffProfile = isStaffRole(profileData.role);
 
   return (
     <div className="profile-page">
@@ -32,17 +34,21 @@ export default function Profile() {
             <span className="profile-badge badge-dept">{profileData.department}</span>
           </div>
         </div>
-        <div className="profile-hero-actions">
-          <button className="btn-outline-white" onClick={() => navigate('/schedule')}>My Schedule</button>
-          <button className="btn-white" onClick={() => navigate('/my-courses')}>My Courses</button>
-        </div>
+        {!isStaffProfile && (
+          <div className="profile-hero-actions">
+            <button className="btn-outline-white" onClick={() => navigate('/schedule')}>My Schedule</button>
+            <button className="btn-white" onClick={() => navigate('/my-courses')}>My Courses</button>
+          </div>
+        )}
       </div>
 
       <div className="profile-stats-row">
-        <div className="profile-stat">
-          <span className="stat-num">{profileData.enrolledCourses ?? 0}</span>
-          <span className="stat-lbl">Enrolled Courses</span>
-        </div>
+        {!isStaffProfile && (
+          <div className="profile-stat">
+            <span className="stat-num">{profileData.enrolledCourses ?? 0}</span>
+            <span className="stat-lbl">Enrolled Courses</span>
+          </div>
+        )}
         <div className="profile-stat">
           <span className="stat-num">{memberSince}</span>
           <span className="stat-lbl">Member Since</span>

@@ -1,19 +1,22 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { ProfileContext } from '../context/ProfileContext';
 import { apiGet, apiPost } from '../api';
+import { isStaffRole } from '../roleUtils';
 
 export default function Messaging() {
   const { profileData } = useContext(ProfileContext);
-  const [staff, setStaff] = useState([]);
+  const [conversations, setConversations] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const viewingStudentInbox = isStaffRole(profileData?.role);
 
   useEffect(() => {
-    apiGet('/api/staff')
-      .then(data => setStaff(data))
+    const endpoint = viewingStudentInbox ? '/api/messages/conversations' : '/api/staff';
+    apiGet(endpoint)
+      .then(data => setConversations(data))
       .catch(err => console.error(err));
-  }, []);
+  }, [viewingStudentInbox]);
 
   useEffect(() => {
     if (!activeChat) {
@@ -21,22 +24,25 @@ export default function Messaging() {
       return;
     }
 
-    apiGet(`/api/messages/${activeChat.id}`)
+    const endpoint = viewingStudentInbox
+      ? `/api/messages/student/${activeChat.studentUserId}?staffId=${activeChat.staffId || ''}`
+      : `/api/messages/${activeChat.id}`;
+
+    apiGet(endpoint)
       .then((data) => setMessages(data))
       .catch((err) => {
         console.error(err);
         setMessages([]);
       });
-  }, [activeChat]);
+  }, [activeChat, viewingStudentInbox]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !activeChat) return;
 
-    const payload = {
-      toStaffId: activeChat.id,
-      body: newMessage.trim()
-    };
+    const payload = viewingStudentInbox
+      ? { toUserId: activeChat.studentUserId, staffId: activeChat.staffId, body: newMessage.trim() }
+      : { toStaffId: activeChat.id, body: newMessage.trim() };
 
     try {
       const savedMessage = await apiPost('/api/messages', payload);
@@ -62,10 +68,10 @@ export default function Messaging() {
       {/* Sidebar: Conversation List */}
       <div className="messaging-sidebar">
         <div className="sidebar-header">
-          <h3>Messages</h3>
+          <h3>{viewingStudentInbox ? 'Student Messages' : 'Messages'}</h3>
         </div>
         <div className="conversation-list">
-          {staff.map((member) => (
+          {conversations.map((member) => (
             <div 
               key={member.id} 
               className={`conversation-item ${activeChat?.id === member.id ? 'active' : ''}`}
@@ -76,7 +82,7 @@ export default function Messaging() {
               </div>
               <div className="conversation-details">
                 <span className="user-name">{member.name}</span>
-                <span className="last-snippet">{member.role || member.department}</span>
+                <span className="last-snippet">{member.lastSnippet || member.role || member.department}</span>
               </div>
             </div>
           ))}
@@ -90,13 +96,15 @@ export default function Messaging() {
             <div className="chat-header">
               <div className="header-info">
                 <h4>{activeChat.name}</h4>
-                <span>{activeChat.department}</span>
+                <span>{activeChat.staffName ? `To ${activeChat.staffName}` : activeChat.department}</span>
               </div>
             </div>
             
             <div className="chat-history">
               {messages.length === 0 ? (
-                <div className="empty-chat-message">No messages yet. Send the first message to your advisor or doctor.</div>
+                <div className="empty-chat-message">
+                  {viewingStudentInbox ? 'No messages in this student conversation yet.' : 'No messages yet. Send the first message to your advisor or doctor.'}
+                </div>
               ) : (
                 messages.map((msg) => (
                   <div key={msg.id} className={`message-row ${msg.isUser ? 'user-sent' : 'received'}`}>
@@ -125,7 +133,7 @@ export default function Messaging() {
             <div className="empty-content">
               <div className="welcome-icon">💬</div>
               <h2>Welcome to LMS Chats</h2>
-              <p>Select a staff member or instructor from the left to start a conversation.</p>
+              <p>{viewingStudentInbox ? 'Select a student conversation from the left.' : 'Select a staff member or instructor from the left to start a conversation.'}</p>
               <div className="theme-divider"></div>
             </div>
           </div>

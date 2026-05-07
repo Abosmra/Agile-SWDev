@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { RoleContext } from '../context/RoleContext';
 import { ProfileContext } from '../context/ProfileContext';
-import { isStaffRole } from '../roleUtils';
+import { isAdminRole, isStaffRole } from '../roleUtils';
 import '../css/Sidebar.css';
 
 // ── SVG Icons ────────────────────────────────────────────────────────────────
@@ -78,6 +78,7 @@ export default function Sidebar({ onLogout }) {
 
   const staffLinks = [
     { label: 'Staff Home',       icon: Icons.dashboard, to: '/staff-dashboard' },
+    { label: 'Messages',         icon: Icons.messaging, to: '/messaging' },
     { label: 'Teaching',         icon: Icons.courses,   to: '/teaching' },
     { label: 'Staff Directory',  icon: Icons.profile,   to: '/staff' },
     { label: 'Facilities',       icon: Icons.halls,     to: '/halls' },
@@ -85,7 +86,16 @@ export default function Sidebar({ onLogout }) {
     { label: 'Profile & HR',     icon: Icons.profile,   to: '/profile' },
   ];
 
-  const links = isStaffRole(userRole) ? staffLinks : studentLinks;
+  const adminLinks = [
+    { label: 'Staff Directory',  icon: Icons.profile,   to: '/staff' },
+    { label: 'Messages',         icon: Icons.messaging, to: '/messaging' },
+    { label: 'Teaching',         icon: Icons.courses,   to: '/teaching' },
+    { label: 'Facilities',       icon: Icons.halls,     to: '/halls' },
+    { label: 'My Reservations',  icon: Icons.bookings,  to: '/my-bookings' },
+    { label: 'Profile & HR',     icon: Icons.profile,   to: '/profile' },
+  ];
+
+  const links = isAdminRole(userRole) ? adminLinks : isStaffRole(userRole) ? staffLinks : studentLinks;
 
   const displayName = profileData
     ? `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() || profileData.email || 'User'

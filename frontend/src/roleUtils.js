@@ -8,7 +8,12 @@ export function isStaffRole(role) {
   return STAFF_ROLES.includes(normalizeRoleName(role));
 }
 
+export function isAdminRole(role) {
+  return normalizeRoleName(role) === 'admin';
+}
+
 export function getDefaultRouteForRole(role) {
+  if (isAdminRole(role)) return '/staff';
   return isStaffRole(role) ? '/staff-dashboard' : '/courses';
 }
 
