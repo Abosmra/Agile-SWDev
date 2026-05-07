@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiPost } from '../api';
+import { getDefaultRouteForRole } from '../roleUtils';
 
 export default function Signup({ onLogin }) {
   const [formData, setFormData] = useState({
@@ -49,14 +50,14 @@ export default function Signup({ onLogin }) {
 
     try {
       const auth = await apiPost('/api/signup', {
-        email: formData.email,
+        username: formData.email,
         password: formData.password,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
+        givenName: formData.firstName,
+        familyName: formData.lastName,
         role
       });
       onLogin(auth);
-      navigate(role === 'staff' ? '/staff-dashboard' : '/courses');
+      navigate(getDefaultRouteForRole(role));
     } catch (err) {
       setError(err.message || 'Signup failed. Please try again.');
     }
@@ -95,6 +96,14 @@ export default function Signup({ onLogin }) {
               >
                 <span className="role-icon">🩺</span>
                 <span>Doctor</span>
+              </button>
+              <button
+                type="button"
+                className={`role-btn-vertical ${role === 'ta' ? 'active' : ''}`}
+                onClick={() => setRole('ta')}
+              >
+                <span className="role-icon">🧑‍💻</span>
+                <span>TA</span>
               </button>
               <button
                 type="button"

@@ -32,7 +32,10 @@ module.exports = function setupStaffRoutes(app) {
         if (doctorList.length === 0) {
           staff = await runQuery(
             req.app.locals.db,
-            `SELECT StaffID AS id, Name AS name, Department AS department, Role AS role, ContactInfo AS contact
+          `SELECT StaffID AS id, Name AS name, Department AS department, Role AS role, ContactInfo AS contact,
+                  OfficeHours AS officeHours, AssignedCourses AS assignedCourses, PerformanceScore AS performanceScore,
+                  Research AS research, ProfessionalDevelopment AS professionalDevelopment, PayrollStatus AS payrollStatus,
+                  BenefitsSummary AS benefitsSummary, LeaveBalance AS leaveBalance
              FROM Staff
              WHERE Role = 'Advisor'
              ORDER BY Name`
@@ -41,9 +44,12 @@ module.exports = function setupStaffRoutes(app) {
           const placeholders = doctorList.map(() => '?').join(',');
           staff = await runQuery(
             req.app.locals.db,
-            `SELECT StaffID AS id, Name AS name, Department AS department, Role AS role, ContactInfo AS contact
+            `SELECT StaffID AS id, Name AS name, Department AS department, Role AS role, ContactInfo AS contact,
+                    OfficeHours AS officeHours, AssignedCourses AS assignedCourses, PerformanceScore AS performanceScore,
+                    Research AS research, ProfessionalDevelopment AS professionalDevelopment, PayrollStatus AS payrollStatus,
+                    BenefitsSummary AS benefitsSummary, LeaveBalance AS leaveBalance
              FROM Staff
-             WHERE Role = 'Advisor' OR (Role = 'Doctor' AND Name IN (${placeholders}))
+             WHERE Role IN ('Advisor', 'TA') OR (Role = 'Doctor' AND Name IN (${placeholders}))
              ORDER BY Name`,
             doctorList
           );
@@ -51,9 +57,12 @@ module.exports = function setupStaffRoutes(app) {
       } else {
         staff = await runQuery(
           req.app.locals.db,
-          `SELECT StaffID AS id, Name AS name, Department AS department, Role AS role, ContactInfo AS contact
+          `SELECT StaffID AS id, Name AS name, Department AS department, Role AS role, ContactInfo AS contact,
+                  OfficeHours AS officeHours, AssignedCourses AS assignedCourses, PerformanceScore AS performanceScore,
+                  Research AS research, ProfessionalDevelopment AS professionalDevelopment, PayrollStatus AS payrollStatus,
+                  BenefitsSummary AS benefitsSummary, LeaveBalance AS leaveBalance
            FROM Staff
-           WHERE Role IN ('Advisor', 'Doctor')
+           WHERE Role IN ('Advisor', 'Doctor', 'TA', 'Staff')
            ORDER BY Name`
         );
       }

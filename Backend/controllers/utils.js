@@ -9,6 +9,7 @@ const ASU_NEWS_URL = 'https://eng.asu.edu.eg/68469';
 const NEWS_CACHE_TTL_MS = 1000 * 60 * 10;
 const SCHEDULE_BOOK_TTL_MS = 1000 * 60 * 30;
 const SCHEDULE_WORKBOOK_PATH = path.join(__dirname, '..', 'data', 'schedule-spring-2026.xlsx');
+const STAFF_ROLES = new Set(['Staff', 'Admin', 'Doctor', 'TA', 'Advisor']);
 
 let announcementsCache = {
   items: null,
@@ -121,12 +122,17 @@ function serializeHall(row, isAvailableToday = true) {
 
 function normalizeRole(role) {
   if (!role) return 'Student';
-  const lowered = role.toLowerCase();
+  const lowered = role.toLowerCase().trim();
   if (lowered === 'staff') return 'Staff';
   if (lowered === 'admin') return 'Admin';
   if (lowered === 'advisor') return 'Advisor';
   if (lowered === 'doctor') return 'Doctor';
+  if (lowered === 'ta' || lowered === 'teaching assistant') return 'TA';
   return 'Student';
+}
+
+function isStaffRole(role) {
+  return STAFF_ROLES.has(normalizeRole(role));
 }
 
 function stripHtml(value) {
@@ -351,7 +357,7 @@ async function getLiveAnnouncements() {
 }
 
 function isPrivilegedRole(role) {
-  return role === 'Staff' || role === 'Admin';
+  return isStaffRole(role);
 }
 
 function hashLooksLegacy(password) {
@@ -489,7 +495,10 @@ async function authenticate(req, res, next) {
 
 function requireRoles(roles) {
   return (req, res, next) => {
-    if (!roles.includes(req.user.Role)) {
+    const allowsStaff = roles.includes('Staff');
+    const hasExactRole = roles.includes(req.user.Role);
+
+    if (!hasExactRole && !(allowsStaff && isStaffRole(req.user.Role))) {
       return res.status(403).json({ error: 'You do not have permission to access this resource' });
     }
     next();
@@ -584,6 +593,7 @@ module.exports = {
   serializeUser,
   serializeHall,
   normalizeRole,
+  isStaffRole,
   stripHtml,
   normalizeAnnouncementDate,
   normalizeSheetGroupName,

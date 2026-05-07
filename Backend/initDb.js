@@ -92,6 +92,14 @@ async function ensureSchema(db) {
   await ensureColumn(db, 'Courses', 'Credits', 'INTEGER DEFAULT 3');
   await ensureColumn(db, 'Enrollments', 'UserID', 'INTEGER');
   await ensureColumn(db, 'Staff', 'Role', "TEXT DEFAULT 'Staff'");
+  await ensureColumn(db, 'Staff', 'OfficeHours', "TEXT DEFAULT 'By appointment'");
+  await ensureColumn(db, 'Staff', 'AssignedCourses', "TEXT DEFAULT ''");
+  await ensureColumn(db, 'Staff', 'PerformanceScore', 'INTEGER DEFAULT 90');
+  await ensureColumn(db, 'Staff', 'Research', "TEXT DEFAULT ''");
+  await ensureColumn(db, 'Staff', 'ProfessionalDevelopment', "TEXT DEFAULT ''");
+  await ensureColumn(db, 'Staff', 'PayrollStatus', "TEXT DEFAULT 'Active'");
+  await ensureColumn(db, 'Staff', 'BenefitsSummary', "TEXT DEFAULT 'Standard university benefits'");
+  await ensureColumn(db, 'Staff', 'LeaveBalance', 'INTEGER DEFAULT 21');
 
   await runSql(
     db,

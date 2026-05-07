@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RoleContext } from '../context/RoleContext';
+import { formatRoleLabel } from '../roleUtils';
 
 export default function StaffDashboard() {
   const navigate = useNavigate();
@@ -9,6 +10,30 @@ export default function StaffDashboard() {
   const dashboardOptions = [
     {
       id: 1,
+      title: 'Staff Directory',
+      description: 'Manage professors, TAs, office hours, assigned courses, and contact details',
+      icon: '👥',
+      path: '/staff',
+      color: '#0f766e'
+    },
+    {
+      id: 2,
+      title: 'Performance & Research',
+      description: 'Track faculty performance, research output, and development activities',
+      icon: '📈',
+      path: '/staff',
+      color: '#ea580c'
+    },
+    {
+      id: 3,
+      title: 'Payroll & HR',
+      description: 'Review payroll status, leave balances, benefits, and HR information',
+      icon: '💼',
+      path: '/staff',
+      color: '#2563eb'
+    },
+    {
+      id: 4,
       title: 'View Available Halls',
       description: 'Browse and view all available halls with their details',
       icon: '🏛️',
@@ -16,7 +41,7 @@ export default function StaffDashboard() {
       color: '#667eea'
     },
     {
-      id: 2,
+      id: 5,
       title: 'Book a Hall',
       description: 'Reserve a hall for your event or class',
       icon: '📅',
@@ -24,7 +49,7 @@ export default function StaffDashboard() {
       color: '#764ba2'
     },
     {
-      id: 3,
+      id: 6,
       title: 'My Bookings',
       description: 'Track and manage your hall reservations',
       icon: '📋',
@@ -32,7 +57,7 @@ export default function StaffDashboard() {
       color: '#f093fb'
     },
     {
-      id: 4,
+      id: 7,
       title: 'My Courses',
       description: 'View and manage your enrolled courses',
       icon: '📚',
@@ -40,7 +65,7 @@ export default function StaffDashboard() {
       color: '#4facfe'
     },
     {
-      id: 5,
+      id: 8,
       title: 'Profile',
       description: 'View and edit your profile information',
       icon: '👤',
@@ -59,7 +84,7 @@ export default function StaffDashboard() {
       }}>
         <div>
           <h1 style={{ margin: 0, fontSize: '2.5rem' }}>Staff Dashboard</h1>
-          <p style={{ color: '#7f8c8d', marginTop: '8px' }}>Welcome back! Manage your halls and bookings</p>
+          <p style={{ color: '#7f8c8d', marginTop: '8px' }}>Welcome back! Manage staff tools, courses, halls, and HR tasks</p>
         </div>
         <div style={{
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -68,7 +93,7 @@ export default function StaffDashboard() {
           borderRadius: '10px',
           fontWeight: 'bold'
         }}>
-          {userRole?.charAt(0).toUpperCase() + userRole?.slice(1)}
+          {formatRoleLabel(userRole)}
         </div>
       </div>
 

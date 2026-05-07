@@ -17,11 +17,19 @@ export default function Staff() {
       try {
         const data = await apiGet('/api/staff');
         setStaffList(data.map((member) => ({
-          id: member.StaffID,
-          name: member.Name,
-          role: member.Department || 'Staff',
-          email: member.ContactInfo,
-          department: member.Department
+          id: member.id,
+          name: member.name,
+          role: member.role || 'Staff',
+          email: member.contact,
+          department: member.department,
+          officeHours: member.officeHours || 'By appointment',
+          assignedCourses: member.assignedCourses || 'Not assigned',
+          performanceScore: member.performanceScore ?? 90,
+          research: member.research || 'Research profile pending',
+          professionalDevelopment: member.professionalDevelopment || 'No activities recorded yet',
+          payrollStatus: member.payrollStatus || 'Active',
+          benefitsSummary: member.benefitsSummary || 'Standard university benefits',
+          leaveBalance: member.leaveBalance ?? 21
         })));
       } catch (err) {
         setError(err.message || 'Unable to load staff.');
@@ -36,6 +44,7 @@ export default function Staff() {
   const filteredStaff = staffList.filter(member =>
     (member.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (member.role || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (member.assignedCourses || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (member.email || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -88,7 +97,7 @@ export default function Staff() {
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <div style={{ marginBottom: '30px' }}>
         <h1 style={{ color: '#2c3e50', marginBottom: '10px' }}>Staff Directory</h1>
-        <p style={{ color: '#7f8c8d' }}>Find and connect with staff members</p>
+        <p style={{ color: '#7f8c8d' }}>Find professors, TAs, office hours, assigned courses, performance, and HR details</p>
       </div>
 
       {/* Search Bar */}
@@ -102,7 +111,7 @@ export default function Staff() {
       }}>
         <input
           type="text"
-          placeholder="🔍 Search by name, role, or email..."
+          placeholder="🔍 Search by name, role, course, or email..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
@@ -189,6 +198,70 @@ export default function Staff() {
                   </p>
                   <p style={{ margin: 0, fontSize: '0.9rem', color: '#2c3e50' }}>
                     {member.email}
+                  </p>
+                </div>
+
+                <div style={{
+                  background: '#f5f5f5',
+                  padding: '15px',
+                  borderRadius: '8px',
+                  marginBottom: '15px'
+                }}>
+                  <p style={{ margin: '0 0 8px 0', fontSize: '0.85rem', color: '#7f8c8d', fontWeight: 'bold' }}>
+                    Office Hours
+                  </p>
+                  <p style={{ margin: 0, fontSize: '0.9rem', color: '#2c3e50' }}>
+                    {member.officeHours}
+                  </p>
+                </div>
+
+                <div style={{
+                  background: '#f5f5f5',
+                  padding: '15px',
+                  borderRadius: '8px',
+                  marginBottom: '15px'
+                }}>
+                  <p style={{ margin: '0 0 8px 0', fontSize: '0.85rem', color: '#7f8c8d', fontWeight: 'bold' }}>
+                    Assigned Courses
+                  </p>
+                  <p style={{ margin: 0, fontSize: '0.9rem', color: '#2c3e50' }}>
+                    {member.assignedCourses}
+                  </p>
+                </div>
+
+                <div style={{
+                  background: '#f8fafc',
+                  padding: '15px',
+                  borderRadius: '8px',
+                  marginBottom: '15px',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <p style={{ margin: '0 0 8px 0', fontSize: '0.85rem', color: '#7f8c8d', fontWeight: 'bold' }}>
+                    Performance & Research
+                  </p>
+                  <p style={{ margin: '0 0 6px 0', fontSize: '0.9rem', color: '#2c3e50' }}>
+                    Score: {member.performanceScore}%
+                  </p>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569' }}>
+                    {member.research}
+                  </p>
+                </div>
+
+                <div style={{
+                  background: '#f8fafc',
+                  padding: '15px',
+                  borderRadius: '8px',
+                  marginBottom: '15px',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <p style={{ margin: '0 0 8px 0', fontSize: '0.85rem', color: '#7f8c8d', fontWeight: 'bold' }}>
+                    Payroll & HR
+                  </p>
+                  <p style={{ margin: '0 0 6px 0', fontSize: '0.9rem', color: '#2c3e50' }}>
+                    Payroll: {member.payrollStatus} · Leave: {member.leaveBalance} days
+                  </p>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569' }}>
+                    {member.benefitsSummary}
                   </p>
                 </div>
 

@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { RoleContext } from '../context/RoleContext';
 import { ProfileContext } from '../context/ProfileContext';
+import { isStaffRole } from '../roleUtils';
 import '../css/Sidebar.css';
 
 // ── SVG Icons ────────────────────────────────────────────────────────────────
@@ -63,7 +64,7 @@ const Icons = {
 
 export default function Sidebar({ onLogout }) {
   const { userRole } = useContext(RoleContext);
-  const { profile } = useContext(ProfileContext);
+  const { profileData } = useContext(ProfileContext);
   const navigate = useNavigate();
 
   const studentLinks = [
@@ -77,20 +78,22 @@ export default function Sidebar({ onLogout }) {
 
   const staffLinks = [
     { label: 'Dashboard',   icon: Icons.dashboard, to: '/staff-dashboard' },
+    { label: 'Staff',       icon: Icons.profile,   to: '/staff' },
     { label: 'Courses',     icon: Icons.courses,   to: '/my-courses' },
     { label: 'Halls',       icon: Icons.halls,     to: '/halls' },
     { label: 'My Bookings', icon: Icons.bookings,  to: '/my-bookings' },
     { label: 'Profile',     icon: Icons.profile,   to: '/profile' },
   ];
 
-  const links = userRole === 'staff' || userRole === 'admin' ? staffLinks : studentLinks;
+  const links = isStaffRole(userRole) ? staffLinks : studentLinks;
 
-  const initials = profile
-    ? `${profile.firstName?.[0] ?? ''}${profile.lastName?.[0] ?? ''}`.toUpperCase()
-    : '?';
-  const fullName = profile
-    ? `${profile.firstName} ${profile.lastName}`.trim()
+  const displayName = profileData
+    ? `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() || profileData.email || 'User'
     : 'User';
+
+  const initials = profileData
+    ? `${profileData.firstName?.[0] ?? ''}${profileData.lastName?.[0] ?? ''}`.toUpperCase() || displayName[0]?.toUpperCase() || '?'
+    : '?';
 
   const handleLogout = async () => {
     await onLogout();
@@ -102,8 +105,8 @@ export default function Sidebar({ onLogout }) {
       <div className="sidebar-profile" onClick={() => navigate('/profile')}>
         <div className="sidebar-avatar">{initials}</div>
         <div className="sidebar-profile-info">
-          <span className="sidebar-profile-name">{fullName}</span>
-          <span className="sidebar-profile-id">{profile?.userId ?? ''}</span>
+          <span className="sidebar-profile-name">{displayName}</span>
+          <span className="sidebar-profile-id">{profileData?.userId ?? ''}</span>
         </div>
       </div>
 

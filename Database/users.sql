@@ -5,7 +5,7 @@ CREATE TABLE Users (
     Password NVARCHAR(255) NOT NULL,
     GivenName NVARCHAR(100),
     FamilyName NVARCHAR(100),
-    Role NVARCHAR(50) CHECK (Role IN ('Student', 'Staff', 'Admin', 'Advisor', 'Doctor', 'Parent'))
+    Role NVARCHAR(50) CHECK (Role IN ('Student', 'Staff', 'Admin', 'Advisor', 'Doctor', 'TA', 'Parent'))
 );
 
 -- Insert data
@@ -68,3 +68,9 @@ VALUES ('mahmoud.khalil@eng.asu.team15.eg', 'doctor123', 'Mahmoud', 'Khalil', 'D
 INSERT INTO Users (Username, Password, GivenName, FamilyName, Role) 
 VALUES ('karim.emara@eng.asu.team15.eg', 'doctor123', 'Karim', 'Emara', 'Doctor');
 
+-- Teaching Assistants are university staff members.
+INSERT INTO Users (Username, Password, GivenName, FamilyName, Role)
+VALUES ('ta1@eng.asu.team15.eg', 'ta123456', 'Nour', 'Hassan', 'TA');
+
+INSERT INTO Users (Username, Password, GivenName, FamilyName, Role)
+VALUES ('ta2@eng.asu.team15.eg', 'ta123456', 'Omar', 'Samir', 'TA');

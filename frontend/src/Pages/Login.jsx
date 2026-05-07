@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { apiPost } from '../api';
 import loginImage from '../assets/login.PNG';
 import eye from '../assets/eye.png';
 import eyeOff from '../assets/eye-off.png';
+import { getDefaultRouteForRole, normalizeRoleName } from '../roleUtils';
 import '../css/login.css';
 
 export default function Login({ onLogin }) {
@@ -41,9 +42,9 @@ export default function Login({ onLogin }) {
         password
       });
 
-      const normalizedRole = auth.user.Role ? auth.user.Role.toLowerCase() : 'student';
+      const normalizedRole = normalizeRoleName(auth.user.Role);
       onLogin(auth);
-      navigate(['staff', 'admin'].includes(normalizedRole) ? '/staff-dashboard' : '/courses');
+      navigate(getDefaultRouteForRole(normalizedRole));
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.');
     }

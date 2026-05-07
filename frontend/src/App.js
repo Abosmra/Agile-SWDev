@@ -20,6 +20,7 @@ import Sidebar from './Components/Sidebar';
 
 import './App.css';
 import { apiGet, apiPost, clearAuthToken, getAuthToken, setAuthToken } from './api';
+import { getDefaultRouteForRole, normalizeRoleName } from './roleUtils';
 
 function mapUserToProfile(user) {
   return {
@@ -51,7 +52,7 @@ function AppContent() {
 
       try {
         const user = await apiGet('/api/me');
-        setRole(user.Role.toLowerCase());
+        setRole(normalizeRoleName(user.Role));
         setProfile(mapUserToProfile(user));
         setIsLoggedIn(true);
       } catch {
@@ -69,12 +70,11 @@ function AppContent() {
 
   const isFullScreenPage = ['/', '/login'].includes(location.pathname);
   
-  const privilegedRole = userRole === 'staff' || userRole === 'admin';
-  const defaultRoute = privilegedRole ? '/staff-dashboard' : '/courses';
+  const defaultRoute = getDefaultRouteForRole(userRole);
 
   const handleAuthenticated = ({ token, user }) => {
     setAuthToken(token);
-    setRole(user.Role.toLowerCase());
+    setRole(normalizeRoleName(user.Role));
     setProfile(mapUserToProfile(user));
     setIsLoggedIn(true);
   };
@@ -119,9 +119,11 @@ function AppContent() {
               <Route path="/schedule"       element={<StudentSchedule />} />
               <Route path="/messaging"      element={<Messaging />} />
               <Route path="/profile"        element={<Profile />} />
+              <Route path="/staff"          element={<Staff />} />
               <Route path="/staff-dashboard" element={<StaffDashboard />} />
               <Route path="/halls"          element={<Halls />} />
               <Route path="/halls/:id"      element={<HallDetails />} />
+              <Route path="/book-hall"      element={<BookHall />} />
               <Route path="/book-hall/:id"  element={<BookHall />} />
               <Route path="/my-bookings"    element={<MyBookings />} />
               <Route path="*" element={<Navigate to={defaultRoute} replace />} />
