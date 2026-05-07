@@ -115,20 +115,30 @@ export default function AdminDashboard() {
       metrics: [
         ['Staff accounts', overview.staff.totalStaff],
         ['Avg performance', `${overview.staff.averagePerformance || 0}%`],
-        ['Messages', overview.community.totalMessages],
         ['Parent links', overview.community.parentLinks]
       ]
     },
     {
-      key: 'community',
-      title: 'Community',
-      accent: 'rose',
-      path: '/admin-messages',
+      key: 'students',
+      title: 'Students',
+      accent: 'green',
+      path: '/students',
       metrics: [
-        ['Users', overview.community.totalUsers],
-        ['Students', overview.community.totalStudents],
-        ['Announcements', overview.community.totalAnnouncements],
-        ['Applications', overview.curriculum.admissionApplications]
+        ['Total students', overview.community.totalStudents],
+        ['Active enrollments', overview.curriculum.totalEnrollments],
+        ['Avg GPA', '3.5'], // placeholder
+        ['Transcripts', overview.curriculum.transcriptCount]
+      ]
+    },
+    {
+      key: 'performance',
+      title: 'Performance',
+      accent: 'rose',
+      path: '/admin-performance',
+      metrics: [
+        ['Staff tracked', overview.staff.totalStaff],
+        ['Research published', 0], // placeholder
+        ['Professional dev', 0] // placeholder
       ]
     }
   ]), [overview]);
@@ -152,7 +162,6 @@ export default function AdminDashboard() {
           <button onClick={() => navigate('/admin-progress')}>Progress</button>
           <button onClick={() => navigate('/admin-office')}>Office Tools</button>
           <button onClick={() => navigate('/admin-maintenance')}>Maintenance</button>
-          <button onClick={() => navigate('/admin-messages')}>Messages</button>
           <button onClick={() => navigate('/admin-performance')}>Performance</button>
         </div>
       </header>
@@ -194,7 +203,6 @@ export default function AdminDashboard() {
         <article className="admin-panel" id="maintenance">
           <div className="admin-panel-head">
             <h2>Maintenance</h2>
-            <span>{overview.facilities.openMaintenance || 0} open</span>
           </div>
           <form className="admin-maintenance-form" onSubmit={handleMaintenanceSubmit}>
             <select
@@ -320,22 +328,6 @@ export default function AdminDashboard() {
             <div><strong>{overview.curriculum.transcriptCount || 0}</strong><span>generated transcripts</span></div>
             <div><strong>{overview.curriculum.admissionApplications || 0}</strong><span>active applications</span></div>
           </div>
-        </article>
-
-        <article className="admin-panel">
-          <div className="admin-panel-head">
-            <h2>Community Messages</h2>
-            <button onClick={() => navigate('/admin-messages')}>Open inbox</button>
-          </div>
-          <MiniTable
-            columns={[
-              { key: 'ConversationUserName', label: 'User' },
-              { key: 'StaffName', label: 'Staff' },
-              { key: 'Body', label: 'Message' }
-            ]}
-            rows={overview.community.recentMessages}
-            emptyText="No messages"
-          />
         </article>
 
         <article className="admin-panel">

@@ -106,7 +106,7 @@ export default function Sidebar({ onLogout }) {
     { label: 'Students',       icon: Icons.profile,   to: '/students' },
     { label: 'Staff Directory', icon: Icons.profile,   to: '/staff' },
     { label: 'Maintenance',    icon: Icons.halls,     to: '/admin-maintenance' },
-    { label: 'Admin Messages', icon: Icons.messaging, to: '/admin-messages' },
+    { label: 'Performance',    icon: Icons.messaging, to: '/admin-performance' },
   ];
 
   const links = isAdminRole(userRole) ? adminLinks : isStaffRole(userRole) ? staffLinks : studentLinks;

@@ -7,6 +7,7 @@ export default function Students() {
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   useEffect(() => {
     apiGet('/api/students')
@@ -46,7 +47,7 @@ export default function Students() {
       ) : (
         <section className="student-record-grid">
           {filteredStudents.map((student) => (
-            <article key={student.id} className="student-record-card">
+            <article key={student.id} className="student-record-card" onClick={() => setSelectedStudent(student)}>
               <div className="student-record-avatar">{student.name.charAt(0)}</div>
               <div>
                 <h3>{student.name}</h3>
@@ -59,6 +60,26 @@ export default function Students() {
               </div>
             </article>
           ))}
+        </section>
+      )}
+
+      {selectedStudent && (
+        <section className="student-details">
+          <h2>Student Details</h2>
+          <div className="student-detail-card">
+            <div className="student-detail-avatar">{selectedStudent.name.charAt(0)}</div>
+            <div className="student-detail-info">
+              <h3>{selectedStudent.name}</h3>
+              <p><strong>Email:</strong> {selectedStudent.email}</p>
+              <p><strong>ID:</strong> {selectedStudent.id}</p>
+              <p><strong>Enrolled Courses:</strong> {selectedStudent.enrolledCourses || 0}</p>
+              <p><strong>GPA:</strong> {selectedStudent.gpa || 'N/A'}</p>
+              <p><strong>Completed Credits:</strong> {selectedStudent.completedCredits || 0}</p>
+              <p><strong>Join Date:</strong> {selectedStudent.joinDate || 'N/A'}</p>
+              <p><strong>Department:</strong> {selectedStudent.department || 'General'}</p>
+            </div>
+            <button onClick={() => setSelectedStudent(null)}>Close</button>
+          </div>
         </section>
       )}
     </div>

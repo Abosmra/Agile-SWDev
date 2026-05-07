@@ -21,7 +21,6 @@ import StaffDashboard from './Pages/StaffDashboard';
 import AdminDashboard from './Pages/AdminDashboard';
 import AdminProgress from './Pages/AdminProgress';
 import AdminMaintenance from './Pages/AdminMaintenance';
-import AdminMessages from './Pages/AdminMessages';
 import AdminOffice from './Pages/AdminOffice';
 import AdminPerformance from './Pages/AdminPerformance';
 import Teaching from './Pages/Teaching';
@@ -153,7 +152,6 @@ function AppContent() {
               <Route path="/admin-progress" element={<AdminProgress />} />
               <Route path="/admin-office" element={<AdminOffice />} />
               <Route path="/admin-maintenance" element={<AdminMaintenance />} />
-              <Route path="/admin-messages" element={<AdminMessages />} />
               <Route path="/admin-performance" element={<AdminPerformance />} />
               <Route path="/staff-dashboard" element={<StaffDashboard />} />
               <Route path="/advisor-panel" element={<AdvisorPanel />} />

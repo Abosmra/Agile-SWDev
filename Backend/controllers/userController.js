@@ -27,7 +27,8 @@ module.exports = function setupUserRoutes(app) {
            COALESCE(NULLIF(TRIM(u.GivenName || ' ' || u.FamilyName), ''), u.Username) AS name,
            u.Username AS email,
            u.Department AS department,
-           COUNT(e.EnrollmentID) AS enrolledCourses,
+           u.JoinDate AS joinDate,
+           COUNT(DISTINCT e.EnrollmentID) AS enrolledCourses,
            MAX(t.GPA) AS gpa
          FROM Users u
          LEFT JOIN Enrollments e ON e.UserID = u.UserID AND e.Status != 'Dropped'

@@ -13,10 +13,6 @@ CREATE TABLE Enrollments (
 INSERT INTO Enrollments (EnrollmentID, StudentName, CourseID, Status, UserID) VALUES
     (1, 'Mai User', 1, 'Enrolled', 1),
     (2, 'Mai User', 7, 'Enrolled', 1),
-    (3, 'Mai User', 12, 'Pending', 1);
+    (3, 'Mai User', 12, 'Enrolled', 1);
 
-/*
-Additional demo students and roughly 20 enrollments per course are created by
-Backend/initDb.js. Keeping that logic in JavaScript avoids hundreds of brittle
-static rows while still populating the SQLite database consistently.
-*/
+

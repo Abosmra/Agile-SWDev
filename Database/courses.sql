@@ -26,8 +26,4 @@ INSERT INTO Courses (CourseID, CourseName, CourseCode, Description, Instructor, 
     (11, 'Computer Networking', 'CSE361', 'Covers networking fundamentals, communication protocols, and data exchange across computer networks.', 'Dr. Ayman Eldin, Dr. Karim Emara', 3),
     (12, 'Web Development', 'CSE343', 'Introduces frontend and backend web development concepts used to build modern web applications.', 'Dr. Islam Halim', 3);
 
-/*
-Safe course catalog imported from local one-time course export:
-- kept only course names, course codes, instructor names, and neutral descriptions
-- excluded grades, internal IDs, committee IDs, attendance data, and other sensitive LMS details
-*/
+

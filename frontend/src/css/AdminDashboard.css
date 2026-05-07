@@ -185,15 +185,18 @@
 .admin-maintenance-form select,
 .admin-maintenance-form input {
   min-width: 0;
+  margin: 0;
   border: 1px solid #d7dde5;
   border-radius: 8px;
   padding: 10px 11px;
   font: inherit;
   color: #263746;
   background: #ffffff;
+  box-sizing: border-box;
 }
 
 .admin-maintenance-form button {
+  margin: 0;
   border: none;
   border-radius: 8px;
   padding: 10px 14px;
@@ -201,15 +204,34 @@
   color: #ffffff;
   font-weight: 800;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-maintenance-form button:hover {
+  background: #2a8b6f;
+  box-shadow: 0 2px 8px rgba(47, 158, 126, 0.2);
 }
 
 .admin-notice {
-  margin: 0;
-  padding: 0 18px 12px;
+  margin: 0 0 16px;
+  padding: 12px 16px;
   color: #2f6d58;
   font-size: 0.86rem;
   font-weight: 700;
-  background: #fbfcfe;
+  background: #effaf5;
+  border: 1px solid #bfead7;
+  border-radius: 8px;
+}
+
+.notice {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  color: #2f6d58;
+  font-size: 0.86rem;
+  font-weight: 700;
+  background: #effaf5;
+  border: 1px solid #bfead7;
+  border-radius: 8px;
 }
 
 .admin-table-wrap {
@@ -243,6 +265,47 @@
   font-size: 0.88rem;
 }
 
+.admin-table td input,
+.admin-table td textarea,
+.admin-table td select {
+  width: 100%;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid #d7dde5;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #263746;
+  font: inherit;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+
+.admin-table td textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.admin-table td button {
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid #d7dde5;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #263746;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.admin-table td button:hover {
+  border-color: #3a7ca5;
+  background: #eef7fb;
+  color: #3a7ca5;
+}
+
 .admin-empty-cell,
 .admin-loading,
 .admin-error {
@@ -274,56 +337,367 @@
   border-bottom: none;
 }
 
-.admin-progress-panel {
-  padding: 8px 0;
+.admin-performance-page {
+  min-height: 100vh;
+  background: #f6f7f9;
+  padding: 28px;
 }
 
-.admin-progress-row {
+.admin-performance-page .admin-header {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.admin-performance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.admin-performance-header h1 {
+  margin: 0;
+  color: #1f2933;
+  font-size: 2rem;
+  font-weight: 850;
+}
+
+.admin-performance-header p {
+  margin: 0 0 6px;
+  color: #607080;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-performance-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.admin-performance-filters select,
+.admin-performance-filters input {
+  margin: 0;
+  border: 1px solid #d7dde5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #ffffff;
+  color: #263746;
+  font: inherit;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.admin-performance-filters button {
+  margin: 0;
+  border: 1px solid #d7dde5;
+  background: #ffffff;
+  color: #263746;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-performance-filters button:hover {
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.admin-performance-grid {
   display: grid;
-  grid-template-columns: minmax(190px, 0.9fr) minmax(180px, 1.5fr) 64px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.admin-performance-stat {
+  background: #ffffff;
+  border: 1px solid #e0e6ed;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(31, 41, 51, 0.06);
+}
+
+.admin-performance-stat-label {
+  color: #637083;
+  font-size: 0.81rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.admin-performance-stat-value {
+  color: #1f2933;
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.admin-performance-stat-change {
+  color: #2f9e7e;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.admin-performance-table {
+  background: #ffffff;
+  border: 1px solid #e0e6ed;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(31, 41, 51, 0.06);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.admin-performance-table-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e7ecf2;
+  background: #fbfcfe;
+}
+
+.admin-performance-table-head h2 {
+  margin: 0;
+  font-size: 1rem;
+  color: #263746;
+}
+
+.admin-performance-table-content {
+  display: grid;
+}
+
+.admin-performance-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 120px 120px 120px 100px;
   align-items: center;
   gap: 16px;
-  padding: 18px 20px;
+  padding: 18px 24px;
   border-bottom: 1px solid #edf1f5;
+  transition: background-color 0.2s;
 }
 
-.admin-progress-row:last-child {
+.admin-performance-row:last-child {
   border-bottom: none;
 }
 
-.admin-progress-copy strong,
-.admin-progress-copy span {
-  display: block;
+.admin-performance-row:hover {
+  background-color: #fafbfd;
 }
 
-.admin-progress-copy strong {
-  color: #263746;
-  font-size: 0.95rem;
+.admin-performance-col-name {
+  color: #1f2933;
+  font-weight: 600;
+  font-size: 0.92rem;
 }
 
-.admin-progress-copy span {
+.admin-performance-col-role {
   color: #637083;
-  font-size: 0.82rem;
-  margin-top: 4px;
+  font-size: 0.83rem;
 }
 
-.admin-progress-track {
-  height: 12px;
+.admin-performance-col-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-performance-metric-bar {
+  height: 6px;
+  background: linear-gradient(90deg, #eef7fb 0%, #e8edf3 100%);
   border-radius: 999px;
-  background: #e8edf3;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(31, 41, 51, 0.05);
+}
+
+.admin-performance-metric-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3a7ca5 0%, #2f6d8f 100%);
+  border-radius: inherit;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-performance-metric-label {
+  color: #637083;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.admin-performance-col-value {
+  color: #3a7ca5;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.admin-performance-col-action {
+  text-align: center;
+}
+
+.admin-performance-col-action button {
+  border: 1px solid #d7dde5;
+  background: #ffffff;
+  color: #263746;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-performance-col-action button:hover {
+  border-color: #3a7ca5;
+  background: #eef7fb;
+  color: #3a7ca5;
+}
+
+.admin-performance-form {
+  background: #ffffff;
+  border: 1px solid #e0e6ed;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(31, 41, 51, 0.06);
   overflow: hidden;
 }
 
-.admin-progress-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: #3a7ca5;
+.admin-performance-form-head {
+  padding: 16px 24px;
+  border-bottom: 1px solid #e7ecf2;
+  background: #fbfcfe;
 }
 
-.admin-progress-value {
+.admin-performance-form-head h2 {
+  margin: 0;
+  font-size: 1rem;
   color: #263746;
-  font-weight: 850;
-  text-align: right;
+}
+
+.admin-performance-form-body {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 24px;
+}
+
+.admin-performance-form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-performance-form-group label {
+  color: #263746;
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-bottom: 8px;
+}
+
+.admin-performance-form-group input,
+.admin-performance-form-group select {
+  margin: 0;
+  border: 1px solid #d7dde5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #ffffff;
+  color: #263746;
+  font: inherit;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.admin-performance-form-group input:focus,
+.admin-performance-form-group select:focus {
+  outline: none;
+  border-color: #3a7ca5;
+  box-shadow: 0 0 0 3px rgba(58, 124, 165, 0.1);
+}
+
+.admin-performance-form-actions {
+  display: flex;
+  gap: 10px;
+  padding: 0 24px 24px;
+}
+
+.admin-performance-form-actions button {
+  border: none;
+  border-radius: 8px;
+  padding: 11px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.admin-performance-form-actions button[type="submit"] {
+  background: #3a7ca5;
+  color: #ffffff;
+}
+
+.admin-performance-form-actions button[type="submit"]:hover {
+  background: #2f6d8f;
+  box-shadow: 0 4px 12px rgba(58, 124, 165, 0.25);
+}
+
+.admin-performance-form-actions button[type="reset"] {
+  background: #f1f5f9;
+  color: #263746;
+  border: 1px solid #d7dde5;
+}
+
+.admin-performance-form-actions button[type="reset"]:hover {
+  background: #e8edf3;
+  border-color: #94a3b8;
+}
+
+@media (max-width: 1200px) {
+  .admin-performance-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-performance-row {
+    grid-template-columns: 120px 1fr 100px 100px 80px;
+  }
+
+  .admin-performance-form-body {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-performance-page {
+    padding: 18px;
+  }
+
+  .admin-performance-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-performance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-performance-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .admin-performance-col-action {
+    text-align: left;
+  }
+
+  .admin-performance-form-body {
+    grid-template-columns: 1fr;
+  }
 }
 
 .admin-messages-page {
@@ -362,15 +736,18 @@
 .admin-office-form select,
 .admin-office-row select {
   min-width: 0;
+  margin: 0;
   border: 1px solid #d7dde5;
   border-radius: 8px;
   padding: 10px 11px;
   font: inherit;
   color: #263746;
   background: #ffffff;
+  box-sizing: border-box;
 }
 
 .admin-office-form button {
+  margin: 0;
   border: none;
   border-radius: 8px;
   padding: 11px 14px;
@@ -378,6 +755,12 @@
   color: #fff;
   font-weight: 800;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-office-form button:hover {
+  background: #2f6d8f;
+  box-shadow: 0 2px 8px rgba(58, 124, 165, 0.2);
 }
 
 .admin-office-list {
