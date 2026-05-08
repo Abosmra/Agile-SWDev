@@ -1,6 +1,3 @@
-DROP TABLE IF EXISTS Courses;
-DROP TABLE IF EXISTS Announcements;
-DROP TABLE IF EXISTS Enrollments;
 DROP TABLE IF EXISTS Staff;
 
 
@@ -37,6 +34,6 @@ INSERT INTO Staff (StaffID, Name, Department, Role, ContactInfo, Research, Profe
 INSERT INTO Staff (StaffID, Name, Department, Role, ContactInfo, Research, ProfessionalDevelopment, BenefitsSummary) VALUES (14, 'Dr. Mahmoud Khalil', 'Computer Science', 'Doctor', 'mahmoud.khalil@eng.asu.team15.eg', 'Faculty research profile available for publication tracking', 'Annual teaching development plan active', 'Medical coverage, retirement plan, and university staff benefits');
 INSERT INTO Staff (StaffID, Name, Department, Role, ContactInfo, Research, ProfessionalDevelopment, BenefitsSummary) VALUES (15, 'Dr. Karim Emara', 'Computer Science', 'Doctor', 'karim.emara@eng.asu.team15.eg', 'Faculty research profile available for publication tracking', 'Annual teaching development plan active', 'Medical coverage, retirement plan, and university staff benefits');
 INSERT INTO Staff (StaffID, Name, Department, Role, ContactInfo, OfficeHours, AssignedCourses, PerformanceScore, Research, ProfessionalDevelopment, BenefitsSummary, LeaveBalance)
-VALUES (101, 'Nour Hassan', 'Computer Science', 'TA', 'ta1@eng.asu.team15.eg', 'Sunday, 12:00-14:00', 'Web Development Lab, Agile Software Development', 88, 'Supports course labs and grading workflows', 'TA onboarding and lab facilitation workshop', 'Teaching assistant stipend and university access benefits', 14);
+VALUES (101, 'Nour Hassan', 'Computer Science', 'TA', 'nour.hassan@eng.asu.team15.eg', 'Sunday, 12:00-14:00', 'Web Development Lab, Agile Software Development', 88, 'Supports course labs and grading workflows', 'TA onboarding and lab facilitation workshop', 'Teaching assistant stipend and university access benefits', 14);
 INSERT INTO Staff (StaffID, Name, Department, Role, ContactInfo, OfficeHours, AssignedCourses, PerformanceScore, Research, ProfessionalDevelopment, BenefitsSummary, LeaveBalance)
-VALUES (102, 'Omar Samir', 'Computer Science', 'TA', 'ta2@eng.asu.team15.eg', 'Wednesday, 11:00-13:00', 'Embedded Systems Lab, Internet of Things', 86, 'Supports embedded systems labs and student mentoring', 'Assessment rubrics and student support workshop', 'Teaching assistant stipend and university access benefits', 14);
+VALUES (102, 'Omar Samir', 'Computer Science', 'TA', 'omar.samir@eng.asu.team15.eg', 'Wednesday, 11:00-13:00', 'Embedded Systems Lab, Internet of Things', 86, 'Supports embedded systems labs and student mentoring', 'Assessment rubrics and student support workshop', 'Teaching assistant stipend and university access benefits', 14);

@@ -2,13 +2,14 @@
   "name": "agile-swdev",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-    "start": "concurrently \"cd Backend && npm start\" \"cd frontend && npm start\""
+    "start": "concurrently \"cd Backend && npm start\" \"cd frontend && npm start\"",
+    "init-db": "cd Backend && npm run init-db"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
-  },
-  "dependencies": {
-    "sqlite3": "^6.0.1"
   }
 }

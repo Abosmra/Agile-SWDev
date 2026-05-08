@@ -5,11 +5,12 @@ async function getStaffProfileForUser(db, user) {
     db,
     `SELECT StaffID, Name, Role, ContactInfo, PayrollStatus, BenefitsSummary, LeaveBalance, SalaryAmount
      FROM Staff
-     WHERE lower(ContactInfo) = lower(?)
+     WHERE UserID = ?
+        OR lower(ContactInfo) = lower(?)
         OR lower(Name) = lower(trim(? || ' ' || ?))
-     ORDER BY StaffID
+     ORDER BY CASE WHEN UserID = ? THEN 0 ELSE 1 END, StaffID
      LIMIT 1`,
-    [user.Username, user.GivenName || '', user.FamilyName || '']
+    [user.UserID, user.Username, user.GivenName || '', user.FamilyName || '', user.UserID]
   );
   if (existing) return existing;
 
@@ -17,9 +18,9 @@ async function getStaffProfileForUser(db, user) {
   const role = ['Admin', 'Advisor', 'Doctor', 'TA', 'Staff'].includes(user.Role) ? user.Role : 'Staff';
   const result = await runExec(
     db,
-    `INSERT INTO Staff (Name, Department, Role, ContactInfo, OfficeHours, AssignedCourses)
-     VALUES (?, ?, ?, ?, 'By appointment', '')`,
-    [fullName, user.Department || 'General', role, user.Username]
+    `INSERT INTO Staff (Name, Department, Role, ContactInfo, OfficeHours, AssignedCourses, UserID)
+     VALUES (?, ?, ?, ?, 'By appointment', '', ?)`,
+    [fullName, user.Department || 'General', role, user.Username, user.UserID]
   );
 
   return runGet(

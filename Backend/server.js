@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { initDatabase } = require('./initDb');
@@ -18,9 +19,10 @@ const {
 const { migrateLegacyUsers, migrateEnrollmentOwnership } = require('./controllers/utils');
 
 const app = express();
-const port = 5168;
+const port = Number(process.env.PORT) || 5168;
+const corsOrigin = process.env.CORS_ORIGIN || true;
 
-app.use(cors());
+app.use(cors({ origin: corsOrigin }));
 app.use(express.json());
 
 async function startServer() {

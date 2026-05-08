@@ -26,7 +26,7 @@ export const clearAuthToken = () => {
   localStorage.removeItem(AUTH_TOKEN_KEY);
 };
 
-const BASE_URL = 'http://localhost:5168';
+const BASE_URL = process.env.REACT_APP_API_BASE || 'http://localhost:5168';
 
 const request = async (path, options = {}) => {
   const headers = {

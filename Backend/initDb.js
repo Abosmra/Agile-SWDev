@@ -2,16 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 
-const DB_PATH = path.join(__dirname, 'app.db');
 const SQL_DIR = path.join(__dirname, '..', 'Database');
+const DB_PATH = path.join(SQL_DIR, 'app.db');
 const SQL_FILES = [
   'users.sql',
   'courses.sql',
-  'announcements.sql',
   'rooms.sql',
   'staff.sql',
-  'advisors.sql',
-  'enrollement.sql',
   'bookings.sql'
 ];
 
@@ -84,6 +81,18 @@ async function ensureTableColumn(db, tableName, columnName, definition) {
 
 async function ensureSchema(db) {
   await runSql(db, `
+    CREATE TABLE IF NOT EXISTS Enrollments (
+      EnrollmentID INTEGER PRIMARY KEY AUTOINCREMENT,
+      StudentName TEXT,
+      CourseID INTEGER,
+      Status TEXT,
+      UserID INTEGER,
+      FOREIGN KEY (CourseID) REFERENCES Courses(CourseID),
+      FOREIGN KEY (UserID) REFERENCES Users(UserID)
+    );
+  `);
+
+  await runSql(db, `
     CREATE TABLE IF NOT EXISTS Sessions (
       SessionID INTEGER PRIMARY KEY AUTOINCREMENT,
       Token TEXT UNIQUE NOT NULL,
@@ -109,6 +118,7 @@ async function ensureSchema(db) {
   await ensureColumn(db, 'Staff', 'BenefitsSummary', "TEXT DEFAULT 'Standard university benefits'");
   await ensureColumn(db, 'Staff', 'LeaveBalance', 'INTEGER DEFAULT 21');
   await ensureColumn(db, 'Staff', 'SalaryAmount', 'INTEGER DEFAULT 18000');
+  await ensureColumn(db, 'Staff', 'UserID', 'INTEGER REFERENCES Users(UserID)');
 
   await runSql(db, `
     UPDATE Staff
@@ -312,30 +322,18 @@ async function ensureSchema(db) {
   );
 
   await runSql(db, `DELETE FROM Staff WHERE StaffID IN (1, 2, 3) AND Role = 'Advisor'`);
+  await runSql(db, `DROP TABLE IF EXISTS Announcements`);
 
   await runSql(db, `
-    UPDATE Staff SET Name = 'Ahmed Hassan', ContactInfo = 'ahmed.hassan@eng.asu.team15.eg'
-    WHERE StaffID = 201;
-  `);
-  await runSql(db, `
-    UPDATE Staff SET Name = 'Sara Mahmoud', ContactInfo = 'sara.mahmoud@eng.asu.team15.eg'
-    WHERE StaffID = 202;
-  `);
-  await runSql(db, `
-    UPDATE Staff SET Name = 'Khaled Ibrahim', ContactInfo = 'khaled.ibrahim@eng.asu.team15.eg'
-    WHERE StaffID = 203;
-  `);
-  await runSql(db, `
-    UPDATE Users SET Username = 'ahmed.hassan@eng.asu.team15.eg', GivenName = 'Ahmed', FamilyName = 'Hassan'
-    WHERE Username = 'john.doe@eng.asu.team15.eg';
-  `);
-  await runSql(db, `
-    UPDATE Users SET Username = 'sara.mahmoud@eng.asu.team15.eg', GivenName = 'Sara', FamilyName = 'Mahmoud'
-    WHERE Username = 'jane.smith@eng.asu.team15.eg';
-  `);
-  await runSql(db, `
-    UPDATE Users SET Username = 'khaled.ibrahim@eng.asu.team15.eg', GivenName = 'Khaled', FamilyName = 'Ibrahim'
-    WHERE Username = 'mike.johnson@eng.asu.team15.eg';
+    UPDATE Staff
+    SET UserID = (
+      SELECT u.UserID FROM Users u
+      WHERE lower(u.Username) = lower(Staff.ContactInfo)
+         OR lower(trim(u.GivenName || ' ' || u.FamilyName)) = lower(Staff.Name)
+         OR lower(trim('Dr. ' || u.GivenName || ' ' || u.FamilyName)) = lower(Staff.Name)
+      LIMIT 1
+    )
+    WHERE UserID IS NULL;
   `);
 
   await runSql(db, `
@@ -476,7 +474,6 @@ async function ensureSchema(db) {
       (3, 'Nadine Fouad', 'Mechatronics', 'Accepted');
   `);
 
-  await runSql(db, `UPDATE Users SET Role = 'Admin' WHERE Username = 'mohamed@web.dev'`);
   await runSql(
     db,
     "UPDATE Users SET JoinDate = COALESCE(NULLIF(JoinDate, ''), date('now'))"
@@ -485,50 +482,50 @@ async function ensureSchema(db) {
 
 async function ensureDemoStudentEnrollments(db) {
   const demoStudents = [
-    ['student01@example.com', 'Youssef', 'Adel'],
-    ['student02@example.com', 'Farida', 'Nasser'],
-    ['student03@example.com', 'Omar', 'Hany'],
-    ['student04@example.com', 'Laila', 'Mostafa'],
-    ['student05@example.com', 'Karim', 'Said'],
-    ['student06@example.com', 'Nour', 'Magdy'],
-    ['student07@example.com', 'Mariam', 'Tarek'],
-    ['mariam.riyad@student.asu.eg', 'Mariam', 'Riyad'],
-    ['mariam.shaker@student.asu.eg', 'Mariam', 'Shaker'],
-    ['maryam.hamdy@student.asu.eg', 'Maryam', 'Hamdy'],
-    ['basmala.hany@student.asu.eg', 'Basmala', 'Hany'],
-    ['student08@example.com', 'Hassan', 'Fouad'],
-    ['student09@example.com', 'Salma', 'Ibrahim'],
-    ['student10@example.com', 'Ali', 'Sherif'],
-    ['student11@example.com', 'Jana', 'Wael'],
-    ['student12@example.com', 'Ziad', 'Samir'],
-    ['student13@example.com', 'Nada', 'Khaled'],
-    ['student14@example.com', 'Seif', 'Maher'],
-    ['student15@example.com', 'Hana', 'Ashraf'],
-    ['student16@example.com', 'Adam', 'Yasser'],
-    ['student17@example.com', 'Rana', 'Gamal'],
-    ['student18@example.com', 'Mazen', 'Nabil'],
-    ['student19@example.com', 'Malak', 'Ayman'],
-    ['student20@example.com', 'Yara', 'Hesham'],
-    ['student21@example.com', 'Talia', 'Osama'],
-    ['student22@example.com', 'Fares', 'Amr'],
-    ['student23@example.com', 'Dina', 'Kareem'],
-    ['student24@example.com', 'Eyad', 'Hatem'],
-    ['student25@example.com', 'Leen', 'Sameh'],
-    ['student26@example.com', 'Amira', 'Walid'],
-    ['student27@example.com', 'Marwan', 'Fathy'],
-    ['student28@example.com', 'Sofia', 'Reda'],
-    ['student29@example.com', 'Khaled', 'Ehab'],
-    ['student30@example.com', 'Reem', 'Bassem'],
-    ['student31@example.com', 'Yassin', 'Nader'],
-    ['student32@example.com', 'Mona', 'Tamer'],
-    ['student33@example.com', 'Ola', 'Ramy'],
-    ['student34@example.com', 'Hussein', 'Adham'],
-    ['student35@example.com', 'Judy', 'Mounir'],
-    ['student36@example.com', 'Bilal', 'Atef'],
-    ['student37@example.com', 'Sara', 'Lotfy'],
-    ['student38@example.com', 'Tarek', 'Hassan'],
-    ['student39@example.com', 'Mai', 'Ahmed'],
-    ['student40@example.com', 'Ahmed', 'Saber']
+    ['youssef.adel@eng.asu.team15.eg', 'Youssef', 'Adel'],
+    ['farida.nasser@eng.asu.team15.eg', 'Farida', 'Nasser'],
+    ['omar.hany@eng.asu.team15.eg', 'Omar', 'Hany'],
+    ['laila.mostafa@eng.asu.team15.eg', 'Laila', 'Mostafa'],
+    ['karim.said@eng.asu.team15.eg', 'Karim', 'Said'],
+    ['nour.magdy@eng.asu.team15.eg', 'Nour', 'Magdy'],
+    ['mariam.tarek@eng.asu.team15.eg', 'Mariam', 'Tarek'],
+    ['mariam.riyad@eng.asu.team15.eg', 'Mariam', 'Riyad'],
+    ['mariam.shaker@eng.asu.team15.eg', 'Mariam', 'Shaker'],
+    ['maryam.hamdy@eng.asu.team15.eg', 'Maryam', 'Hamdy'],
+    ['basmala.hany@eng.asu.team15.eg', 'Basmala', 'Hany'],
+    ['hassan.fouad@eng.asu.team15.eg', 'Hassan', 'Fouad'],
+    ['salma.ibrahim@eng.asu.team15.eg', 'Salma', 'Ibrahim'],
+    ['ali.sherif@eng.asu.team15.eg', 'Ali', 'Sherif'],
+    ['jana.wael@eng.asu.team15.eg', 'Jana', 'Wael'],
+    ['ziad.samir@eng.asu.team15.eg', 'Ziad', 'Samir'],
+    ['nada.khaled@eng.asu.team15.eg', 'Nada', 'Khaled'],
+    ['seif.maher@eng.asu.team15.eg', 'Seif', 'Maher'],
+    ['hana.ashraf@eng.asu.team15.eg', 'Hana', 'Ashraf'],
+    ['adam.yasser@eng.asu.team15.eg', 'Adam', 'Yasser'],
+    ['rana.gamal@eng.asu.team15.eg', 'Rana', 'Gamal'],
+    ['mazen.nabil@eng.asu.team15.eg', 'Mazen', 'Nabil'],
+    ['malak.ayman@eng.asu.team15.eg', 'Malak', 'Ayman'],
+    ['yara.hesham@eng.asu.team15.eg', 'Yara', 'Hesham'],
+    ['talia.osama@eng.asu.team15.eg', 'Talia', 'Osama'],
+    ['fares.amr@eng.asu.team15.eg', 'Fares', 'Amr'],
+    ['dina.kareem@eng.asu.team15.eg', 'Dina', 'Kareem'],
+    ['eyad.hatem@eng.asu.team15.eg', 'Eyad', 'Hatem'],
+    ['leen.sameh@eng.asu.team15.eg', 'Leen', 'Sameh'],
+    ['amira.walid@eng.asu.team15.eg', 'Amira', 'Walid'],
+    ['marwan.fathy@eng.asu.team15.eg', 'Marwan', 'Fathy'],
+    ['sofia.reda@eng.asu.team15.eg', 'Sofia', 'Reda'],
+    ['khaled.ehab@eng.asu.team15.eg', 'Khaled', 'Ehab'],
+    ['reem.bassem@eng.asu.team15.eg', 'Reem', 'Bassem'],
+    ['yassin.nader@eng.asu.team15.eg', 'Yassin', 'Nader'],
+    ['mona.tamer@eng.asu.team15.eg', 'Mona', 'Tamer'],
+    ['ola.ramy@eng.asu.team15.eg', 'Ola', 'Ramy'],
+    ['hussein.adham@eng.asu.team15.eg', 'Hussein', 'Adham'],
+    ['judy.mounir@eng.asu.team15.eg', 'Judy', 'Mounir'],
+    ['bilal.atef@eng.asu.team15.eg', 'Bilal', 'Atef'],
+    ['sara.lotfy@eng.asu.team15.eg', 'Sara', 'Lotfy'],
+    ['tarek.hassan@eng.asu.team15.eg', 'Tarek', 'Hassan'],
+    ['mai.ahmed@eng.asu.team15.eg', 'Mai', 'Ahmed'],
+    ['ahmed.saber@eng.asu.team15.eg', 'Ahmed', 'Saber']
   ];
 
   for (const [username, givenName, familyName] of demoStudents) {
@@ -584,14 +581,17 @@ function getSqlText(fileName) {
 }
 
 async function initDatabase() {
+  const dbExisted = fileExists(DB_PATH);
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
     db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='Users'", async (err, row) => {
       if (err) return reject(err);
       if (row) {
         try {
+          console.log(`[initDb] Existing database found at ${DB_PATH} — applying migrations.`);
           await ensureSchema(db);
           await ensureDemoStudentEnrollments(db);
+          console.log('[initDb] Migrations complete.');
           return resolve(db);
         } catch (error) {
           return reject(error);
@@ -599,10 +599,16 @@ async function initDatabase() {
       }
 
       try {
+        console.log(
+          dbExisted
+            ? `[initDb] Empty database at ${DB_PATH} — seeding from SQL files.`
+            : `[initDb] No database at ${DB_PATH} — creating and seeding.`
+        );
         const combinedSql = SQL_FILES.map(getSqlText).join('\n');
         await runSql(db, combinedSql);
         await ensureSchema(db);
         await ensureDemoStudentEnrollments(db);
+        console.log(`[initDb] Seeded ${SQL_FILES.length} SQL files and applied schema.`);
         resolve(db);
       } catch (error) {
         reject(error);
@@ -612,3 +618,15 @@ async function initDatabase() {
 }
 
 module.exports = { initDatabase };
+
+if (require.main === module) {
+  initDatabase()
+    .then((db) => {
+      db.close();
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('[initDb] Failed:', error.message);
+      process.exit(1);
+    });
+}
