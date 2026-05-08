@@ -921,3 +921,11 @@
     grid-template-columns: 1fr;
   }
 }
+/* Equipment tracker filters */
+.admin-maintenance-form button {
+  transition: all 0.2s;
+}
+
+.admin-maintenance-form button:hover {
+  opacity: 0.9;
+}
