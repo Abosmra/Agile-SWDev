@@ -163,9 +163,9 @@ async function ensureSchema(db) {
   await runSql(db, `
     INSERT OR IGNORE INTO Staff (StaffID, Name, Department, Role, ContactInfo, OfficeHours, AssignedCourses)
     VALUES
-      (201, 'John Doe', 'Computer Science', 'Advisor', 'john.doe@eng.asu.team15.eg', 'Sunday and Tuesday, 11:00-13:00', 'Academic advising'),
-      (202, 'Jane Smith', 'Computer Science', 'Advisor', 'jane.smith@eng.asu.team15.eg', 'Monday and Wednesday, 10:00-12:00', 'Academic advising'),
-      (203, 'Mike Johnson', 'Engineering', 'Advisor', 'mike.johnson@eng.asu.team15.eg', 'Thursday, 12:00-15:00', 'Academic advising');
+      (201, 'Ahmed Hassan', 'Computer Science', 'Advisor', 'ahmed.hassan@eng.asu.team15.eg', 'Sunday and Tuesday, 11:00-13:00', 'Academic advising'),
+      (202, 'Sara Mahmoud', 'Computer Science', 'Advisor', 'sara.mahmoud@eng.asu.team15.eg', 'Monday and Wednesday, 10:00-12:00', 'Academic advising'),
+      (203, 'Khaled Ibrahim', 'Engineering', 'Advisor', 'khaled.ibrahim@eng.asu.team15.eg', 'Thursday, 12:00-15:00', 'Academic advising');
   `);
 
   await runSql(db, `
@@ -314,6 +314,31 @@ async function ensureSchema(db) {
   await runSql(db, `DELETE FROM Staff WHERE StaffID IN (1, 2, 3) AND Role = 'Advisor'`);
 
   await runSql(db, `
+    UPDATE Staff SET Name = 'Ahmed Hassan', ContactInfo = 'ahmed.hassan@eng.asu.team15.eg'
+    WHERE StaffID = 201;
+  `);
+  await runSql(db, `
+    UPDATE Staff SET Name = 'Sara Mahmoud', ContactInfo = 'sara.mahmoud@eng.asu.team15.eg'
+    WHERE StaffID = 202;
+  `);
+  await runSql(db, `
+    UPDATE Staff SET Name = 'Khaled Ibrahim', ContactInfo = 'khaled.ibrahim@eng.asu.team15.eg'
+    WHERE StaffID = 203;
+  `);
+  await runSql(db, `
+    UPDATE Users SET Username = 'ahmed.hassan@eng.asu.team15.eg', GivenName = 'Ahmed', FamilyName = 'Hassan'
+    WHERE Username = 'john.doe@eng.asu.team15.eg';
+  `);
+  await runSql(db, `
+    UPDATE Users SET Username = 'sara.mahmoud@eng.asu.team15.eg', GivenName = 'Sara', FamilyName = 'Mahmoud'
+    WHERE Username = 'jane.smith@eng.asu.team15.eg';
+  `);
+  await runSql(db, `
+    UPDATE Users SET Username = 'khaled.ibrahim@eng.asu.team15.eg', GivenName = 'Khaled', FamilyName = 'Ibrahim'
+    WHERE Username = 'mike.johnson@eng.asu.team15.eg';
+  `);
+
+  await runSql(db, `
     CREATE TABLE IF NOT EXISTS Bookings (
       BookingID INTEGER PRIMARY KEY AUTOINCREMENT,
       HallID INTEGER NOT NULL,
@@ -390,6 +415,16 @@ async function ensureSchema(db) {
       SubmittedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
   `);
+  await ensureColumn(db, 'AdmissionApplications', 'Email', "TEXT DEFAULT ''");
+  await ensureColumn(db, 'AdmissionApplications', 'Phone', "TEXT DEFAULT ''");
+  await ensureColumn(db, 'AdmissionApplications', 'NationalID', "TEXT DEFAULT ''");
+  await ensureColumn(db, 'AdmissionApplications', 'DateOfBirth', "TEXT DEFAULT ''");
+  await ensureColumn(db, 'AdmissionApplications', 'HighSchool', "TEXT DEFAULT ''");
+  await ensureColumn(db, 'AdmissionApplications', 'HighSchoolGPA', "TEXT DEFAULT ''");
+  await ensureColumn(db, 'AdmissionApplications', 'PersonalStatement', "TEXT DEFAULT ''");
+  await ensureColumn(db, 'AdmissionApplications', 'Documents', "TEXT DEFAULT '[]'");
+  await ensureColumn(db, 'AdmissionApplications', 'TrackingCode', "TEXT");
+  await ensureColumn(db, 'AdmissionApplications', 'StatusMessage', "TEXT DEFAULT ''");
 
   await runSql(db, `
     CREATE TABLE IF NOT EXISTS Parents (

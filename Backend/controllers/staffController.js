@@ -1,7 +1,7 @@
 const { runQuery, runGet, runExec, authenticate, isStaffRole, normalizeRole } = require('./utils');
 
 async function getStaffProfileForUser(db, user) {
-  return runGet(
+  const existing = await runGet(
     db,
     `SELECT StaffID, Name, Role, ContactInfo, PayrollStatus, BenefitsSummary, LeaveBalance, SalaryAmount
      FROM Staff
@@ -10,6 +10,23 @@ async function getStaffProfileForUser(db, user) {
      ORDER BY StaffID
      LIMIT 1`,
     [user.Username, user.GivenName || '', user.FamilyName || '']
+  );
+  if (existing) return existing;
+
+  const fullName = `${user.GivenName || ''} ${user.FamilyName || ''}`.trim() || user.Username;
+  const role = ['Admin', 'Advisor', 'Doctor', 'TA', 'Staff'].includes(user.Role) ? user.Role : 'Staff';
+  const result = await runExec(
+    db,
+    `INSERT INTO Staff (Name, Department, Role, ContactInfo, OfficeHours, AssignedCourses)
+     VALUES (?, ?, ?, ?, 'By appointment', '')`,
+    [fullName, user.Department || 'General', role, user.Username]
+  );
+
+  return runGet(
+    db,
+    `SELECT StaffID, Name, Role, ContactInfo, PayrollStatus, BenefitsSummary, LeaveBalance, SalaryAmount
+     FROM Staff WHERE StaffID = ?`,
+    [result.lastID]
   );
 }
 

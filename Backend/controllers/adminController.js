@@ -252,7 +252,9 @@ module.exports = function setupAdminRoutes(app) {
         ),
         runQuery(
           req.app.locals.db,
-          `SELECT ApplicationID, ApplicantName, Program, Status, SubmittedAt
+          `SELECT ApplicationID, ApplicantName, Program, Status, SubmittedAt,
+                  Email, Phone, NationalID, DateOfBirth, HighSchool, HighSchoolGPA,
+                  PersonalStatement, Documents, TrackingCode, StatusMessage
            FROM AdmissionApplications
            ORDER BY SubmittedAt DESC, ApplicationID DESC`
         )

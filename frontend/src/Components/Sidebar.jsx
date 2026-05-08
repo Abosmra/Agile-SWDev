@@ -78,6 +78,7 @@ export default function Sidebar({ onLogout }) {
     { label: 'My Courses',    icon: Icons.myCourses,     to: '/my-courses' },
     { label: 'Announcements', icon: Icons.announcements, to: '/announcements' },
     { label: 'Schedule',      icon: Icons.schedule,      to: '/schedule' },
+    { label: 'Office Hours',  icon: Icons.profile,       to: '/office-hours' },
     { label: 'Messaging',     icon: Icons.messaging,     to: '/messaging' },
     { label: 'Profile',       icon: Icons.profile,       to: '/profile' },
   ];

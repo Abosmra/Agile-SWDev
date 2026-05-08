@@ -103,6 +103,14 @@ export default function Login({ onLogin }) {
                 Log In
               </button>
             </form>
+
+            <button
+              type="button"
+              className="apply-btn"
+              onClick={() => navigate('/apply')}
+            >
+              New user? Apply now →
+            </button>
           </div>
         </div>
 

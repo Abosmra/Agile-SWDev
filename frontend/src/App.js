@@ -28,6 +28,8 @@ import Halls from './Pages/Halls';
 import HallDetails from './Pages/HallDetails';
 import BookHall from './Pages/BookHall';
 import MyBookings from './Pages/MyBookings';
+import Applicant from './Pages/Applicant';
+import OfficeHours from './Pages/OfficeHours';
 import Sidebar from './Components/Sidebar';
 
 import './App.css';
@@ -90,7 +92,7 @@ function AppContent() {
     bootstrapAuth();
   }, [setRole, clearRole, setProfile, clearProfile]);
 
-  const isFullScreenPage = ['/', '/login'].includes(location.pathname);
+  const isFullScreenPage = ['/', '/login', '/apply'].includes(location.pathname);
   
   const defaultRoute = getDefaultRouteForRole(userRole);
 
@@ -131,6 +133,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Welcome />} />
           <Route path="/login" element={<Login onLogin={handleAuthenticated} />} />
+          <Route path="/apply" element={<Applicant />} />
 
 
           {isLoggedIn ? (
@@ -161,6 +164,7 @@ function AppContent() {
               <Route path="/book-hall"      element={<BookHall />} />
               <Route path="/book-hall/:id"  element={<BookHall />} />
               <Route path="/my-bookings"    element={<MyBookings />} />
+              <Route path="/office-hours"   element={<OfficeHours />} />
               <Route path="*" element={<Navigate to={defaultRoute} replace />} />
             </>
           ) : (

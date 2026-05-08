@@ -34,14 +34,14 @@ INSERT INTO Users (Username, Password, GivenName, FamilyName, Role)
 VALUES ('staff1@example.com', 'pass123', 'Staff', 'Member', 'Staff');
 
 -- Advisors
-INSERT INTO Users (Username, Password, GivenName, FamilyName, Role) 
-VALUES ('john.doe@eng.asu.team15.eg', 'advisor123', 'John', 'Doe', 'Advisor');
+INSERT INTO Users (Username, Password, GivenName, FamilyName, Role)
+VALUES ('ahmed.hassan@eng.asu.team15.eg', 'advisor123', 'Ahmed', 'Hassan', 'Advisor');
 
-INSERT INTO Users (Username, Password, GivenName, FamilyName, Role) 
-VALUES ('jane.smith@eng.asu.team15.eg', 'advisor123', 'Jane', 'Smith', 'Advisor');
+INSERT INTO Users (Username, Password, GivenName, FamilyName, Role)
+VALUES ('sara.mahmoud@eng.asu.team15.eg', 'advisor123', 'Sara', 'Mahmoud', 'Advisor');
 
-INSERT INTO Users (Username, Password, GivenName, FamilyName, Role) 
-VALUES ('mike.johnson@eng.asu.team15.eg', 'advisor123', 'Mike', 'Johnson', 'Advisor');
+INSERT INTO Users (Username, Password, GivenName, FamilyName, Role)
+VALUES ('khaled.ibrahim@eng.asu.team15.eg', 'advisor123', 'Khaled', 'Ibrahim', 'Advisor');
 
 -- Doctors
 INSERT INTO Users (Username, Password, GivenName, FamilyName, Role) 

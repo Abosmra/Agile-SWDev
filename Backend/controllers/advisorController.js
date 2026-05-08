@@ -42,9 +42,9 @@ async function ensureAdvisorTables(db) {
   await runExec(db, `
     INSERT OR IGNORE INTO Staff (StaffID, Name, Department, Role, ContactInfo, OfficeHours, AssignedCourses)
     VALUES
-      (201, 'John Doe', 'Computer Science', 'Advisor', 'john.doe@eng.asu.team15.eg', 'Sunday and Tuesday, 11:00-13:00', 'Academic advising'),
-      (202, 'Jane Smith', 'Computer Science', 'Advisor', 'jane.smith@eng.asu.team15.eg', 'Monday and Wednesday, 10:00-12:00', 'Academic advising'),
-      (203, 'Mike Johnson', 'Engineering', 'Advisor', 'mike.johnson@eng.asu.team15.eg', 'Thursday, 12:00-15:00', 'Academic advising');
+      (201, 'Ahmed Hassan', 'Computer Science', 'Advisor', 'ahmed.hassan@eng.asu.team15.eg', 'Sunday and Tuesday, 11:00-13:00', 'Academic advising'),
+      (202, 'Sara Mahmoud', 'Computer Science', 'Advisor', 'sara.mahmoud@eng.asu.team15.eg', 'Monday and Wednesday, 10:00-12:00', 'Academic advising'),
+      (203, 'Khaled Ibrahim', 'Engineering', 'Advisor', 'khaled.ibrahim@eng.asu.team15.eg', 'Thursday, 12:00-15:00', 'Academic advising');
   `);
 
   await runExec(db, `

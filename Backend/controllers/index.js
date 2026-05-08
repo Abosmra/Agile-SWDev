@@ -9,5 +9,6 @@ module.exports = {
   setupUserRoutes: require('./userController'),
   setupTeachingRoutes: require('./teachingController'),
   setupAdminRoutes: require('./adminController'),
-  setupAdvisorRoutes: require('./advisorController')
+  setupAdvisorRoutes: require('./advisorController'),
+  setupAdmissionRoutes: require('./admissionController')
 };
