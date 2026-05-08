@@ -921,3 +921,14 @@
     grid-template-columns: 1fr;
   }
 }
+<<<<<<< HEAD
+=======
+/* Equipment tracker filters */
+.admin-maintenance-form button {
+  transition: all 0.2s;
+}
+
+.admin-maintenance-form button:hover {
+  opacity: 0.9;
+}
+>>>>>>> 7276a0d8 (Allowed equipment tracking for admin)

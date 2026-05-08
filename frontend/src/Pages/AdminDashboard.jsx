@@ -285,7 +285,10 @@ export default function AdminDashboard() {
         <article className="admin-panel" id="resources">
           <div className="admin-panel-head">
             <h2>Resources</h2>
-            <span>{overview.facilities.activeAllocations || 0} active allocations</span>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <span>{overview.facilities.activeAllocations || 0} active allocations</span>
+              <button onClick={() => navigate('/admin/equipment')}>Track equipment</button>
+            </div>
           </div>
           <MiniTable
             columns={[
