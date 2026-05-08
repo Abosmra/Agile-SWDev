@@ -26,6 +26,7 @@ import AdminPerformance from './Pages/AdminPerformance';
 import AdminEquipmentTracker from './Pages/AdminEquipment';
 import Teaching from './Pages/Teaching';
 import Halls from './Pages/Halls';
+import ReportMaintenance from './Pages/ReportMaintenance';
 import HallDetails from './Pages/HallDetails';
 import BookHall from './Pages/BookHall';
 import MyBookings from './Pages/MyBookings';
@@ -162,6 +163,7 @@ function AppContent() {
               <Route path="/advisor-panel" element={<AdvisorPanel />} />
               <Route path="/teaching"       element={<Teaching />} />
               <Route path="/halls"          element={<Halls />} />
+              <Route path="/reportmaintenance" element={<ReportMaintenance />} />
               <Route path="/halls/:id"      element={<HallDetails />} />
               <Route path="/book-hall"      element={<BookHall />} />
               <Route path="/book-hall/:id"  element={<BookHall />} />

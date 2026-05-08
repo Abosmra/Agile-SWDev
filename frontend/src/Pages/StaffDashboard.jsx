@@ -1,7 +1,8 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RoleContext } from '../context/RoleContext';
 import { formatRoleLabel, normalizeRoleName } from '../roleUtils';
+import { apiGet, apiPost } from '../api';
 import '../css/StaffDashboard.css';
 
 const cardThemes = [
@@ -15,6 +16,12 @@ export default function StaffDashboard() {
   const navigate = useNavigate();
   const { userRole } = useContext(RoleContext);
   const isAdvisor = normalizeRoleName(userRole) === 'advisor';
+  
+  const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+  const [halls, setHalls] = useState([]);
+  const [maintenanceForm, setMaintenanceForm] = useState({ roomId: '', description: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notice, setNotice] = useState(null);
 
   const dashboardOptions = [
     ...(isAdvisor ? [{
@@ -36,12 +43,56 @@ export default function StaffDashboard() {
       path: '/halls'
     },
     {
+      title: 'Report Maintenance',
+      description: 'Submit maintenance issues for classrooms, labs, or equipment.',
+      icon: 'RM',
+      path: '/reportmaintenance'
+    },
+    {
       title: 'Profile & HR',
       description: 'Review salary, payroll status, benefits, leave balance, and submit leave requests.',
       icon: 'HR',
       path: '/profile'
     }
   ];
+
+  // Fetch halls when modal opens
+  useEffect(() => {
+    if (showMaintenanceModal && halls.length === 0) {
+      const fetchHalls = async () => {
+        try {
+          const data = await apiGet('/api/halls');
+          setHalls(data);
+        } catch (err) {
+          console.error('Failed to load halls:', err);
+        }
+      };
+      fetchHalls();
+    }
+  }, [showMaintenanceModal, halls.length]);
+
+  const handleMaintenanceSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setNotice(null);
+    
+    try {
+      await apiPost('/api/maintenance', {
+        roomId: parseInt(maintenanceForm.roomId),
+        description: maintenanceForm.description
+      });
+      setNotice({ type: 'success', message: 'Maintenance issue reported successfully!' });
+      setMaintenanceForm({ roomId: '', description: '' });
+      setTimeout(() => {
+        setShowMaintenanceModal(false);
+        setNotice(null);
+      }, 2000);
+    } catch (err) {
+      setNotice({ type: 'error', message: err.message || 'Failed to report maintenance issue.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="staff-dash-root">
@@ -73,7 +124,12 @@ export default function StaffDashboard() {
         {dashboardOptions.map((option, index) => {
           const theme = cardThemes[index % cardThemes.length];
           return (
-            <article key={option.title} className="staff-dash-card" style={{ background: theme.bg }} onClick={() => navigate(option.path)}>
+            <article 
+              key={option.title} 
+              className="staff-dash-card" 
+              style={{ background: theme.bg }} 
+              onClick={() => navigate(option.path)}
+            >
               <div className="staff-dash-card-art" style={{ background: theme.art }}>{option.icon}</div>
               <div className="staff-dash-card-body">
                 <h3>{option.title}</h3>
@@ -84,6 +140,58 @@ export default function StaffDashboard() {
           );
         })}
       </section>
+
+      {/* Maintenance Modal */}
+      {showMaintenanceModal && (
+        <div className="staff-modal-overlay" onClick={() => setShowMaintenanceModal(false)}>
+          <div className="staff-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="staff-modal-header">
+              <h2>Report Maintenance Issue</h2>
+              <button className="staff-modal-close" onClick={() => setShowMaintenanceModal(false)}>×</button>
+            </div>
+            <form onSubmit={handleMaintenanceSubmit}>
+              <div className="staff-modal-body">
+                {notice && (
+                  <div className={`staff-notice staff-notice-${notice.type}`}>
+                    {notice.message}
+                  </div>
+                )}
+                <div className="staff-form-group">
+                  <label>Room / Hall</label>
+                  <select
+                    value={maintenanceForm.roomId}
+                    onChange={(e) => setMaintenanceForm({ ...maintenanceForm, roomId: e.target.value })}
+                    required
+                  >
+                    <option value="">Select a room or lab</option>
+                    {halls.map((hall) => (
+                      <option key={hall.HallID} value={hall.HallID}>
+                        {hall.HallName} (Capacity: {hall.Capacity})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="staff-form-group">
+                  <label>Issue Description</label>
+                  <textarea
+                    value={maintenanceForm.description}
+                    onChange={(e) => setMaintenanceForm({ ...maintenanceForm, description: e.target.value })}
+                    placeholder="Describe the maintenance issue (e.g., projector not working, broken chair, AC not cooling, lab equipment malfunction)..."
+                    rows="5"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="staff-modal-footer">
+                <button type="button" onClick={() => setShowMaintenanceModal(false)}>Cancel</button>
+                <button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Submitting...' : 'Report Issue'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
